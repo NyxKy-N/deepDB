@@ -3,6 +3,7 @@
  * 纯静态、无依赖，window.DDB.tools.ra.mount(root, ctx)
  */
 (function () {
+  function slug(s) { return String(s).replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '-'); }
   'use strict';
 
   const DDB = window.DDB;
@@ -39,7 +40,7 @@
   }
 
   function emptyModel() {
-    return { version: 1, name: '未命名表达式', root: mkNode('slot') };
+    return { version: 1, name: 'Untitled expression', root: mkNode('slot') };
   }
 
   /* 选课系统示例：
@@ -740,7 +741,7 @@
 
     /* ---------- 保存 / 打开 / 导入导出 ---------- */
     function save() {
-      ui.prompt({ title: '保存表达式', label: '名称', value: state.model.name || '未命名表达式' }).then(function (name) {
+      ui.prompt({ title: '保存表达式', label: '名称', value: state.model.name || 'Untitled expression' }).then(function (name) {
         if (!name) return;
         state.model.name = name;
         if (DDB.store.save('ra', name, state.model)) ui.toast('已保存「' + name + '」', 'ok');
@@ -780,7 +781,7 @@
       void m;
     }
     function exportJSON() {
-      DDB.io.download((state.model.name || 'relational-algebra') + '.ra.json', JSON.stringify(state.model, null, 2), 'application/json');
+      DDB.io.download(slug(state.model.name || 'relational-algebra') + '.ra.json', JSON.stringify(state.model, null, 2), 'application/json');
     }
     function importJSON() {
       DDB.io.pickFile('.json,application/json').then(function (f) {
@@ -794,7 +795,7 @@
       });
     }
     function exportExpr() {
-      DDB.io.download((state.model.name || 'relational-algebra') + '.txt', exprOf(state.model.root) + '\n', 'text/plain');
+      DDB.io.download(slug(state.model.name || 'relational-algebra') + '.txt', exprOf(state.model.root) + '\n', 'text/plain');
       ui.toast('已下载表达式文本', 'ok');
     }
     function copyExpr(btn) {
@@ -807,7 +808,7 @@
     /* ---------- 规范化 ---------- */
     function normalize(model) {
       const out = emptyModel();
-      out.name = (model && model.name) || '未命名表达式';
+      out.name = (model && model.name) || 'Untitled expression';
       function norm(n) {
         if (!n || typeof n !== 'object') return mkNode('slot');
         const kind = KINDS[n.kind] ? n.kind : 'slot';

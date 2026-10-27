@@ -20,6 +20,8 @@
     'tools/translater': { key: 'translater', nav: 'translater', title: 'translatER · ER → 关系模式' }
   };
 
+  ROUTES['lab'] = { key: 'lab', nav: '', title: 'deepDB · Motion lab' };
+
   /* ---------------- 主题 ---------------- */
   const THEME_KEY = 'designerdb:v1:theme';
   const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
@@ -149,7 +151,7 @@
     ];
     const rows = tools.map(function (t, i) {
       return [
-        '<div class="tool-row">',
+        '<div class="tool-row" style="--i:' + i + '">',
         '  <div class="tool-row-head"><span class="tool-row-num">' + ('0' + (i + 1)) + '</span><span class="tool-row-tag">' + util.esc(t.tag) + '</span></div>',
         '  <div class="tool-row-main">',
         '    <div class="tool-row-title"><span class="tool-icon">' + ICONS[t.icon] + '</span><h3>' + util.esc(t.name) + '</h3></div>',
@@ -179,6 +181,7 @@
       '    <div class="hero-actions">',
       '      <a class="btn btn--primary" href="#/tools/er">打开 designER</a>',
       '      <a class="btn btn--ghost" href="#/tools/translater">translatER →</a>',
+      '      <a class="btn btn--ghost" href="#/lab">Motion lab →</a>',
       '    </div>',
       '    <div class="hero-badges">' + heroBadges + '</div>',
       '  </div>',
@@ -234,6 +237,22 @@
       '  <a class="btn" href="#/tools/er">开始建模 →</a>',
       '</section>',
       '</div>',
+      '<footer class="site-footer">',
+      '  <div class="footer-inner">',
+      '    <div class="footer-brand">',
+      '      <div class="footer-logo">deep<strong>DB</strong></div>',
+      '      <p class="hint">受 designerdb.io 启发的教学实现，支持中文 / English / Italiano。</p>',
+      '      <p class="hint footer-author"><img class="author-avatar" src="assets/img/avatar.jpg" alt="" width="30" height="30">作者 · NyxKy</p>',
+      '      <p class="hint footer-author footer-author--deepseek"><img class="author-avatar" src="assets/img/deepseek.png" alt="" width="30" height="30">助手 · Deepseek</p>',
+      '      <p class="hint footer-repo"><a href="https://github.com/NyxKy-N/deepDB.git" target="_blank" rel="noopener">github.com/NyxKy-N/deepDB</a></p>',
+      '    </div>',
+      '    <div class="footer-cols">',
+      '      <div class="footer-col"><h5>工具</h5><a href="#/tools/er">designER</a><a href="#/tools/translater">translatER</a><a href="#/tools/noer">noER</a><a href="#/tools/ra">designQT basic</a><a href="#/lab">Motion lab</a></div>',
+      '      <div class="footer-col"><h5>页面</h5><a href="#/">首页</a><a href="#/">建模工作流</a></div>',
+      '      <div class="footer-col"><h5>说明</h5><p class="hint">模型自动保留在浏览器中</p><p class="hint">快捷键：Ctrl+Z / Ctrl+Y / Delete / Esc</p></div>',
+      '    </div>',
+      '  </div>',
+      '</footer>',
     ].join('\n');
   }
 
@@ -249,9 +268,34 @@
     });
   }
 
+  let homeMotionBound = false;
+  function bindHomeMotion() {
+    const home = view.querySelector('.home');
+    const art = view.querySelector('.hero-art');
+    if (!home || !art) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let raf = 0;
+    home.addEventListener('pointermove', function (e) {
+      const r = home.getBoundingClientRect();
+      const tx = (e.clientX - r.left) / r.width - 0.5;
+      const ty = (e.clientY - r.top) / r.height - 0.5;
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        raf = 0;
+        art.style.setProperty('--px', (tx * 12).toFixed(2) + 'px');
+        art.style.setProperty('--py', (ty * 10).toFixed(2) + 'px');
+      });
+    });
+    home.addEventListener('pointerleave', function () {
+      art.style.setProperty('--px', '0px');
+      art.style.setProperty('--py', '0px');
+    });
+  }
   function showHome() {
     view.innerHTML = homeHTML();
     view.classList.remove('view--tool');
+    homeMotionBound = false;
+    bindHomeMotion();
   }
 
   /* 两侧面板：可折叠 / 展开，状态跨工具与刷新保留 */
@@ -465,32 +509,54 @@
       view.appendChild(box);
     }
     view.classList.add('view--tool');
+    box.classList.remove('is-enter');
+    void box.offsetWidth;
+    box.classList.add('is-enter');
     window.scrollTo(0, 0);
     window.dispatchEvent(new Event('resize'));
   }
 
-  let revealObserver = null;
+  let revealTicking = false;
+  let revealHome = null;
+  function updateReveal() {
+    revealTicking = false;
+    if (!revealHome) return;
+    const vh = window.innerHeight || 800;
+    revealHome.querySelectorAll('.home-section').forEach(function (el) {
+      const r = el.getBoundingClientRect();
+      const on = r.top < vh * 0.96 && r.bottom > vh * 0.06;
+      const below = r.top >= vh * 0.96;
+      el.classList.toggle('is-visible', on);
+      el.classList.toggle('is-below', !on && below);
+      el.classList.toggle('is-leaving', !on && !below);
+    });
+  }
+  function scheduleReveal() {
+    if (revealTicking) return;
+    revealTicking = true;
+    requestAnimationFrame(updateReveal);
+  }
   function setupReveal() {
-    if (revealObserver) { revealObserver.disconnect(); revealObserver = null; }
-    const sections = view.querySelectorAll('.home-section');
-    if (!sections.length) return;
-    if (!('IntersectionObserver' in window)) {
-      sections.forEach(function (el) { el.classList.add('is-visible'); });
-      return;
+    const home = view.querySelector('.home');
+    if (!home) return;
+    if (revealHome && revealHome !== home) {
+      window.removeEventListener('scroll', scheduleReveal);
+      window.removeEventListener('resize', scheduleReveal);
     }
-    revealObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        const el = entry.target;
-        if (entry.isIntersecting) {
-          el.classList.add('is-visible');
-          el.classList.remove('is-leaving');
-        } else {
-          el.classList.remove('is-visible');
-          el.classList.add('is-leaving');
-        }
-      });
-    }, { threshold: 0.35, rootMargin: '-8% 0px -8% 0px' });
-    sections.forEach(function (el) { revealObserver.observe(el); });
+    revealHome = home;
+    window.addEventListener('scroll', scheduleReveal, { passive: true });
+    window.addEventListener('resize', scheduleReveal);
+    /* 首帧先全部标记，再按视口裁剪，避免首屏闪一下 */
+    home.querySelectorAll('.home-section').forEach(function (el) { el.classList.add('is-visible'); });
+    updateReveal();
+  }
+  let labUnmount = null;
+  function showLab() {
+    if (labUnmount) { try { labUnmount(); } catch (e) {} labUnmount = null; }
+    view.classList.remove('view--tool');
+    view.innerHTML = window.DDB_LAB ? window.DDB_LAB.html() : '<div class="home"><div class="err-note">Motion lab not loaded.</div></div>';
+    if (window.DDB_LAB) labUnmount = window.DDB_LAB.mount(view);
+    window.scrollTo(0, 0);
   }
 
   function render() {
@@ -500,6 +566,7 @@
     // 先把旧内容摘下（保留缓存，便于切换后继续编辑）
     while (view.firstChild) view.removeChild(view.firstChild);
     if (route.key === 'home') showHome();
+    else if (route.key === 'lab') showLab();
     else showTool(route);
     // 页面切换动效
     view.classList.remove('is-entering');

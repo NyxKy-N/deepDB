@@ -241,7 +241,7 @@
     menuEl.addEventListener('click', function (e) {
       var b = e.target.closest('[data-chip-act]'); if (!b || !menuFor) return;
       var act = b.getAttribute('data-chip-act'), t = menuFor.t, a = menuFor.a;
-      if (act === 'pk') { a.pk = !a.pk; if (a.pk) { a._ord = Date.now(); a.fk = false; } } else if (act === 'fk') { a.fk = !a.fk; if (a.fk) { a._ord = Date.now(); a.pk = false; } }
+      if (act === 'pk') { a.pk = !a.pk; if (a.pk) a._ord = Date.now(); } else if (act === 'fk') { a.fk = !a.fk; if (a.fk) a._ord = Date.now(); }
       else if (act === 'del') t.attrs = t.attrs.filter(function (x) { return x.id !== a.id; });
       orderAttrs(t); state.checked = false; hideMenu(); renderTables(); renderOut(); clear();
     });
@@ -296,6 +296,21 @@
           as[au] = true;
         });
         if (!t.attrs.some(function (a) { return a.pk; })) iss.push({ lv: 'warn', msg: 'Table "' + label + '" has no primary key (PK) yet.' });
+        /* 与 ER 模型对比：多出的属性报错（FK 属性名例外），缺少的属性报错 */
+        var m = state.model ? match(t.name) : null;
+        if (m && m.attrs && m.attrs.length) {
+          var modelNames = {};
+          m.attrs.forEach(function (ma) { modelNames[String(ma.name || '').toUpperCase()] = ma.name; });
+          var own = {};
+          t.attrs.forEach(function (a) {
+            var au = String(a.name || '').toUpperCase();
+            own[au] = true;
+            if (!modelNames[au] && !a.fk) iss.push({ lv: 'err', msg: 'Table "' + label + '": attribute "' + a.name + '" does not exist in the ER entity/relationship. (FK columns are exempt.)' });
+          });
+          Object.keys(modelNames).forEach(function (k) {
+            if (!own[k]) iss.push({ lv: 'err', msg: 'Table "' + label + '" is missing attribute "' + modelNames[k] + '" from the ER model.' });
+          });
+        }
       });
       if (state.model) {
         var miss = idx.filter(function (x) { return !state.tables.some(function (t) { return t.name.toUpperCase() === x.name.toUpperCase(); }); });

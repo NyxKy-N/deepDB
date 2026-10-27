@@ -124,6 +124,32 @@
       return l === 'it' ? 'I campi unici della collezione \u00ab' + m[1] + '\u00bb generano un indice unico: ' + m[2] + '.' : 'Unique fields of collection \u201c' + m[1] + '\u201d produce a unique index: ' + m[2] + '.';
     }]
   ];
+
+  /* 英文源文案的句式（用于 translatER 这类英文界面） */
+  var PATTERNS_EN = [
+    [/^Table (.+) has no name\.$/, function (m, l) { return l === 'it' ? 'La tabella ' + m[1] + ' non ha nome.' : '\u8868 ' + m[1] + ' \u6ca1\u6709\u540d\u5b57\u3002'; }],
+    [/^Table name "(.+)" is duplicated\.$/, function (m, l) { return l === 'it' ? 'Il nome tabella \u00ab' + m[1] + '\u00bb \u00e8 duplicato.' : '\u8868\u540d\u300c' + m[1] + '\u300d\u91cd\u590d\u3002'; }],
+    [/^Table "(.+)" has no matching entity or relationship in the ER model \(case-insensitive\)\.$/, function (m, l) { return l === 'it' ? 'La tabella \u00ab' + m[1] + '\u00bb non corrisponde a nessuna entit\u00e0 o relazione del modello ER (senza distinzione di maiuscole).' : '\u8868\u300c' + m[1] + '\u300d\u5728 ER \u6a21\u578b\u91cc\u627e\u4e0d\u5230\u5bf9\u5e94\u7684\u5b9e\u4f53\u6216\u5173\u7cfb\uff08\u4e0d\u533a\u5206\u5927\u5c0f\u5199\uff09\u3002'; }],
+    [/^Table "(.+)" has no attributes yet\.$/, function (m, l) { return l === 'it' ? 'La tabella \u00ab' + m[1] + '\u00bb non ha ancora attributi.' : '\u8868\u300c' + m[1] + '\u300d\u8fd8\u6ca1\u6709\u5c5e\u6027\u3002'; }],
+    [/^Table "(.+)" contains an empty attribute name\.$/, function (m, l) { return l === 'it' ? 'La tabella \u00ab' + m[1] + '\u00bb contiene un attributo senza nome.' : '\u8868\u300c' + m[1] + '\u300d\u91cc\u6709\u7a7a\u540d\u5c5e\u6027\u3002'; }],
+    [/^Table "(.+)": attribute "(.+)" is duplicated\.$/, function (m, l) { return l === 'it' ? 'Tabella \u00ab' + m[1] + '\u00bb: attributo \u00ab' + m[2] + '\u00bb duplicato.' : '\u8868\u300c' + m[1] + '\u300d\uff1a\u5c5e\u6027\u300c' + m[2] + '\u300d\u91cd\u590d\u3002'; }],
+    [/^Table "(.+)" has no primary key \(PK\) yet\.$/, function (m, l) { return l === 'it' ? 'La tabella \u00ab' + m[1] + '\u00bb non ha ancora una chiave primaria (PK).' : '\u8868\u300c' + m[1] + '\u300d\u8fd8\u6ca1\u6709\u4e3b\u952e\uff08PK\uff09\u3002'; }],
+    [/^Table "(.+)": attribute "(.+)" does not exist in the ER entity\/relationship\. \(FK columns are exempt\.\)$/, function (m, l) { return l === 'it' ? 'Tabella \u00ab' + m[1] + '\u00bb: l\u2019attributo \u00ab' + m[2] + '\u00bb non esiste nell\u2019entit\u00e0/relazione ER (le colonne FK sono escluse).' : '\u8868\u300c' + m[1] + '\u300d\uff1a\u5c5e\u6027\u300c' + m[2] + '\u300d\u5728 ER \u5b9e\u4f53/\u5173\u7cfb\u91cc\u4e0d\u5b58\u5728\uff08FK \u5217\u4e0d\u53c2\u4e0e\u6bd4\u5bf9\uff09\u3002'; }],
+    [/^Table "(.+)" is missing attribute "(.+)" from the ER model\.$/, function (m, l) { return l === 'it' ? 'Alla tabella \u00ab' + m[1] + '\u00bb manca l\u2019attributo \u00ab' + m[2] + '\u00bb del modello ER.' : '\u8868\u300c' + m[1] + '\u300d\u7f3a\u5c11 ER \u6a21\u578b\u91cc\u7684\u5c5e\u6027\u300c' + m[2] + '\u300d\u3002'; }],
+    [/^The model has (\d+) names not present in the schema: (.+)\.$/, function (m, l) { return l === 'it' ? 'Il modello ha ' + m[1] + ' nomi non presenti nello schema: ' + m[2] + '.' : '\u6a21\u578b\u91cc\u6709 ' + m[1] + ' \u4e2a\u540d\u5b57\u672a\u51fa\u73b0\u5728\u6a21\u5f0f\u91cc\uff1a' + m[2] + '\u3002'; }],
+    [/^No tables yet \u2014 press \+ Table or import a model\.$/, function (m, l) { return l === 'it' ? 'Nessuna tabella \u2014 premi + Table o importa un modello.' : '\u8fd8\u6ca1\u6709\u8868 \u2014 \u70b9\u300c+ Table\u300d\u6216\u5bfc\u5165\u4e00\u4e2a\u6a21\u578b\u3002'; }],
+    [/^Errors: (\d+)(, (\d+) warnings)?$/, function (m, l) { return l === 'it' ? 'Errori: ' + m[1] + (m[3] ? ', ' + m[3] + ' avvisi' : '') : '\u9519\u8bef ' + m[1] + ' \u5904' + (m[3] ? '\uff0c\u8b66\u544a ' + m[3] + ' \u5904' : ''); }],
+    [/^No errors, (\d+) warnings$/, function (m, l) { return l === 'it' ? 'Nessun errore, ' + m[1] + ' avvisi' : '\u6ca1\u6709\u9519\u8bef\uff0c\u8b66\u544a ' + m[1] + ' \u5904'; }],
+    [/^Looks good \u2014 ready to export$/, function (m, l) { return l === 'it' ? 'Tutto ok \u2014 pronto da esportare' : '\u6ca1\u6709\u95ee\u9898 \u2014 \u53ef\u4ee5\u5bfc\u51fa\u4e86'; }]
+  ];
+  function patternTranslateEn(base) {
+    for (var i = 0; i < PATTERNS_EN.length; i++) {
+      var m = PATTERNS_EN[i][0].exec(base);
+      if (m) return PATTERNS_EN[i][1](m, lang);
+    }
+    return null;
+  }
+
   function patternTranslate(base) {
     for (var i = 0; i < PATTERNS.length; i++) {
       var m = PATTERNS[i][0].exec(base);
@@ -139,10 +165,12 @@
     if (!origText.has(node)) origText.set(node, raw);
     var base = origText.get(node);
     var out = base;
-    if (lang !== 'zh') {
+    {
+      var isCJK = /[\u3400-\u9fff]/.test(base);
       var val = lookup(mapOf('texts'), base);
-      if (val == null && !skipped) val = patternTranslate(base.trim());
-      if (val == null && !skipped && base.trim().length >= 2 && /[\u3400-\u9fff]/.test(base)) {
+      if (val == null && !skipped && lang !== 'zh') val = patternTranslate(base.trim());
+      if (val == null && !skipped && lang !== 'en' && !isCJK) val = patternTranslateEn(base.trim());
+      if (val == null && !skipped && isCJK && base.trim().length >= 2) {
         var frag = fragReplace(base);
         if (frag !== base) val = frag;
       }
@@ -173,7 +201,7 @@
       if (!saved.hasOwnProperty(name)) saved[name] = cur;
       var base = saved[name];
       var out = base;
-      if (lang !== 'zh') {
+      {
         var v = lookup(map, base);
         if (v == null && /[\u3400-\u9fff]/.test(base) && base.trim().length <= 60) {
           var fa = fragReplace(base);

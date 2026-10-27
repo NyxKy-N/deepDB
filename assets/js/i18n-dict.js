@@ -2277,3 +2277,118 @@ window.DDB_I18N_DICT = {
     D.it.texts[k] = extra[k][1];
   });
 })();
+
+/* patch-translater81 */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  var extra = {"专注建模":["Focus on modeling","Concentrati sulla modellazione"],"没有多余设置，打开就能画；模型自动保留，可随时导出 JSON 备份。":["No setup: open and draw. Models stay saved and can be exported to JSON at any time.","Nessuna configurazione: apri e disegna. I modelli restano salvati e si possono esportare in JSON quando vuoi."],"检查会解释原因":["Checks explain why","I controlli spiegano il perché"],"每条检查都说明问题出在哪，并可一键定位到对应元素。":["Every check tells where the problem is and jumps straight to the element.","Ogni controllo indica dov’è il problema e porta subito all’elemento."],"导出即交付":["Ready to export","Pronto da esportare"],"逻辑模式、关系模式文本、JSON Schema 都能复制或下载。":["Logical schema, relational schema text and JSON Schema can all be copied or downloaded.","Schema logico, testo dello schema relazionale e JSON Schema si possono copiare o scaricare."],"双击就能用":["Double-click and go","Doppio clic per iniziare"],"纯静态页面，不需要安装任何依赖。":["Plain static pages, no dependencies to install.","Pagine statiche, nessuna dipendenza da installare."],"画出概念模型":["Sketch the conceptual model","Disegna il modello concettuale"],"添加实体与属性，用关系连接它们并设置参与度。":["Add entities and attributes, connect them with relationships and set participation.","Aggiungi entità e attributi, collegali con relazioni e imposta la partecipazione."],"检查并重构":["Check and refactor","Controlla e ristruttura"],"自动检查问题，一键重构为含主键、外键、唯一约束的逻辑模式。":["Automatic checks, then one click to refactor into a logical schema with keys and constraints.","Controlli automatici, poi un clic per ristrutturare in uno schema logico con chiavi e vincoli."],"导出结果":["Export the result","Esporta il risultato"],"复制或下载逻辑模式、JSON Schema 与关系代数表达式。":["Copy or download the logical schema, JSON Schema and relational-algebra expression.","Copia o scarica lo schema logico, il JSON Schema e l’espressione di algebra relazionale."],"New":["新建","Nuovo"],"Translate":["一键翻译","Traduci"],"Sample ER":["示例 ER","ER di esempio"],"Open saved ER":["打开已保存的 ER","Apri ER salvato"],"Import JSON":["导入 JSON","Importa JSON"],"Done":["完成","Fine"],"Source ER model":["来源 ER 模型","Modello ER di origine"],"Relational schema":["关系模式","Schema relazionale"],"+ Table":["+ 表","+ Tabella"],"Copy":["复制","Copia"],"Download":["下载","Scarica"],"No model loaded yet":["还没有载入模型","Nessun modello caricato"],"Use Sample ER / Open saved ER / Import JSON to load a model, or press New and write the schema yourself.":["用「示例 ER / 打开已保存的 ER / 导入 JSON」载入模型，或点「新建」自己写。","Usa «ER di esempio / Apri ER salvato / Importa JSON» per caricare un modello, oppure «Nuovo» per scriverlo da zero."],"Entity":["实体","Entità"],"Relationship":["关系","Relazione"],"(unnamed relationship)":["（未命名关系）","(relazione senza nome)"],"The model is empty":["模型是空的","Il modello è vuoto"],"No tables yet":["还没有表","Nessuna tabella"],"Press + Table to start. After loading a model, type an entity name in the table name field (case-insensitive); the parentheses are added for you.":["点「+ 表」开始。载入模型后，在表名里输入实体名（不区分大小写），括号会自动补上。","Premi «+ Tabella» per iniziare. Dopo aver caricato un modello, digita il nome di un’entità nel campo nome tabella (senza distinzione di maiuscole): le parentesi vengono aggiunte automaticamente."],"table name (entity name)":["表名（实体名）","nome tabella (nome entità)"],"attributes, comma separated, Enter to add":["属性，用逗号分隔，回车添加","attributi separati da virgola, Invio per aggiungere"],"type attribute names, comma separated":["输入属性名，用逗号分隔","digita i nomi degli attributi, separati da virgola"],"Set PK":["设为主键 (PK)","Imposta PK"],"Unset PK":["取消主键","Rimuovi PK"],"Set FK":["设为外键 (FK)","Imposta FK"],"Unset FK":["取消外键","Rimuovi FK"],"Delete attribute":["删除属性","Elimina attributo"],"(empty)":["（空）","(vuoto)"],"Open saved ER model":["打开已保存的 ER 模型","Apri modello ER salvato"],"Load":["载入","Carica"],"Close":["关闭","Chiudi"],"No saved ER models yet — save one in designER first":["还没有保存的 ER 模型 — 先在 designER 里保存一个","Nessun modello ER salvato — salvalo prima in designER"],"Could not read the model":["读取模型失败","Impossibile leggere il modello"],"This JSON does not contain an ER model":["这个 JSON 里没有 ER 模型","Questo JSON non contiene un modello ER"],"Could not parse the JSON":["JSON 解析失败","Impossibile analizzare il JSON"],"New empty schema":["已新建空模式","Nuovo schema vuoto"],"Sample ER model loaded":["已载入示例 ER 模型","Modello ER di esempio caricato"],"Check passed":["检查通过","Controllo superato"],"Schema copied":["已复制模式","Schema copiato"],"Copy failed":["复制失败","Copia non riuscita"],"Nothing to export yet":["还没有可导出的内容","Niente da esportare"],"Translate failed":["翻译失败","Traduzione non riuscita"],"Load an ER model first":["先载入一个 ER 模型","Carica prima un modello ER"],"Tables":["表","Tabelle"],"ATTRIBUTES":["属性","ATTRIBUTI"],"Done — errors are listed below":["完成 — 错误列在下方","Fine — gli errori sono elencati sotto"]};
+  Object.keys(extra).forEach(function (k) {
+    D.zh.texts[k] = extra[k][0];
+    D.en.texts[k] = extra[k][0] === k ? k : k; /* 源串本身是英文 */
+    D.it.texts[k] = extra[k][1];
+  });
+})();
+
+/* fix-en-source */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  Object.keys(D.en.texts).forEach(function (k) {
+    if (!/[\u3400-\u9fff]/.test(k) && /[\u3400-\u9fff]/.test(String(D.en.texts[k]))) D.en.texts[k] = k;
+  });
+})();
+
+/* patch-translater-attrs */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  var a = {"table name (entity name)":["表名（实体名）","nome tabella (nome entità)"],"attributes, comma separated, Enter to add":["属性，用逗号分隔，回车添加","attributi separati da virgola, Invio per aggiungere"]};
+  Object.keys(a).forEach(function (k) {
+    D.zh.attrs[k] = a[k][0];
+    D.it.attrs[k] = a[k][1];
+    D.en.attrs[k] = k;
+  });
+})();
+
+/* fix-en-home */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  var m = {"画出概念模型":"Sketch the conceptual model","添加实体与属性，用关系连接它们并设置参与度。":"Add entities and attributes, connect them with relationships and set participation.","检查并重构":"Check and refactor","自动检查问题，一键重构为含主键、外键、唯一约束的逻辑模式。":"Automatic checks, then one click to refactor into a logical schema with keys and constraints.","导出结果":"Export the result","复制或下载逻辑模式、JSON Schema 与关系代数表达式。":"Copy or download the logical schema, JSON Schema and relational-algebra expression.","专注建模":"Focus on modeling","没有多余设置，打开就能画；模型自动保留，可随时导出 JSON 备份。":"No setup: open and draw. Models stay saved and can be exported to JSON at any time.","检查会解释原因":"Checks explain why","每条检查都说明问题出在哪，并可一键定位到对应元素。":"Every check tells where the problem is and jumps straight to the element.","导出即交付":"Ready to export","逻辑模式、关系模式文本、JSON Schema 都能复制或下载。":"Logical schema, relational schema text and JSON Schema can all be copied or downloaded.","双击就能用":"Double-click and go","纯静态页面，不需要安装任何依赖。":"Plain static pages, no dependencies to install."};
+  Object.keys(m).forEach(function (k) {
+    if (!D.zh.texts[k]) D.zh.texts[k] = k;
+    D.en.texts[k] = m[k];
+  });
+})();
+
+/* fix-zh-home */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  var m = {"画出概念模型":"Sketch the conceptual model","添加实体与属性，用关系连接它们并设置参与度。":"Add entities and attributes, connect them with relationships and set participation.","检查并重构":"Check and refactor","自动检查问题，一键重构为含主键、外键、唯一约束的逻辑模式。":"Automatic checks, then one click to refactor into a logical schema with keys and constraints.","导出结果":"Export the result","复制或下载逻辑模式、JSON Schema 与关系代数表达式。":"Copy or download the logical schema, JSON Schema and relational-algebra expression.","专注建模":"Focus on modeling","没有多余设置，打开就能画；模型自动保留，可随时导出 JSON 备份。":"No setup: open and draw. Models stay saved and can be exported to JSON at any time.","检查会解释原因":"Checks explain why","每条检查都说明问题出在哪，并可一键定位到对应元素。":"Every check tells where the problem is and jumps straight to the element.","导出即交付":"Ready to export","逻辑模式、关系模式文本、JSON Schema 都能复制或下载。":"Logical schema, relational schema text and JSON Schema can all be copied or downloaded.","双击就能用":"Double-click and go","纯静态页面，不需要安装任何依赖。":"Plain static pages, no dependencies to install."};
+  Object.keys(m).forEach(function (k) {
+    D.zh.texts[k] = k;
+    D.en.texts[k] = m[k];
+  });
+})();
+
+/* patch-lab */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  var m = {"Interface preview · Motion lab":["界面预览 · Motion lab","Anteprima interfaccia · Motion lab"],"A model":["模型，","Un modello"],"in motion":["动起来","in movimento"],"Watch the pieces of an ER model glide into a relational schema. Everything on this page is plain CSS motion — no video, no libraries.":["看着 ER 模型的各个部分滑入关系模式。本页所有动效都是纯 CSS，没有视频、没有动画库。","Osserva i pezzi di un modello ER scivolare in uno schema relazionale. Qui ogni movimento è puro CSS: niente video, niente librerie."],"Replay the animation":["重播动画","Ripeti l'animazione"],"Back to home":["返回首页","Torna alla home"],"tools":["个工具","strumenti"],"languages":["种语言","lingue"],"dependencies":["个依赖","dipendenze"],"Entity":["实体","Entità"],"students":["students","students"],"Relationship":["关系","Relazione"],"enrolls":["enrolls","enrolls"],"Attribute":["属性","Attributo"],"birth_date":["birth_date","birth_date"],"Schema":["关系模式","Schema"],"STUDENTS":["STUDENTS","STUDENTS"],"staggered":["交错入场","a cascata"],"stroke draw":["描边生长","tratto disegnato"],"parallax":["视差","parallasse"],"Click an attribute, watch it move":["点一个属性，看它移动","Clicca un attributo e guardalo spostarsi"],"Each chip travels from the entity into the schema card. The list of chips below is the live model.":["每个属性从实体飞进关系模式卡片。下方列表就是当前模型。","Ogni attributo viaggia dall'entità alla scheda dello schema. L'elenco sotto è il modello aggiornato."],"students · attributes":["students · 属性","students · attributi"],"STUDENTS · schema":["STUDENTS · 关系模式","STUDENTS · schema"],"Nothing moved yet":["还没移动任何属性","Nessun attributo spostato"],"Reset":["重置","Reimposta"]," moved":[" 已移动"," spostati"],"Three motions, one system":["三种动效，一套系统","Tre movimenti, un sistema"],"Enter with a stagger":["交错入场","Entrata a cascata"],"Sections and cards arrive in sequence, 70 ms apart, moving only transform and opacity.":["区块与卡片依次出现，间隔 70ms，只改变 transform 与 opacity。","Sezioni e schede arrivano in sequenza, a 70 ms di distanza, animando solo transform e opacity."],"Connect with a draw":["连线生长","Connessioni disegnate"],"SVG paths animate their dash offset, so relationships look like they are being wired.":["SVG 路径通过虚线偏移动画生长，关系像被接上一样。","I tracciati SVG animano il dash offset: le relazioni sembrano essere cablate."],"Leave the way you came":["原路返回","Uscire da dove si è entrati"],"Every overlay returns along the same path it entered. Motion is courtesy, not decoration.":["每个浮层沿进入的路径收回。动效是体贴，不是装饰。","Ogni overlay torna indietro lungo il percorso di ingresso. Il movimento è cortesia, non decorazione."],"Motion lab":["动效实验室","Motion lab"]};
+  Object.keys(m).forEach(function (k) {
+    D.zh.texts[k] = m[k][0];
+    D.it.texts[k] = m[k][1];
+    if (!D.en.texts[k]) D.en.texts[k] = k;
+  });
+})();
+
+/* patch-lab-count */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  D.zh.texts['moved'] = '已移动';
+  D.it.texts['moved'] = 'spostati';
+  D.en.texts['moved'] = 'moved';
+  D.zh.texts['界面预览 · Motion lab'] = '界面预览 · 动效实验室';
+})();
+
+/* patch-lab-eyebrow */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  D.zh.texts['Interface preview · Motion lab'] = '界面预览 · 动效实验室';
+  D.it.texts['Interface preview · Motion lab'] = 'Anteprima interfaccia · Motion lab';
+})();
+
+/* patch-author-deepseek */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  D.zh.texts['作者 · Deepseek'] = '作者 · Deepseek';
+  D.en.texts['作者 · Deepseek'] = 'Author · Deepseek';
+  D.it.texts['作者 · Deepseek'] = 'Autore · Deepseek';
+})();
+
+/* patch-helper */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  D.zh.texts['助手 · Deepseek'] = '助手 · Deepseek';
+  D.en.texts['助手 · Deepseek'] = 'Helper · Deepseek';
+  D.it.texts['助手 · Deepseek'] = 'Assistente · Deepseek';
+})();
+
+/* patch-card-head */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  var e = {"基数":{"zh":"基数","en":"Cardinality","it":"Cardinalità"},"实数":{"zh":"实数","en":"Number","it":"Numero"}};
+  Object.keys(e).forEach(function (k) {
+    if (e[k].zh === k && !D.en.texts[k]) D.zh.texts[k] = k;
+    D.en.texts[k] = e[k].en;
+    D.it.texts[k] = e[k].it;
+  });
+})();

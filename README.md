@@ -1,202 +1,150 @@
-# deepDB · 数据库设计工具集
+# deepDB · Database Design Toolkit
 
-> 作者：NyxKy
+> Author: **NyxKy** · Mascot & helper: **Deepseek 🐋** · Repository: <https://github.com/NyxKy-N/deepDB.git>
 
-一个**纯静态**的数据库设计教学工具网页，功能对齐 [designerdb.io](https://designerdb.io/#tools) 的工具集：
-ER 建模、NoSQL 文档模型设计、关系代数表达式编辑。界面支持 **中文 / English / Italiano**，并有**浅色 / 深色**主题。
+A **pure-static** database-design teaching site, modelled on the tool set of [designerdb.io](https://designerdb.io/#tools):
+ER modelling, NoSQL document modelling, relational-algebra expressions and an ER → relational-schema translator.
+The interface is available in **English, 中文 and Italiano**, with **light / dark** themes.
 
-不需要安装、不需要服务器：**双击 `index.html` 就能用**，模型自动保存在你自己的浏览器里。
+No installation, no server: **double-click `index.html`** and it runs offline.
+Models are stored in your own browser (localStorage) and are never uploaded anywhere.
 
-## 快速开始
+---
 
-1. 打开本项目文件夹；
-2. 双击 `index.html`（Chrome / Edge / Firefox 均可，手机与平板浏览器也可用）；
-3. 从首页选择工具，或直接访问：
+## Quick start
 
-| 页面 | 地址（hash 路由） |
+1. Open this folder;
+2. Double-click `index.html` (Chrome / Edge / Firefox; phones and tablets work too);
+3. Pick a tool from the navigation bar, or deep-link directly:
+
+| Page | URL |
 | --- | --- |
-| 首页 | `index.html#/` |
-| designER（关系设计） | `index.html#/tools/er` |
-| noER（文档模型） | `index.html#/tools/noer` |
-| designQT（关系代数） | `index.html#/tools/ra` |
+| Home | `index.html#/` |
+| designER | `index.html#/tools/er` |
+| translatER | `index.html#/tools/translater` |
+| noER | `index.html#/tools/noer` |
+| designQT basic | `index.html#/tools/ra` |
+| Motion lab (animation showcase) | `index.html#/lab` |
 
-> 刻意做成无需构建、无 ES module、无网络字体，直接以 `file://` 打开即可。
+The language defaults to **English**; switch it in **Settings** (gear icon, top right) → Language.
+Theme: Light / Dark / Follow system.
 
-## 四个工具
+---
 
-### 1. designER — 关系模型设计
+## The four tools
 
-- **属性是小球**：点实体后用工具栏 / 左栏的「＋ 属性」添加；小球**不带文字**，属性名标在小球外侧，按方位自动落在上 / 下 / 左 / 右；
-  - 小球可**直接拖动**（零延迟跟随），子属性也能拖动，位置随模型保存；布局是确定性的，刷新或点选时属性**不会乱跳**；
-  - **连线都指向元素正中心**，属性和子属性的连线加粗并带圆头，比之前更明显；
-  - **主键**属性的小球**变黑**；**多值属性**（cardinality = `N`）画成双圈；**复合属性**画成药丸形，子属性是更小的虚线小球；
-  - **复合键**：一个实体 / 关系有**两个以上主键**时，小球变成**白色**，实体 / 关系框内还会出现一个「Composite key / 复合键」小标签，直接列出参与的属性名（例如 `numero + anno + via`）；连接线贴着实体边缘走**弧线**把各主键小球串起来，串联线一端带一个小黑点表示「复合键」；连到子属性时弧线直接连到子属性小球上；复合属性的子属性小球会在它外侧成簇排开，不会压住实体；
-  - 复合键规则：有子属性的属性**不能**再当主键（先设主键再加子属性会自动取消主键标记）；子属性只有在同一实体**已有主键**时才能被勾为主键，和父级主键一起组成复合键；
-  - 点小球只选中属性，不会同时选中实体；
-- **点元素弹出小菜单**：在画布上点实体 / 关系 / ISA，都会出现「改名 / 删除 / 链接」菜单（ISA 标签也能点开）；鼠标离开空白处或按 Esc 关闭；
-- **右栏设计器**：选中某个属性（含子属性）时右栏只显示该属性的详情（名称 / 属于哪个实体 / 基数 / 主键 / 子属性），并提供「← 返回属性列表」，不再把整个属性表和 ISA / 参与关系堆在一起；子属性有**自己的面板**；
-- **泛化（ISA）直接连**：父实体底部的空心三角 → 直线总线 → 各子实体的垂直直线（一个入口、多个出口，没有中间的 ISA 节点），连线上的 `(t,e)` 标签表示是否全参与（t / p）与是否排他（e / o）；右栏「泛化类别」提供四种选择：**全部参与且互斥（t, e）**、**全部参与且可重叠（t, o）**、**部分参与且互斥（p, e）**、**部分参与且可重叠（p, o）**，改完画布标签立即更新；
-- **关系是扁菱形**（宽而不高），参与端标 `(min, max)` 与角色名；
-- **链接**：选中实体 → 菜单「链接（ISA）」→ 点另一个实体，本实体作为超类、对方成为子类（继承主键）；
-  选中关系 → 菜单「链接（参与端）」→ 点实体，把它加为参与端并设置基数与角色名；按 `Esc` 取消；
-- **实时自动检查**：未命名、重名、缺主键、弱实体缺标识关系、关系缺参与端等，按错误 / 警告 / 提示分级，可定位到画布元素；
-- **逻辑模式重构**：自动翻译成关系模式（ISA 子类继承、弱实体、多值属性拆表、N:M 关联表、外键动作）；
-- **自动布局按层排布**：先按 ISA 层级把父类放上、子类放下，再排关系，最后消除所有重叠（实体、属性环、关系都不互相压住）；点「自动布局」会把属性与子属性也重新摆到不重叠的位置；
-- 撤销 / 重做、保存 / 打开、导出 / 导入 JSON。
+### 1. designER — relational model design
 
-> 画布左右上角的 `‹` `›` 收起 / 展开左右侧栏（右栏按钮贴右侧）；窄屏下侧栏变成抽屉，手机上变成底部抽屉。
-> 状态都会记住（折叠、模型、视图缩放）。
+- Infinite canvas: draw **entities**, **attributes** (small circles attached around the entity), **relationships** (flat wide diamonds) and **ISA generalizations**;
+- Attributes: single / multi-valued (`(0,N)`), composite (pill shape with sub-attributes fanned around it), primary keys (black circle; **white circles + a chain line with a dot = composite key**), plus a "plain attribute" option with no cardinality badge;
+- Every element is editable: double-click to rename, click to open its menu (Rename / Link / Delete), drag to move, click a cardinality `(0,1)` chip to change it, click a `(t,e)` ISA label to pick one of the four generalization kinds (Total/Partial × Exclusive/Overlapping);
+- **Automatic checks** (errors / warnings / notes, each points at the element), then refactor into a **logical schema** (keys, foreign keys, unique constraints) shown in *Logical schema*;
+- **Auto layout** arranges entities by ISA hierarchy, keeps relationships near their participants, avoids overlaps and routes connection lines around other elements;
+- Save / open models in the browser, export / import JSON.
 
-### 2. noER — NoSQL 文档模型设计
+### 2. translatER — ER → relational schema (hand-written)
 
-- 用卡片设计**集合（collection）**及字段：`string / number / boolean / date / objectId / object / array / ref / mixed`；
-- 支持**嵌套文档（object）**、**数组元素类型（array<…>）**、`ref` 引用其它集合并绘制引用连线；
-- **检查**：命名重复、空集合、ref 目标缺失、双向引用、唯一索引建议等；
-- **生成**：MongoDB `$jsonSchema` 校验器、Mongoose Schema、示例文档三种输出；
-- 保存 / 打开、导出 / 导入 JSON。
+- The left pane shows the source ER model: entities (with PK-marked attributes), relationships (participants + cardinality) and relationship attributes;
+- Load a model with **Sample ER / Open saved ER / Import JSON**, or press **New** and type the schema yourself;
+- Type a table name: it is matched **case-insensitively** against entity/relationship names, upper-cased, and the opening parenthesis is added for you;
+- Type attribute names separated by `,` (or press Enter) to add them as chips;
+- Click a chip to toggle **PK** / **FK** / delete — **an attribute can be both PK and FK at the same time**;
+- Attribute order is automatic: PKs first (in the order you set them), then FKs, then the rest;
+- **PK** is drawn as one continuous underline (multiple PKs share a single line); **FK** is appended as `(FK)`; copy/download prints `NAME (a(PK), b(FK))`;
+- **Done** validates the schema and lists problems below it: unnamed/duplicate tables, no attributes, duplicate attributes, no PK, tables that do not exist in the ER model, **and a column-by-column comparison with the ER model** — extra columns are errors, missing model columns are errors, but **FK columns are exempt from the name comparison** (FKs may be renamed).
 
-### 3. designQT basic — 关系代数
+### 3. noER — NoSQL document model design
 
-- 图形化表达式树：`σ 选择、π 投影、ρ 重命名、⋈ 连接、× 积、∪ 并、∩ 交、− 差、γ 分组聚合、÷ 除`；
-- 先点占位符再点运算符即可填充；选中已有节点再点运算符会自动**包一层**；
-- 实时推断输出字段、生成关系代数文本（可复制 / 下载 `.txt`）；
-- **检查**：占位符未填充、缺少条件 / 字段、投影字段不在子输出中等；
-- 撤销 / 重做、自动布局、保存 / 打开、导出 / 导入 JSON。
+- Design collections as cards: fields with types (`string / number / boolean / date / objectId / object / array / ref / mixed`), nested objects, arrays of objects, references between collections;
+- Automatic checks for naming, references and nesting; reference lines drawn between cards;
+- Save / open, export / import JSON.
 
-### 4. translatER — 手写 ER 翻译（PK / FK / Done 校验）
+### 4. designQT basic — relational algebra
 
-- 左栏是来源模型：Entities（属性，主键标 PK）/ Relationships（参与端与 cardinality）/ 关系属性，可用 `Sample ER`、`Open saved ER`、`Import JSON` 载入；
-- 右栏可以**自己写**关系模式，也可以 `＋ Table` 手动建表；**没有自动翻译**；
-- 表名输入时按 ER 里的实体/关系名**不区分大小写**匹配：命中就自动转成大写表名并补上括号（**不会**自动塞入属性，属性由你自己写，或用一键 `Translate`）；
-- 属性输入支持 `,`（中英文逗号都行）或回车批量加入；点击任意属性会弹出小菜单：设为/取消 **PK**、设为/取消 **FK**、删除；
-- 属性会**自动排序**：被设为 PK 的按设置先后排在最前（第一、第二、第三…），FK 接在 PK 后面，其余普通属性最后；
-- **PK** 在文本里显示为**连续下划线**（多个主键是一条连到底的线），**FK** 在括号里追加 `(FK)`；导出/复制时统一还原成 `NAME (a(PK), b(FK))`；
-- 写完点 `Done`：下方列出错误/警告/提示（无表、无名表、表名重名、模型里找不到同名、无属性、重复属性、无 PK 等）便于逐条修正；
-- 工具栏 `Translate` 可**一键翻译**：读取当前载入的 ER 模型，按重构结果生成全部表（主键、外键自动标记，名字覆盖整份模型）；
-- `Copy` / `Download` 复制或下载文本。
+- Build an expression tree with σ (select), π (project), ρ (rename), ⋈ (join), × (product), ∪, ∩, − and γ (aggregate);
+- Drag nodes or whole subtrees; click a dashed placeholder then an operator to fill it; selecting an existing node wraps it into a new operator;
+- Output fields are inferred live; the standard expression text can be copied or downloaded; checks report missing parameters.
 
-## 导航与首页
+---
 
-- 导航顺序：首页 / designER / translatER / noER / designQT；品牌 `deepDB` 右侧用 `I` 作分隔；
-- 首页每个区块占满一屏，滚动时进入视口渐显、离开渐隐；作者署名带头像并与文字居中对齐；
-- 切换语言时页面有轻微淡入动效（`prefers-reduced-motion` 下关闭）；
-- 首页信息更紧凑：hero 保留一屏感，其余区块按内容高度排列，不再大片留白；工具列表带**图标与演示图块**（ER / 关系模式 / 文档 / 关系代数），hero 下方有四个工具的圆形徽章；
-- 进入视口渐显、离开视口渐隐（IntersectionObserver + opacity/translateY，`prefers-reduced-motion` 下关闭）；
-- 作者署名带圆形头像（`assets/img/avatar.jpg`）并与文字居中对齐；
+## Motion lab
 
-## 设置（语言与主题）
+A standalone, animation-heavy preview page at `index.html#/lab` (also linked from the hero and the footer):
+floating model cards, self-drawing SVG connections, staggered entrances, pointer parallax, animated counters and a small
+"move an attribute into the schema" demo. All motion is CSS + requestAnimationFrame and respects `prefers-reduced-motion`.
 
-顶栏右侧齿轮按钮打开**设置**：
+## Interface details
 
-- **语言**：中文 / English / Italiano，**默认 English**，切换不刷新、不影响当前模型；
-- **主题**：浅色 / 深色 / 跟随系统（跟随系统会随操作系统外观自动切换）；切换时新主题从点击位置**圆形扩散**展开；
-- 所有二级页面（设置、保存 / 打开、确认框、输入框）都**从被点击的那个按钮位置长出来**：380ms 非线性曲线，先贴着按钮往下方起步，再拉回屏幕中央放大；关闭时沿同一条路径缩回原按钮，不淡入淡出、不瞬移；
-- 两者都记在 `localStorage`（`designerdb:v1:lang`、`designerdb:v1:theme`），重新打开保持；
-- 深色主题覆盖画布、面板、卡片、表单控件、弹窗、toast、SVG 连线与标签，并对正文、属性名、键值标签单独调过对比度；
-- 所有展开 / 收起动效统一 **250ms**（页面切换、侧栏、抽屉、手风琴、快捷条、元素菜单），并遵守 `prefers-reduced-motion`（系统要求减少动效时自动关闭）。
+- **Settings** (gear): language and theme; the panel grows out of the button and shrinks back into it;
+- The theme switch reveals the new theme radially from the clicked point;
+- Toasts, modals, menus and drawers animate in and out with a matching reverse animation (all 250–420 ms, respecting `prefers-reduced-motion`);
+- Side panels collapse with the `‹` `›` buttons on the canvas edge; on tablets they become slide-in drawers (one at a time), on phones they become bottom sheets;
+- On tablets/phones a quick-action bar (add entity / relationship / attribute, etc.) sits at the bottom of the canvas;
+- The left panel can be resized by dragging its right edge (desktop, minimum = default width);
+- Footer: project author, avatar, GitHub link and shortcuts.
 
-## 响应式
+## Responsive behaviour
 
-- **桌面**（>1024px）：三栏布局（左栏工具、中间画布、右栏属性），两侧可折叠；
-- **平板**（641–1024px）：画布铺满整屏，左右面板变成可滑出的**抽屉**（**同时只开一个**，打开一边自动收起另一边），左栏各分组收成可点开的**手风琴**，底部有「＋ 实体 / ＋ 关系 / ＋ 属性」等**快捷操作条**；抽屉打开时快捷条向下滑走、画布小工具隐藏；
-- **手机**（≤640px）：左右栏都变成**底部抽屉**（从底部滑上来，关闭时原路滑回去），快捷操作条铺满底部，导航只留品牌图标，侧栏开关挪到画布右上角竖排；
-- 整页高度用 `100dvh` 计算并裁掉溢出，手机上往下滑不会出现空白区域；
-- 面板默认收起，点画布角的 `‹` `›` 打开；抽屉与快捷条不会互相遮挡。
+- **Desktop** (> 1024 px): three columns — tools, canvas, properties; both side panels collapsible;
+- **Tablet** (641–1024 px): full-width canvas, side panels are exclusive drawers, left-panel groups become accordions, bottom quick-action bar;
+- **Phone** (≤ 640 px): panels become bottom sheets, the quick-action bar spans the bottom, the canvas auto-fits the model (down to 20 % zoom so nothing is clipped), navigation scrolls horizontally.
 
-## 画布交互细节（v5）
+## Keyboard shortcuts
 
-- **直接在画布上改基数**：关系连线上每个参与端都显示 `(min,max)` 小卡片，点击就地弹出「基数」菜单，选最少 0/1、最多 1/N，改完立即重画双线与标签；也能在这里删除该参与端。
-- **直接改泛化类别**：ISA 标签 `(t,e)` 本身可点击，弹出四类泛化菜单 —— Total and exclusive (t, e)、Total and overlapping (t, o)、Partial and exclusive (p, e)、Partial and overlapping (p, o)；选中即时更新标签、连线样式与右侧面板。
-- **二级菜单会收回去**：点击元素弹出「Rename / Link / Delete」菜单后，再点同一元素或点空白处，菜单沿原路缩小收起（150ms），不是直接消失。
-- **点空白取消选择**：点画布空白会取消选中，右侧属性面板同步回到「未选中元素」状态。
-- **没有角色名了**：参与端只保留 `(min,max)` 基数，属性面板里不再有「角色名」输入。
-- **自动布局零重叠**：先按泛化层级把实体排成树（紧凑模式自动收紧间距），再把关系放到参与者重心附近，用重心距离 + 重叠面积 + 连线穿越评分挑位置；随后做多轮重叠消解与穿越消解，属性小球按「相对实体」的缓存槽位重新贴到实体周围。
-- **连线会绕行**：关系连线若会穿过别的实体或关系菱形，会自动改成二次贝塞尔弧线绕过去；实在没有干净路径时才退回直线。
-
-## 界面细节
-
-- 顶栏、工具栏、弹窗、下拉菜单、toast、快捷条都带**毛玻璃模糊**（画布与工作区内容不模糊，保持清晰）；
-- 首页背景有**随页面滚动的粉色 / 蓝色 / 紫色模糊色块**（满屏宽、滚动时不会被切出硬边，移动速度快了一倍，遵守 `prefers-reduced-motion`）；
-- 按钮统一是**填充式**（不再空心描边）：浅色悬停变淡紫、文字加深，深色悬停变亮蓝灰；
-- 左栏每个分组标题更粗更大更深；长名字自动用 `…` 省略，不再被右侧裁掉；
-- 平板 / 手机上左栏分组是**手风琴**，展开与收起是 250ms 的高度动画；
-- 设置弹窗**从齿轮按钮下方沿非线性曲线弹到屏幕中间**（420ms，先往下起步再拉回中心），关闭时沿同一条曲线缩回按钮，不会瞬移；
-- 左右两侧不再被硬切：首页背景色块满屏宽延展，滚动到任何位置都不会看到截断边；
-
-- 画布元素的右键菜单（改名 / 链接 / 删除）是**非线性从小变大**的出现动画（220ms，`cubic-bezier(.2,1.5,.35,1)`）；
-- 复选框是**自绘方形**（16px 圆角方框，选中后填充主色并显示白色对勾），深色模式下同样清晰；
-- 所有关闭 / 删除的小 `✕` 按钮统一成 26×26 的**填充式方形按钮**，悬停变红；
-- 所有**删除**操作按钮都是**红底白字**（实体、关系、属性、存档、集合等）；
-- 首页排版按桌面 / 平板 / 手机分别收紧：桌面标题最多两行、hero 与各 section 的间距、正文行宽都调过；
-- 品牌名：**deepDB**（左上角只保留字标，没有方块图标）。
-
-## 画布与侧栏（v6）
-
-- designER 的属性「基数」除单值/多值外，新增「普通属性（不显示基数）」：选它后小球旁不再出现 `(0,1)` / `(0,N)` 徽标；
-- designER 的实体节点只显示**实体名**（不再显示“实体/弱实体”小标签），上下留白加大，名字更醒目；
-
-- 属性小球外侧显示基数徽标：单值 `(0,1)`、多值 `(0,N)`；复合属性旁边直接列出它的子属性名；
-- 检查项里的「定位」按钮改成填充式（浅色 `primary-soft` 底 + `primary-dark` 字，深色为蓝底浅字），不再是空心方框；
-- designQT 的表达式节点可以直接拖动，整棵子树一起移动，位置记进草稿；
-- 首页整屏区块与滚动渐显见上文「首页」一节；
-
-- **左栏可拖宽**：左栏右边缘有一条 8px 的拖拽手柄（鼠标移上去才显示竖条），按住拖动可在 224–420px 之间调整宽度；不会小于默认 224px，宽度记在 `localStorage`（`designerdb:v1:lbw`），刷新后保持；平板/手机上左栏是抽屉，不显示该手柄。
-- **空画布提示**：空白模型的提示做成一张居中卡片（圆角、细边框、浅阴影，深色下为半透玻璃），里面直接给出「载入示例模型」按钮，不再是悬在网格上的一行小字。
-- **画布拖动**：ER 与 designQT 的画布都支持空白处拖动平移、滚轮/双指缩放；`.canvas` 设了 `touch-action:none`，触屏与触控板拖动画布不会变成滚动页面。
-- **连线上的基数可直接点**：关系两端显示 `(min,max)`，点开改最少/最多；ISA 的 `(t,e)` 点开改四类泛化。
-
-## 自动保存与恢复
-
-- 三个工具在编辑时自动把**当前模型 + 视图（缩放 / 平移）**写入浏览器草稿：
-  `designerdb:v1:draft:er` / `draft:noer` / `draft:ra`；
-- 因此**刷新页面、关掉浏览器再打开，上次画的东西都还在**；
-- 想长期保留多个版本时，用工具栏「保存」命名存档（`designerdb:v1:store:*`），再从「打开」调出；
-- 想从空白开始，点「新建」即可。
-
-## 快捷键
-
-| 按键 | 作用 |
+| Keys | Action |
 | --- | --- |
-| `Ctrl/Cmd + Z` | 撤销 |
-| `Ctrl/Cmd + Y`（或 `Ctrl/Cmd + Shift + Z`） | 重做 |
-| `Ctrl/Cmd + S` | 保存当前模型 |
-| `Delete` / `Backspace` | 删除选中元素 |
-| `Esc` | 取消选中 / 关闭菜单 / 退出链接模式 |
-| 滚轮 | 以指针为中心缩放画布 |
-| 拖空白处 | 平移画布 |
-| 双击名称 | 就地改名 |
+| `Ctrl+Z` / `Ctrl+Y` | Undo / redo |
+| `Delete` | Delete the selected element (or attribute) |
+| `Esc` | Cancel selection / linking / close menus |
+| Double-click | Rename inline |
+| Mouse wheel | Zoom the canvas |
+| Drag empty canvas | Pan |
 
-## 目录结构
+## Autosave
+
+Every tool keeps a **draft** in `localStorage`, so refreshing the page does not lose work:
+
+- `designerdb:v1:draft:er` — ER model + viewport
+- `designerdb:v1:draft:noer` — document model + viewport
+- `designerdb:v1:draft:ra` — expression tree + viewport
+- `designerdb:v1:lang`, `designerdb:v1:theme`, `designerdb:v1:panels`, `designerdb:v1:lbw` — preferences
+- `designerdb:v1:store:<kind>:<name>` — named saves created with Save
+
+Exported / saved file names use English defaults (`untitled-er-model.json`, `.noer.json`, `.ra.json`, `schema.txt`).
+
+## Project structure
 
 ```
-designerDB/
-├─ index.html            页面骨架（顶栏、设置按钮、#view 路由容器、toast/modal 挂载点、主题预置脚本）
+deepDB/
+├─ index.html               single entry page
 ├─ README.md
 └─ assets/
-   ├─ img/avatar.jpg    作者头像（首页页脚）
-   ├─ css/style.css     全部样式（首页、四个工具、属性小球、深色主题、响应式、动效）
+   ├─ css/style.css         all styles (themes, responsive, animations)
+   ├─ img/avatar.jpg        author avatar
    └─ js/
-      ├─ core.js         DDB 核心：工具函数、toast/confirm/prompt/modal、存储与草稿、文件读写、撤销历史
-      ├─ i18n-dict.js    三语词典（zh / en / it，含运行时句子的模式翻译）
-      ├─ i18n.js         DOM 级翻译引擎（切换语言、后渲染内容自动补翻）
-      ├─ er-schema.js    ER 检查 / 关系模式重构
-      ├─ er.js           designER 画布（属性小球、ISA/参与端链接、元素菜单、检查、逻辑模式、自动布局）
-      ├─ noer.js         noER 文档模型设计器
-      ├─ ra.js           designQT 关系代数编辑器（节点可拖动）
-      ├─ translater.js   translatER：手写关系模式编辑器（自动匹配实体、PK/FK、Done 校验）
-      └─ app.js          hash 路由、首页、设置（语言/主题）、侧栏折叠、页面动效
+      ├─ core.js            utilities, UI (toast/modal/prompt), storage, IO
+      ├─ i18n-dict.js       translation dictionary (zh / en / it)
+      ├─ i18n.js            DOM translation engine (exact match, patterns, mutation observer)
+      ├─ er.js              designER canvas editor
+      ├─ er-schema.js       ER checks + logical-schema refactoring
+      ├─ translater.js      translatER handwritten schema editor
+      ├─ noer.js            noER document model editor
+      ├─ ra.js              designQT relational-algebra editor
+      └─ app.js             routing, home page, settings, panels, animations
 ```
 
-## 数据保存在哪里
+## Exported files on Windows
 
-- **草稿**（自动保存，刷新恢复）：`designerdb:v1:draft:er` / `draft:noer` / `draft:ra`；
-- **命名存档**：`designerdb:v1:store:*`，按工具类型（`er` / `noer` / `ra`）分开；
-- **界面语言**：`designerdb:v1:lang`；**主题**：`designerdb:v1:theme`；**侧栏折叠**：`designerdb:v1:panels`；
-- 「导出 JSON / 下载 .txt」走浏览器下载；
-- 清理：在工具的「打开」弹窗里删除存档，或清空站点数据。
+Browsers normally write exported files through the **Save dialog** (File System Access API), and those files open
+normally. If you ever get an *"Windows cannot open this file because of security settings"* or *"This file came from
+another computer"* message, the file carries the "downloaded from the internet" mark:
 
-## 说明
+1. Right-click the file → **Properties** → tick **Unblock** → **OK**; or
+2. Open it with a text editor (Notepad / VS Code) and save a copy under a new name; or
+3. Use **Copy** in the app and paste the content into your own file.
 
-- 本项目是**教学用途的功能复刻**，与 designerdb.io 官方无隶属关系；名称与配色仅用于演示。
-- 纯前端实现，没有后端与网络请求。
-- 三语切换只翻译界面文案，不翻译你输入的名称、表达式与画布里的模型内容；自动生成的检查说明与重构说明已覆盖常用句式。
+## Notes
+
+- The site is a teaching implementation inspired by [designerdb.io](https://designerdb.io/#tools); it is not affiliated with the official project.
+- No tracking, no network requests, no build step — everything (icons, illustrations and animations included) is plain HTML/CSS/JS.
+- Data lives only in your browser; use **Export / Download** to keep a copy.

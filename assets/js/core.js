@@ -316,14 +316,37 @@ window.DDB = (function () {
   /* ---------------- io ---------------- */
   const io = {
     download(filename, text, mime) {
-      const blob = new Blob([text], { type: (mime || 'text/plain') + ';charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 300);
+      const type = (mime || 'text/plain') + ';charset=utf-8';
+      const blob = new Blob([text], { type: type });
+      const ext = (String(filename).split('.').pop() || 'txt').toLowerCase();
+      const save = function () {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 300);
+      };
+      /* Chrome / Edge: the save dialog writes the file directly, so Windows does not
+         attach the "downloaded from the internet" mark that blocks opening it later. */
+      if (window.showSaveFilePicker) {
+        try {
+          window.showSaveFilePicker({
+            suggestedName: filename,
+            types: [{ description: ext.toUpperCase() + ' file', accept: (function () { var m = {}; m[(mime || 'text/plain')] = ['.' + ext]; return m; })() }]
+          }).then(function (handle) {
+            return handle.createWritable().then(function (w) {
+              return w.write(blob).then(function () { return w.close(); });
+            });
+          }).catch(function (err) {
+            if (err && err.name === 'AbortError') return;
+            save();
+          });
+          return;
+        } catch (e) { /* fall through to the classic download */ }
+      }
+      save();
     },
     pickFile(accept) {
       return new Promise(function (resolve) {

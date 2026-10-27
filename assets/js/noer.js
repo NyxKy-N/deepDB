@@ -23,7 +23,7 @@
 
   /* ---------------- 模型 ---------------- */
   function emptyModel() {
-    return { version: 1, name: '未命名文档模型', collections: [] };
+    return { version: 1, name: 'Untitled document model', collections: [] };
   }
   function newCollection(name, x, y) {
     return { id: util.uid('col'), name: name, x: x || 0, y: y || 0, fields: [] };
@@ -91,7 +91,7 @@
       if (!Array.isArray(c.fields)) c.fields = [];
       c.fields.forEach(normField);
     });
-    if (!m.name) m.name = '未命名文档模型';
+    if (!m.name) m.name = 'Untitled document model';
     return m;
   }
   function normField(f) {
@@ -847,7 +847,7 @@
       });
     }
     function save() {
-      DDB.ui.prompt({ title: '保存文档模型', label: '名称', value: state.model.name || '未命名文档模型' }).then(function (name) {
+      DDB.ui.prompt({ title: '保存文档模型', label: '名称', value: state.model.name || 'Untitled document model' }).then(function (name) {
         if (!name) return;
         state.model.name = name;
         if (DDB.store.save('noer', name, state.model)) ui.toast('已保存到浏览器：' + name, 'ok');

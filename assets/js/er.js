@@ -13,7 +13,7 @@
   /* ---------------- 模型 ---------------- */
   function uid(p) { return util.uid(p); }
   function emptyModel() {
-    return { version: 1, name: '未命名 ER 模型', entities: [], relationships: [], isas: [] };
+    return { version: 1, name: 'Untitled ER model', entities: [], relationships: [], isas: [] };
   }
   function newAttr(name) {
     return { id: uid('a'), name: name || 'attr1', type: 'AUTO', key: false, partial: false, multi: false, nocard: false, composite: false, x: null, y: null, children: [] };
@@ -40,7 +40,7 @@
     const model = (m && typeof m === 'object') ? m : {};
     const normalized = {
       version: 1,
-      name: model.name || '未命名 ER 模型',
+      name: model.name || 'Untitled ER model',
       entities: (model.entities || []).map(function (e) {
         return {
           id: e.id || uid('ent'), type: 'entity', name: e.name || 'Entity',
@@ -386,7 +386,8 @@
       const pad = 64;
       const bw = Math.max(maxX - minX, 1);
       const bh = Math.max(maxY - minY, 1);
-      const minFit = forceMin || (r.width < 620 ? 0.34 : 0.62);
+      const autoMin = r.width < 640 ? 0.2 : (r.width < 900 ? 0.34 : 0.62);
+      const minFit = Math.min(forceMin || autoMin, autoMin);
       const s = util.clamp(Math.min((r.width - pad * 2) / bw, (r.height - pad * 2) / bh), minFit, 1.2);
       state.view.s = s;
       state.view.x = r.width / 2 - (minX + bw / 2) * s;
@@ -1524,7 +1525,6 @@
       const items = ['<button type="button" class="node-menu-item" data-act="menu-rename" data-ntype="' + ntype + '" data-id="' + id + '">改名</button>'];
       if (ntype === 'entity') items.push('<button type="button" class="node-menu-item" data-act="menu-link-isa" data-id="' + id + '">🔗 链接（ISA）</button>');
       if (ntype === 'relationship') items.push('<button type="button" class="node-menu-item" data-act="menu-link-part" data-rel-id="' + id + '">🔗 链接（参与端）</button>');
-      items.push('<button type="button" class="node-menu-item" data-act="menu-edit-card" data-ntype="' + ntype + '" data-id="' + id + '">基数 / 类别…</button>');
       items.push('<button type="button" class="node-menu-item danger" data-act="menu-del" data-ntype="' + ntype + '" data-id="' + id + '">删除</button>');
       menuEl.innerHTML = items.join('');
       const cr = canvasEl.getBoundingClientRect();
@@ -2073,7 +2073,7 @@
       });
     }
     function exportJson() {
-      const name = (state.model.name || 'er-model').replace(/[\\/:*?"<>|]/g, '_');
+      const name = (state.model.name || 'er-model').replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '-');
       io.download(name + '.json', JSON.stringify(state.model, null, 2), 'application/json');
       ui.toast('已导出 JSON', 'ok');
     }
@@ -2410,16 +2410,6 @@
           break;
         case 'edit-card':
           showCardMenu(d.relId, d.pid, btn.getBoundingClientRect());
-          break;
-        case 'menu-edit-card':
-          if (d.ntype === 'relationship') {
-            const r = getRel(d.id);
-            if (r && r.participants[0]) showCardMenu(r.id, r.participants[0].id, btn.getBoundingClientRect());
-          } else if (d.ntype === 'isa') {
-            showIsaMenu(d.id, btn.getBoundingClientRect());
-          } else {
-            ui.toast('实体没有基数；请点击关系连线上的 (min,max)', 'info');
-          }
           break;
         case 'set-min':
         case 'set-max': {
