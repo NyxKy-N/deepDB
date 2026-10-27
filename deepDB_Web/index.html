@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>deepDB · 数据库设计工具集</title>
+<meta name="description" content="数据库设计工具集：ER 建模、逻辑模式重构、NoSQL 文档模型设计、关系代数表达式编辑。">
+<meta name="theme-color" content="#3341e0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%233341e0'/%3E%3Ctext x='32' y='45' font-family='Helvetica,Arial' font-size='34' font-weight='700' fill='%23fff' text-anchor='middle'%3Ed%3C/text%3E%3C/svg%3E">
+<script>
+  /* 首屏前恢复主题，避免闪白 */
+  try {
+    var t = localStorage.getItem('designerdb:v1:theme') || 'system';
+    var dark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  } catch (e) {}
+</script>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="app-header">
+  <a class="brand" href="#/" aria-label="deepDB" data-i18n-skip>
+    <span class="brand-text" data-i18n-skip>deep<strong>DB</strong></span>
+  </a>
+  <span class="brand-sep" aria-hidden="true">I</span>
+  <nav class="app-nav" id="appNav">
+    <a href="#/" data-nav="home">首页</a>
+    <a href="#/tools/er" data-nav="er">designER</a>
+    <a href="#/tools/translater" data-nav="translater">translatER</a>
+    <a href="#/tools/noer" data-nav="noer">noER</a>
+    <a href="#/tools/ra" data-nav="ra">designQT</a>
+  </nav>
+  <div class="header-right">
+    <button type="button" class="settings-btn" id="settingsBtn" aria-label="设置" title="设置">
+      <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 13.5a7.9 7.9 0 0 0 0-3l1.7-1.2-1.7-3-2 .8a7.7 7.7 0 0 0-2.6-1.5L14.4 3h-3.5l-.4 2.1A7.7 7.7 0 0 0 8 6.6l-2-.8-1.7 3 1.7 1.2a7.9 7.9 0 0 0 0 3L4.3 14.2l1.7 3 2-.8a7.7 7.7 0 0 0 2.5 1.5l.4 2.1h3.5l.4-2.1a7.7 7.7 0 0 0 2.6-1.5l2 .8 1.7-3-1.7-1.2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      <span>设置</span>
+    </button>
+  </div>
+</header>
+
+<main id="view" class="view"></main>
+
+<div id="toastHost" class="toast-host" aria-live="polite"></div>
+<div id="modalHost"></div>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/i18n-dict.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/er.js"></script>
+<script src="assets/js/er-schema.js"></script>
+<script src="assets/js/noer.js"></script>
+<script src="assets/js/ra.js"></script>
+<script src="assets/js/translater.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
