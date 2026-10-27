@@ -91,7 +91,7 @@
     function renderSrc() {
       nameEl.textContent = state.model ? (state.model.name || '—') : '—';
       if (!state.model) {
-        srcEl.innerHTML = '<div class="tr-empty"><b>No model loaded yet</b><span>Use Sample ER / Open saved ER / Import JSON to load a model, or press New and write the schema yourself.</span></div>';
+        srcEl.innerHTML = '<div class="tr-empty"><b>No model loaded yet</b><span>Load a sample, open a saved ER, import JSON, or press New to start from scratch.</span></div>';
         return;
       }
       var html = '';
@@ -140,7 +140,7 @@
     }
     function renderTables() {
       if (!state.tables.length) {
-        tablesEl.innerHTML = '<div class="tr-empty tr-empty-editor"><b>No tables yet</b><span>Press + Table to start. After loading a model, type an entity name in the table name field (case-insensitive); the parentheses are added for you.</span></div>';
+        tablesEl.innerHTML = '<div class="tr-empty tr-empty-editor"><b>No tables yet</b><span>Press + Table, then type an entity name (case-insensitive) — brackets are added for you.</span></div>';
         requestAnimationFrame(pkLines); return;
       }
       tablesEl.innerHTML = state.tables.map(function (t, i) {

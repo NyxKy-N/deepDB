@@ -198,6 +198,8 @@
         if (!saved) { saved = {}; origAttr.set(el, saved); }
       }
       var cur = el.getAttribute(name);
+      // 页面动态改了中文属性值（例如侧栏按钮的展开/隐藏文案）时，刷新“原文”再翻译
+      if (saved.hasOwnProperty(name) && cur !== saved[name] && /[\u3400-\u9fff]/.test(cur)) saved[name] = cur;
       if (!saved.hasOwnProperty(name)) saved[name] = cur;
       var base = saved[name];
       var out = base;
@@ -290,6 +292,7 @@
       get lang() { return lang; },
       setLang: setLang,
       translate: function () { walk(document.body); },
+    retranslate: function (el) { if (el) walk(el); },
       available: Object.keys(DICT).filter(function (k) { return k !== 'zh' && DICT[k] && DICT[k].texts; })
     };
   }

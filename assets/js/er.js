@@ -180,7 +180,7 @@
       '        <button class="btn btn--sm btn--block" data-act="add-entity">▭ 实体 Entity</button>',
       '        <button class="btn btn--sm btn--block" data-act="add-rel">◇ 关系 Relationship</button>',
       '        <button class="btn btn--sm btn--block" data-act="add-attr-sel" title="给选中的实体 / 关系添加属性">⭕ 属性 Attribute</button>',
-      '        <div class="hint">属性以小球连在实体周围。点小球可编辑、拖动可挪位置。</div>',
+      '        <div class="hint">属性以小球围绕实体；点击编辑，拖动移动。</div>',
       '      </div>',
       '      <div class="panel-body">',
       '        <div class="panel-title">模型结构 <span class="hint" id="erCount"></span></div>',
@@ -1038,9 +1038,9 @@
         '<option value="none"' + (a.nocard ? ' selected' : '') + '>普通属性（不显示基数）</option>' +
         '</select></label>' +
         (comp
-          ? '<div class="hint">这个属性有子属性，不能作为主键；主键可由子属性组成。</div>'
+          ? '<div class="hint">有子属性的属性不能作主键；主键可由子属性组成。</div>'
           : '<label class="check"><input type="checkbox" ' + b({ t: 'attr', owner: ownerKind, ownerId: ownerId, attrId: a.id, f: 'key' }) + (a.key ? ' checked' : '') + '> ' + (isWeakOwner ? '部分键（弱实体标识）' : '主键 / 标识属性') + '</label>') +
-        '<div class="hint">主键小球会变黑；两个以上主键会变白并连成复合键。</div>' +
+        '<div class="hint">单主键为黑球；多主键为白球并连成复合键。</div>' +
         rows +
         '<div class="insp-actions" style="margin-top:10px">' +
         '<button class="btn btn--sm" data-act="add-child" data-owner="' + ownerKind + '" data-owner-id="' + ownerId + '" data-attr-id="' + a.id + '">＋ 添加子属性</button>' +
@@ -1062,7 +1062,7 @@
 
     function inspEmpty() {
       return '<div class="insp">' +
-        '<div class="insp-empty">未选中元素。<br>点击画布中的实体、关系或 ISA 查看属性。</div>' +
+        '<div class="insp-empty">未选中元素。点击画布元素查看属性。</div>' +
         '<div class="insp-section"><div class="insp-title">当前模型</div>' +
         '<div class="kv-list">' +
         '<div class="kv"><span class="k">模型名</span><span class="v">' + esc(state.model.name) + '</span></div>' +
@@ -1072,7 +1072,7 @@
         (isFull ? '<div class="kv"><span class="k">检查</span><span class="v">' + (ERSCHEMA.checks(state.model).length) + '</span></div>' : '') +
         '</div></div>' +
         '<div class="insp-section"><div class="insp-title">提示</div>' +
-        '<div class="hint">属性小球连在实体周围；「🔗 链接实体」可建 ISA 或给关系加参与端。<br>「检查」页看模型问题，「逻辑模式」页看重构结果。</div></div>' +
+        '<div class="hint">属性以小球围绕实体；「🔗 链接实体」可建 ISA 或加参与端。</div></div>' +
         '</div>';
     }
 
@@ -1153,7 +1153,7 @@
         } else {
           html += '<div class="insp-section"><div class="insp-title">属性 <span class="hint">' + ent.attributes.length + '</span></div>' +
             attrListHTML(ent.attributes, 'entity', ent.id, ent.weak, 'entity', ent.id) +
-            '<div class="hint">点小球或下面的行可编辑属性；用上方「＋ 属性」新增。</div>' +
+            '<div class="hint">点小球可编辑；用上方「＋ 属性」新增。</div>' +
             '</div>';
         }
         if (focusAttr) { html += '</div>'; box.innerHTML = html; box.scrollTop = 0; return; }
@@ -1222,7 +1222,7 @@
           (state.linking === 'part' ? '🔗 正在链接…点击实体' : '🔗 链接实体（添加参与端）') + '</button>' +
           '<button class="btn btn--sm" data-act="add-part" data-rel-id="' + rel.id + '">＋ 添加参与端</button>' +
           '</div>' +
-          '<div class="hint">参与端 (min,max)：N 表示多个，min=1 表示完全参与（双线）。</div>' +
+          '<div class="hint">参与端 (min,max)：N 表示多；min=1 为完全参与（双线）。</div>' +
           '</div>';
         }
         if (relAttrSel) {
@@ -1261,7 +1261,7 @@
                 return '<option value="' + o[0] + '"' + (o[0] === cur ? ' selected' : '') + '>' + o[1] + '</option>';
               }).join('') +
               '</select></label>' +
-              '<div class="hint">约束显示在画布的连接线上，点它也能选中这条泛化。全参与表示每个父类实例都必须属于某个子类；排他表示只能属于一个子类。</div>';
+              '<div class="hint">约束显示在连接线上，点击也可选中。全参与＝每个父类实例必须有子类；排他＝只能属于一个子类。</div>';
           })() +
           '</div>';
         html += '<div class="insp-section"><div class="insp-title">子实体（子类） <span class="hint">' + isa.childIds.length + '</span></div>' +
@@ -1335,7 +1335,7 @@
       const box = $('#erTabSchema');
       let html = '<div class="insp">';
       if (!state.schema || !state.schema.tables.length) {
-        html += '<div class="insp-empty">还没有实体可以重构。<br>先添加实体和属性，再查看逻辑关系模式。</div>';
+        html += '<div class="insp-empty">还没有实体；先添加实体与属性。</div>';
         box.innerHTML = html + '</div>';
         return;
       }

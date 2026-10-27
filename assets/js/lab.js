@@ -19,7 +19,7 @@
       '    <div class="lab-copy">' +
       '      <p class="lab-eyebrow">Interface preview · Motion lab</p>' +
       '      <h1 class="lab-title">A model<br><em>in motion</em></h1>' +
-      '      <p class="lab-lede">Watch the pieces of an ER model glide into a relational schema. Everything on this page is plain CSS motion — no video, no libraries.</p>' +
+      '      <p class="lab-lede">Watch an ER model turn into a relational schema — pure CSS motion, no libraries.</p>' +
       '      <div class="lab-actions">' +
       '        <button class="btn btn--primary" type="button" data-lab="replay">Replay the animation</button>' +
       '        <a class="btn btn--ghost" href="#/">Back to home</a>' +
@@ -72,9 +72,9 @@
       '  <section class="lab-section">' +
       '    <h2 class="lab-h2">Three motions, one system</h2>' +
       '    <div class="lab-tiles">' +
-      '      <article class="lab-tile"><span class="lab-tile-num">01</span><h3>Enter with a stagger</h3><p>Sections and cards arrive in sequence, 70 ms apart, moving only transform and opacity.</p></article>' +
-      '      <article class="lab-tile"><span class="lab-tile-num">02</span><h3>Connect with a draw</h3><p>SVG paths animate their dash offset, so relationships look like they are being wired.</p></article>' +
-      '      <article class="lab-tile"><span class="lab-tile-num">03</span><h3>Leave the way you came</h3><p>Every overlay returns along the same path it entered. Motion is courtesy, not decoration.</p></article>' +
+      '      <article class="lab-tile"><span class="lab-tile-num">01</span><h3>Enter with a stagger</h3><p>Sections and cards enter in sequence, 70 ms apart, moving only transform and opacity.</p></article>' +
+      '      <article class="lab-tile"><span class="lab-tile-num">02</span><h3>Connect with a draw</h3><p>SVG paths grow their dash offset, so relationships look wired up.</p></article>' +
+      '      <article class="lab-tile"><span class="lab-tile-num">03</span><h3>Leave the way you came</h3><p>Every overlay returns along the same path. Motion is courtesy, not decoration.</p></article>' +
       '    </div>' +
       '  </section>' +
       '</div>';

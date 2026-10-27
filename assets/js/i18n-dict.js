@@ -2392,3 +2392,90 @@ window.DDB_I18N_DICT = {
     D.it.texts[k] = e[k].it;
   });
 })();
+
+/* patch-grip */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  var a = {"拖动展开或收起面板":["Drag to expand or collapse the panel","Trascina per espandere o chiudere il pannello"]};
+  Object.keys(a).forEach(function (k) {
+    D.zh.attrs[k] = k;
+    D.en.attrs[k] = a[k][0];
+    D.it.attrs[k] = a[k][1];
+  });
+})();
+
+/* patch-sheet-close */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  var a = {"关闭面板":["Close panel","Chiudi pannello"]};
+  Object.keys(a).forEach(function (k) {
+    D.zh.attrs[k] = k;
+    D.en.attrs[k] = a[k][0];
+    D.it.attrs[k] = a[k][1];
+  });
+})();
+
+/* patch-grip2 */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  var a = {"向下拖动收起面板":["Drag down to close the panel","Trascina verso il basso per chiudere il pannello"]};
+  Object.keys(a).forEach(function (k) {
+    D.zh.attrs[k] = k;
+    D.en.attrs[k] = a[k][0];
+    D.it.attrs[k] = a[k][1];
+  });
+})();
+
+/* patch-short-copy */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  var zh = {"四个工具：画 ER、翻译成关系模式、设计文档模型、搭关系代数。全部在浏览器里完成。":["Four tools: draw an ER, translate it into a relational schema, design document collections, build relational algebra. Everything runs in the browser.","Quattro strumenti: disegna un ER, traducilo in schema relazionale, progetta collezioni documentali, costruisci algebra relazionale. Tutto nel browser."],"画实体、属性、关系与 ISA，自动检查并重构为逻辑模式。":["Draw entities, attributes, relationships and ISA; checks then refactor into a logical schema.","Disegna entità, attributi, relazioni e ISA; controlli e ristrutturazione in schema logico."],"把 ER 手写或一键翻译成关系模式，并用 Done 校验。":["Write or one-click translate an ER into a relational schema, then validate with Done.","Scrivi o traduci con un clic un ER in schema relazionale, poi valida con Done."],"用集合与字段描述文档模型，自动检查命名与引用。":["Describe a document model with collections and fields; naming and references are checked.","Descrivi un modello documentale con collezioni e campi; nomi e riferimenti controllati."],"用 σ、π、⋈ 等算子搭表达式树并导出。":["Build expression trees with σ, π, ⋈ and more, then export.","Costruisci alberi di espressioni con σ, π, ⋈ e altri, poi esporta."],"添加实体、属性与关系。":["Add entities, attributes and relationships.","Aggiungi entità, attributi e relazioni."],"自动检查并重构为逻辑模式。":["Checks run, then refactor into a logical schema.","Controlli automatici, poi ristrutturazione in schema logico."],"复制或下载结果。":["Copy or download the result.","Copia o scarica il risultato."],"打开就能画，模型自动保留。":["Open and draw — models are kept automatically.","Apri e disegna — i modelli restano salvati."],"每条检查说明原因，可一键定位。":["Every check explains why and can jump to the element.","Ogni controllo spiega il perché e porta all’elemento."],"逻辑模式、JSON Schema 都可导出。":["Logical schema and JSON Schema can be exported.","Schema logico e JSON Schema esportabili."],"纯静态页面，无需安装。":["Static pages, nothing to install.","Pagine statiche, niente da installare."],"受 designerdb.io 启发的教学实现，支持中 / 英 / 意。":["A teaching implementation inspired by designerdb.io, in Chinese / English / Italian.","Un’implementazione didattica ispirata a designerdb.io, in cinese / inglese / italiano."],"跟随系统时自动切换深浅色。":["With System, light and dark follow the system appearance.","Con Sistema, chiaro e scuro seguono l’aspetto di sistema."],"属性以小球围绕实体；点击编辑，拖动移动。":["Attributes are small circles around an entity; click to edit, drag to move.","Gli attributi sono cerchietti attorno all’entità; clic per modificare, trascina per spostare."],"未选中元素。点击画布元素查看属性。":["No selection. Click an element on the canvas to edit it.","Nessuna selezione. Fai clic su un elemento della tela."],"约束显示在连接线上，点击也可选中。全参与＝每个父类实例必须有子类；排他＝只能属于一个子类。":["The constraint shows on the connector and is clickable. Total = every parent must have a subclass; exclusive = only one subclass.","Il vincolo è sulla linea ed è cliccabile. Totale = ogni padre deve avere una sottoclasse; esclusivo = una sola sottoclasse."],"参与端 (min,max)：N 表示多；min=1 为完全参与（双线）。":["Participant (min,max): N means many; min=1 is full participation (double line).","Estremo (min,max): N = molti; min=1 = partecipazione totale (linea doppia)."],"点小球可编辑；用上方「＋ 属性」新增。":["Click a circle to edit; use + Attribute above to add.","Clic su un cerchietto per modificare; usa + Attributo sopra per aggiungere."],"单主键为黑球；多主键为白球并连成复合键。":["A single primary key is a dark circle; several become white and are chained into a composite key.","Una chiave primaria è un cerchietto scuro; più chiavi diventano bianche e si concatenano in una chiave composta."],"有子属性的属性不能作主键；主键可由子属性组成。":["An attribute with children cannot be a primary key; its children can form one.","Un attributo con figli non può essere chiave primaria; i figli possono comporla."],"属性以小球围绕实体；「🔗 链接实体」可建 ISA 或加参与端。":["Attributes are circles around entities; “Link entity” creates an ISA or adds a participant.","Gli attributi sono cerchietti attorno alle entità; «Collega entità» crea una ISA o aggiunge un estremo."],"每个集合自带 _id<br>嵌套 = 内嵌 object<br>一对多放在「多」侧<br>unique 字段自动建索引":["Every collection has _id<br>Nested doc = embedded object<br>One-to-many lives on the “many” side<br>unique fields get an index","Ogni collezione ha _id<br>Documento annidato = object incorporato<br>Uno-a-molti sul lato “molti”<br>i campi unique hanno un indice"],"引用模式：先点来源集合，再点目标集合。":["Reference mode: click the source collection, then the target.","Modalità riferimento: clic sulla collezione di origine, poi quella di destinazione."],"先点占位符再选操作；选中节点会包一层。":["Click a placeholder, then an operation; selecting a node wraps it.","Clic su un segnaposto, poi su un’operazione; selezionare un nodo lo avvolge."],"σ 选择 · π 投影 · ρ 重命名 · ⋈ 连接 · × 积 · ∪ 并 · ∩ 交 · − 差 · γ 聚合 · ÷ 除。":["σ select · π project · ρ rename · ⋈ join · × product · ∪ union · ∩ intersect · − difference · γ aggregate · ÷ divide.","σ selezione · π proiezione · ρ rinomina · ⋈ join · × prodotto · ∪ unione · ∩ intersezione · − differenza · γ aggregazione · ÷ divisione."],"还没有实体；先添加实体与属性。":["No entities yet — add entities and attributes first.","Nessuna entità: aggiungi prima entità e attributi."]};
+  var en = {"Load a sample, open a saved ER, import JSON, or press New to start from scratch.":["载入示例、打开已保存的 ER、导入 JSON，或点新建从零开始。","Carica un esempio, apri un ER salvato, importa JSON, oppure Nuovo per iniziare da zero."],"Press + Table, then type an entity name (case-insensitive) — brackets are added for you.":["点「+ 表」后输入实体名（不区分大小写），括号会自动补上。","Premi + Tabella, poi digita il nome di un’entità (senza distinzione maiuscole) — le parentesi vengono aggiunte."],"Watch an ER model turn into a relational schema — pure CSS motion, no libraries.":["看着 ER 模型滑入关系模式——纯 CSS 动效，无库。","Guarda un modello ER trasformarsi in schema relazionale — solo CSS, nessuna libreria."],"Sections and cards enter in sequence, 70 ms apart, moving only transform and opacity.":["分节与卡片依次入场，间隔 70ms，只动 transform 与 opacity。","Sezioni e schede entrano in sequenza, 70 ms di distanza, solo transform e opacity."],"SVG paths grow their dash offset, so relationships look wired up.":["SVG 路径描边生长，关系像被接线一样出现。","I tracciati SVG animano il dash offset: le relazioni sembrano cablate."],"Every overlay returns along the same path. Motion is courtesy, not decoration.":["每个浮层沿进入的同一路径返回。动效是礼貌，不是装饰。","Ogni overlay torna lungo lo stesso percorso. Il movimento è cortesia, non decorazione."]};
+  Object.keys(zh).forEach(function (k) {
+    D.zh.texts[k] = k;
+    D.en.texts[k] = zh[k][0];
+    D.it.texts[k] = zh[k][1];
+  });
+  Object.keys(en).forEach(function (k) {
+    D.en.texts[k] = k;
+    D.zh.texts[k] = en[k][0];
+    D.it.texts[k] = en[k][1];
+  });
+})();
+
+/* patch-short-copy-lines */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D) return;
+  var zh = {
+    "每个集合自带 _id": ["Every collection has _id", "Ogni collezione ha _id"],
+    "嵌套 = 内嵌 object": ["Nested doc = embedded object", "Documento annidato = object incorporato"],
+    "一对多放在「多」侧": ["One-to-many on the \u201cmany\u201d side", "Uno-a-molti sul lato \u201cmolti\u201d"],
+    "unique 字段自动建索引": ["unique fields get an index", "i campi unique hanno un indice"]
+  };
+  Object.keys(zh).forEach(function (k) { D.zh.texts[k] = k; D.en.texts[k] = zh[k][0]; D.it.texts[k] = zh[k][1]; });
+})();
+
+/* patch-short-copy-actions */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D) return;
+  var m = {
+    "Delete": ["删除", "删除", "Elimina"],
+    "Reset": ["重置", "重置", "Reimposta"]
+  };
+  Object.keys(m).forEach(function (k) { D.en.texts[k] = m[k][0]; D.zh.texts[k] = m[k][1]; D.it.texts[k] = m[k][2]; });
+})();
+
+/* patch-short-copy-actions-fix */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D) return;
+  D.en.texts["Delete"] = "Delete";
+  D.zh.texts["Delete"] = "删除";
+  D.it.texts["Delete"] = "Elimina";
+  D.en.texts["Reset"] = "Reset";
+  D.zh.texts["Reset"] = "重置";
+  D.it.texts["Reset"] = "Reimposta";
+})();

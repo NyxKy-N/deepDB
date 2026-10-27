@@ -88,7 +88,7 @@
       body: [
         '<div class="set-block"><div class="set-label">语言</div>' + seg('lang', langs, lang) + '</div>',
         '<div class="set-block"><div class="set-label">主题</div>' + seg('theme', themes, theme) +
-        '<div class="hint">深色模式跟随系统时会随系统外观自动切换。</div></div>'
+        '<div class="hint">跟随系统时自动切换深浅色。</div></div>'
       ].join(''),
       actions: [{ label: '完成', primary: true, onClick: function (close) { close(); } }]
     });
@@ -137,16 +137,16 @@
     };
     const tools = [
       { tag: '关系模型', name: 'designER', icon: 'er', fig: 'er',
-        desc: '在无限画布上画实体、属性（小球）、关系与 ISA，自动检查设计错误，重构为逻辑模式。',
+        desc: '画实体、属性、关系与 ISA，自动检查并重构为逻辑模式。',
         href: '#/tools/er', btn: '打开 designER', primary: true },
       { tag: '翻译', name: 'translatER', icon: 'schema', fig: 'schema',
-        desc: '手写或一键翻译 ER 模型：表名自动匹配实体，PK/FK 点选，Done 一键校验。',
+        desc: '把 ER 手写或一键翻译成关系模式，并用 Done 校验。',
         href: '#/tools/translater', btn: '打开 translatER' },
       { tag: '文档模型', name: 'noER', icon: 'doc', fig: 'doc',
-        desc: '用集合、字段、嵌套对象与引用描述文档数据库，自动检查命名、引用与嵌套结构。',
+        desc: '用集合与字段描述文档模型，自动检查命名与引用。',
         href: '#/tools/noer', btn: '打开 noER' },
       { tag: '关系代数', name: 'designQT basic', icon: 'ra', fig: 'ra',
-        desc: '用 σ、π、ρ、⋈、×、∪、∩、−、γ 搭表达式树，自动推断输出字段并导出标准表达式。',
+        desc: '用 σ、π、⋈ 等算子搭表达式树并导出。',
         href: '#/tools/ra', btn: '打开 designQT' }
     ];
     const rows = tools.map(function (t, i) {
@@ -177,7 +177,7 @@
       '<section class="hero home-section">',
       '  <div class="hero-copy">',
       '    <h1>把数据库设计，从<em>草图</em>画到<em>模式</em></h1>',
-      '    <p class="lede">四个工具覆盖关系模型、文档模型、关系代数与 ER 翻译。画完模型就能检查、重构并导出结果，全部在浏览器里完成。</p>',
+      '    <p class="lede">四个工具：画 ER、翻译成关系模式、设计文档模型、搭关系代数。全部在浏览器里完成。</p>',
       '    <div class="hero-actions">',
       '      <a class="btn btn--primary" href="#/tools/er">打开 designER</a>',
       '      <a class="btn btn--ghost" href="#/tools/translater">translatER →</a>',
@@ -216,19 +216,19 @@
       '<section class="section section--split home-section">',
       '  <div class="section-head"><h2>三步把想法变成模式</h2></div>',
       '  <ol class="step-list">',
-      '    <li><span class="step-num">01</span><span class="step-ic">' + ICONS.pen + '</span><div><h4>画出概念模型</h4><p>添加实体与属性，用关系连接它们并设置参与度。</p></div></li>',
-      '    <li><span class="step-num">02</span><span class="step-ic">' + ICONS.check + '</span><div><h4>检查并重构</h4><p>自动检查问题，一键重构为含主键、外键、唯一约束的逻辑模式。</p></div></li>',
-      '    <li><span class="step-num">03</span><span class="step-ic">' + ICONS.export + '</span><div><h4>导出结果</h4><p>复制或下载逻辑模式、JSON Schema 与关系代数表达式。</p></div></li>',
+      '    <li><span class="step-num">01</span><span class="step-ic">' + ICONS.pen + '</span><div><h4>画出概念模型</h4><p>添加实体、属性与关系。</p></div></li>',
+      '    <li><span class="step-num">02</span><span class="step-ic">' + ICONS.check + '</span><div><h4>检查并重构</h4><p>自动检查并重构为逻辑模式。</p></div></li>',
+      '    <li><span class="step-num">03</span><span class="step-ic">' + ICONS.export + '</span><div><h4>导出结果</h4><p>复制或下载结果。</p></div></li>',
       '  </ol>',
       '</section>',
 
       '<section class="section home-section">',
       '  <div class="section-head"><h2>为课堂与练习而做</h2></div>',
       '  <div class="feature-cols">',
-      '    <div class="feature"><span class="feature-ic">' + ICONS.target + '</span><div><h4>专注建模</h4><p>没有多余设置，打开就能画；模型自动保留，可随时导出 JSON 备份。</p></div></div>',
-      '    <div class="feature"><span class="feature-ic">' + ICONS.alert + '</span><div><h4>检查会解释原因</h4><p>每条检查都说明问题出在哪，并可一键定位到对应元素。</p></div></div>',
-      '    <div class="feature"><span class="feature-ic">' + ICONS.box + '</span><div><h4>导出即交付</h4><p>逻辑模式、关系模式文本、JSON Schema 都能复制或下载。</p></div></div>',
-      '    <div class="feature"><span class="feature-ic">' + ICONS.bolt + '</span><div><h4>双击就能用</h4><p>纯静态页面，不需要安装任何依赖。</p></div></div>',
+      '    <div class="feature"><span class="feature-ic">' + ICONS.target + '</span><div><h4>专注建模</h4><p>打开就能画，模型自动保留。</p></div></div>',
+      '    <div class="feature"><span class="feature-ic">' + ICONS.alert + '</span><div><h4>检查会解释原因</h4><p>每条检查说明原因，可一键定位。</p></div></div>',
+      '    <div class="feature"><span class="feature-ic">' + ICONS.box + '</span><div><h4>导出即交付</h4><p>逻辑模式、JSON Schema 都可导出。</p></div></div>',
+      '    <div class="feature"><span class="feature-ic">' + ICONS.bolt + '</span><div><h4>双击就能用</h4><p>纯静态页面，无需安装。</p></div></div>',
       '  </div>',
       '</section>',
 
@@ -241,7 +241,7 @@
       '  <div class="footer-inner">',
       '    <div class="footer-brand">',
       '      <div class="footer-logo">deep<strong>DB</strong></div>',
-      '      <p class="hint">受 designerdb.io 启发的教学实现，支持中文 / English / Italiano。</p>',
+      '      <p class="hint">受 designerdb.io 启发的教学实现，支持中 / 英 / 意。</p>',
       '      <p class="hint footer-author"><img class="author-avatar" src="assets/img/avatar.jpg" alt="" width="30" height="30">作者 · NyxKy</p>',
       '      <p class="hint footer-author footer-author--deepseek"><img class="author-avatar" src="assets/img/deepseek.png" alt="" width="30" height="30">助手 · Deepseek</p>',
       '      <p class="hint footer-repo"><a href="https://github.com/NyxKy-N/deepDB.git" target="_blank" rel="noopener">github.com/NyxKy-N/deepDB</a></p>',
@@ -310,19 +310,22 @@
   function applyPanels(body, p) {
     body.classList.toggle('lb-collapsed', !!p.left);
     body.classList.toggle('rb-collapsed', !!p.right);
+    const phone = window.innerWidth <= 640;
     const lb = body.querySelector('.side-toggle[data-side="left"]');
     const rb = body.querySelector('.side-toggle[data-side="right"]');
     if (lb) {
-      lb.textContent = p.left ? '›' : '‹';
+      lb.textContent = phone ? (p.left ? '↑' : '↓') : (p.left ? '›' : '‹');
       lb.setAttribute('aria-pressed', p.left ? 'true' : 'false');
       lb.setAttribute('aria-label', p.left ? '展开左栏' : '隐藏左栏');
       lb.setAttribute('title', p.left ? '展开左栏' : '隐藏左栏');
+      if (window.DDB_I18N && window.DDB_I18N.retranslate) window.DDB_I18N.retranslate(lb);
     }
     if (rb) {
-      rb.textContent = p.right ? '‹' : '›';
+      rb.textContent = phone ? (p.right ? '↑' : '↓') : (p.right ? '‹' : '›');
       rb.setAttribute('aria-pressed', p.right ? 'true' : 'false');
       rb.setAttribute('aria-label', p.right ? '展开右栏' : '隐藏右栏');
       rb.setAttribute('title', p.right ? '展开右栏' : '隐藏右栏');
+      if (window.DDB_I18N && window.DDB_I18N.retranslate) window.DDB_I18N.retranslate(rb);
     }
   }
   const QUICK_ACTS = ['add-entity', 'add-rel', 'add-attr-sel', 'add-col', 'add-field', 'ref-mode', 'add-op'];
@@ -439,6 +442,76 @@
     grip.addEventListener('pointercancel', end);
   }
 
+
+  /* 手机底部抽屉：横条手柄（向上拉展开，向下拉关闭） */
+  function setupSheetGrips(box, body) {
+    ['left', 'right'].forEach(function (side) {
+      const panel = body.querySelector('.tool-' + side);
+      if (!panel || panel.querySelector('.sheet-grip')) return;
+      const grip = document.createElement('div');
+      grip.className = 'sheet-grip';
+      grip.setAttribute('role', 'button');
+      grip.setAttribute('tabindex', '0');
+      grip.setAttribute('aria-label', '\u5411\u4e0b\u62d6\u52a8\u6536\u8d77\u9762\u677f');
+      grip.innerHTML = '<i></i>';
+      panel.insertBefore(grip, panel.firstChild);
+
+      function commit(open) {
+        if (!open) body.classList.remove('sheet-expanded');
+        const p = readPanels();
+        p[side] = !open;
+        if (window.innerWidth <= 1024 && open) {
+          p[side === 'left' ? 'right' : 'left'] = true;
+        }
+        writePanels(p);
+        applyPanels(body, p);
+        window.dispatchEvent(new Event('resize'));
+      }
+
+      let startY = 0;
+      let dy = 0;
+      let active = false;
+      grip.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        active = true;
+        startY = e.clientY;
+        dy = 0;
+        grip.classList.add('is-dragging');
+        try { grip.setPointerCapture(e.pointerId); } catch (err) {}
+        e.preventDefault();
+      });
+      grip.addEventListener('pointermove', function (e) {
+        if (!active) return;
+        dy = e.clientY - startY;
+        body.classList.add('sheet-dragging');
+        if (panel) {
+          const maxDown = Math.max(120, panel.getBoundingClientRect().height);
+          const clamped = Math.max(0, Math.min(dy, maxDown));
+          panel.style.transform = 'translateY(' + clamped + 'px)';
+        }
+        grip.style.transform = 'translateY(' + (dy < 0 ? Math.max(dy / 4, -12) : 0) + 'px)';
+      });
+      function end() {
+        if (!active) return;
+        active = false;
+        body.classList.remove('sheet-dragging');
+        grip.classList.remove('is-dragging');
+        grip.style.transform = '';
+        if (panel) panel.style.transform = '';
+        if (dy >= 22) commit(false);
+        dy = 0;
+      }
+      grip.addEventListener('pointerup', end);
+      grip.addEventListener('pointercancel', end);
+      grip.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+        e.preventDefault();
+        const p = readPanels();
+        commit(!!p[side]);
+      });
+    });
+  }
+
   function decorateTool(box) {
     const body = box.querySelector('.tool-body');
     const canvas = box.querySelector('.tool-canvas');
@@ -466,6 +539,7 @@
     wrapAccordions(box);
     buildQuickBar(box);
     setupSideResize(body);
+    setupSheetGrips(box, body);
     wrap.addEventListener('click', function (e) {
       const btn = e.target.closest('.side-toggle');
       if (!btn) return;
@@ -477,6 +551,7 @@
       if (window.innerWidth <= 1024 && p[side] === false) {
         p[side === 'left' ? 'right' : 'left'] = true;
       }
+      body.classList.remove('sheet-expanded');
       writePanels(p);
       applyPanels(body, p);
       window.dispatchEvent(new Event('resize'));
@@ -512,6 +587,8 @@
     box.classList.remove('is-enter');
     void box.offsetWidth;
     box.classList.add('is-enter');
+    clearTimeout(box._enterTimer);
+    box._enterTimer = setTimeout(function () { box.classList.remove('is-enter'); }, 520);
     window.scrollTo(0, 0);
     window.dispatchEvent(new Event('resize'));
   }
@@ -584,6 +661,11 @@
 
   let lastCompact = window.innerWidth <= 1024;
   window.addEventListener('resize', function () {
+    Object.keys(cache).forEach(function (k) {
+      const box = cache[k];
+      const body = box && box.querySelector('.tool-body');
+      if (body) applyPanels(body, readPanels());
+    });
     const compact = window.innerWidth <= 1024;
     if (compact === lastCompact) return;
     lastCompact = compact;

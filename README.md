@@ -83,7 +83,9 @@ floating model cards, self-drawing SVG connections, staggered entrances, pointer
 - The left panel can be resized by dragging its right edge (desktop, minimum = default width);
 - Footer: project author, avatar, GitHub link and shortcuts.
 
-## Responsive behaviour
+## Responsive
+
+- **Phone sheets**: panels slide up from the bottom with a grip bar - drag the bar down to close them (they cannot be expanded further). The circular sidebar buttons sit at the bottom corners and show **↓** when the panel is closed (tap to open) and **↑** when it is open (tap to close).
 
 - **Desktop** (> 1024 px): three columns — tools, canvas, properties; both side panels collapsible;
 - **Tablet** (641–1024 px): full-width canvas, side panels are exclusive drawers, left-panel groups become accordions, bottom quick-action bar;

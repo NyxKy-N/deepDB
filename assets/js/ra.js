@@ -242,7 +242,7 @@
       '          <button class="btn btn--sm" data-act="add-op" data-kind="group" title="γ 分组聚合">γ 聚合</button>',
       '          <button class="btn btn--sm" data-act="add-op" data-kind="division" title="÷ 除">÷ 除</button>',
       '        </div>',
-      '        <div class="hint">先点占位符再选操作；选中已有节点会包一层。</div>',
+      '        <div class="hint">先点占位符再选操作；选中节点会包一层。</div>',
       '      </div>',
       '      <div class="panel-body">',
       '        <div class="panel-title">表达式树</div>',
@@ -643,7 +643,7 @@
         '<button class="btn btn--sm" data-act="export-json">导出 JSON</button>' +
         '<button class="btn btn--sm" data-act="import-json">导入 JSON</button></div></div>' +
         '<div class="insp-section"><div class="insp-title">运算符说明</div><div class="hint">' +
-        'σ 选择（按条件过滤行）· π 投影（选列）· ρ 重命名 · ⋈ 连接 · × 笛卡尔积 · ∪ 并 · ∩ 交 · − 差 · γ 分组聚合 · ÷ 除。</div></div>' +
+        'σ 选择 · π 投影 · ρ 重命名 · ⋈ 连接 · × 积 · ∪ 并 · ∩ 交 · − 差 · γ 聚合 · ÷ 除。</div></div>' +
         '</div>';
     }
 

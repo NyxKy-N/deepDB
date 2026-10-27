@@ -2955,3 +2955,284 @@ html[data-theme="dark"] .tool-row:hover,
 html[data-theme="dark"] .tool-row:focus-within {
   background: transparent;
 }
+
+/* ===== v92: 手机底部抽屉横条手柄 + 侧栏开关移到底部 ===== */
+.sheet-grip { display: none; }
+@media (max-width: 640px) {
+  .tool-left, .tool-right { touch-action: none; }
+  .sheet-grip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+    margin: -6px 0 2px;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+  .sheet-grip i {
+    display: block;
+    width: 44px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--border-strong);
+    transition: background .18s ease, transform .18s ease;
+  }
+  .sheet-grip:hover i, .sheet-grip:focus-visible i { background: var(--primary); }
+  .sheet-grip:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; border-radius: 12px; }
+  .sheet-grip.is-dragging { cursor: grabbing; }
+
+  /* 侧栏开关移到底部，放在快捷条两端 */
+  .side-toggles {
+    top: auto;
+    bottom: 10px;
+    left: 8px;
+    right: 8px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .side-toggle { width: 34px; height: 34px; }
+  .m-quick { padding-left: 52px; padding-right: 52px; }
+}
+@media (max-width: 640px) {
+  /* 抽屉打开时，快捷条隐藏，底部只留两个开关 */
+  .tool-body:not(.lb-collapsed) .side-toggles .st-left,
+  .tool-body:not(.rb-collapsed) .side-toggles .st-right { background: var(--primary-soft); color: var(--primary-dark); }
+}
+
+/* 手机底部抽屉的关闭按钮 */
+.sheet-close { display: none; }
+@media (max-width: 640px) {
+  .sheet-grip { position: relative; }
+  .sheet-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .sheet-close:hover { background: var(--surface-2); color: var(--ink); }
+}
+
+@media (max-width: 640px) {
+  .tool-body.sheet-expanded .tool-left,
+  .tool-body.sheet-expanded .tool-right { max-height: 96vh; }
+}
+
+@media (max-width: 640px) {
+  .tool-body.sheet-expanded .tool-left,
+  .tool-body.sheet-expanded .tool-right { height: 92vh; max-height: 92vh; }
+}
+
+@media (max-width: 640px) {
+  .m-quick { left: 50px; right: 50px; width: auto; padding-left: 8px; padding-right: 8px; }
+  .m-quick .btn { padding-left: 10px; padding-right: 10px; }
+}
+
+@media (max-width: 1024px) {
+  .tool-body.sheet-dragging > .tool-left,
+  .tool-body.sheet-dragging > .tool-right { transition: none; }
+}
+
+@media (max-width: 640px) {
+  .tool-left, .tool-right { height: 74vh; max-height: 74vh; transition: transform .25s cubic-bezier(.3,.8,.3,1), height .25s cubic-bezier(.3,.8,.3,1), visibility .25s ease; }
+  .tool-body.sheet-expanded .tool-left,
+  .tool-body.sheet-expanded .tool-right { height: 92vh; max-height: 92vh; }
+}
+
+/* ===== v93: 圆形侧栏开关 / 仅向下的抽屉手柄 ===== */
+.sheet-close { display: none !important; }
+@media (max-width: 640px) {
+  .side-toggle { border-radius: 50%; width: 36px; height: 36px; font-size: 15px; line-height: 1; }
+  .side-toggle:hover { transform: translateY(-1px); }
+  .sheet-grip { cursor: grab; }
+  .sheet-grip.is-dragging { cursor: grabbing; }
+}
+
+/* ===== v94: 侧栏开关排列 + 统一圆角 + 菜单按钮毛玻璃 ===== */
+/* 统一为圆形 */
+.side-toggle { border-radius: 50% !important; }
+
+/* 桌面 / 平板：左右两端，顶部 */
+@media (min-width: 641px) {
+  .side-toggles {
+    top: 10px;
+    bottom: auto;
+    left: 10px;
+    right: 10px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* 手机：上下竖排，贴右下角并与底栏底边对齐 */
+@media (max-width: 640px) {
+  .side-toggles {
+    top: auto;
+    bottom: 10px;
+    left: auto;
+    right: 10px;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+  }
+  .side-toggle { width: 36px; height: 36px; }
+  .m-quick { left: 50px; right: 56px; }
+}
+
+/* 菜单 / 底栏按钮：毛玻璃 */
+.node-menu-item,
+.edge-menu .edge-menu-opt,
+.edge-menu .edge-menu-row button,
+.edge-menu .edge-menu-foot button,
+.tr-chip-menu .tr-menu-item,
+.node-menu .node-menu-item {
+  background-color: color-mix(in srgb, var(--panel, #fff) 78%, transparent);
+  backdrop-filter: blur(10px) saturate(1.15);
+}
+.side-toggle {
+  background-color: color-mix(in srgb, var(--panel, #fff) 78%, transparent);
+  backdrop-filter: blur(10px) saturate(1.15);
+}
+.m-quick .btn,
+.seg button,
+.tab {
+  backdrop-filter: blur(10px) saturate(1.12);
+}
+html[data-theme="dark"] .node-menu-item,
+html[data-theme="dark"] .edge-menu .edge-menu-opt,
+html[data-theme="dark"] .edge-menu .edge-menu-row button,
+html[data-theme="dark"] .edge-menu .edge-menu-foot button,
+html[data-theme="dark"] .tr-chip-menu .tr-menu-item,
+html[data-theme="dark"] .side-toggle {
+  background-color: rgba(36, 44, 66, .82);
+  backdrop-filter: blur(10px) saturate(1.1);
+}
+html[data-theme="dark"] .m-quick .btn,
+html[data-theme="dark"] .seg button,
+html[data-theme="dark"] .tab {
+  backdrop-filter: blur(10px) saturate(1.1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .side-toggle { transition: none; }
+}
+
+@media (max-width: 640px) {
+  .tool-canvas .m-quick, .m-quick { left: 50px !important; right: 66px !important; width: auto !important; }
+}
+
+/* 平板/手机工具栏：隐藏标题，避免被挤压出半截文字 */
+.tool-title { flex: 0 0 auto; }
+@media (max-width: 1024px) {
+  .tool-bar .tool-title, .tool-bar .tool-mode { display: none; }
+}
+
+@media (max-width: 640px) {
+  .side-toggles { top: auto; bottom: 10px; left: 8px; right: 8px; flex-direction: row; justify-content: space-between; align-items: flex-end; gap: 8px; }
+  .tool-canvas .m-quick, .m-quick { left: 50px !important; right: 50px !important; }
+}
+/* ---------- 深色模式 v2：更深背景 + 按钮夜色 ---------- */
+html[data-theme="dark"] {
+  --surface: #06090f;
+  --surface-2: #0d1320;
+  --panel: #0b1018;
+  --border: #1a2130;
+  --border-strong: #2a3348;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .55);
+  --shadow: 0 8px 26px rgba(0, 0, 0, .6);
+  --shadow-lg: 0 28px 70px rgba(0, 0, 0, .72);
+}
+html[data-theme="dark"] body { background: #06090f; }
+html[data-theme="dark"] .app-header { background: rgba(5, 8, 14, .94); }
+html[data-theme="dark"] .canvas {
+  background-color: #04070d;
+  background-image: radial-gradient(#1b2336 1.1px, transparent 1.1px);
+}
+html[data-theme="dark"] .btn { background: #101725; border-color: #222c42; color: var(--ink); }
+html[data-theme="dark"] .btn:hover { background: #16202f; border-color: #2c3852; }
+html[data-theme="dark"] .btn--primary { background: var(--primary); border-color: var(--primary); color: #0b1120; }
+html[data-theme="dark"] .btn--primary:hover { background: var(--primary-dark); color: #0b1120; }
+html[data-theme="dark"] .btn--danger { background: #b23a30; border-color: #b23a30; color: #fff; }
+html[data-theme="dark"] .btn--danger:hover { background: #c8463b; }
+html[data-theme="dark"] .btn--ghost { background: #0e1522; border-color: #263048; color: var(--ink-2); }
+html[data-theme="dark"] .btn--ghost:hover { background: #141d2d; color: var(--ink); }
+html[data-theme="dark"] .tool-left,
+html[data-theme="dark"] .tool-right,
+html[data-theme="dark"] .tool-bar,
+html[data-theme="dark"] .tabbar,
+html[data-theme="dark"] .modal,
+html[data-theme="dark"] .site-footer,
+html[data-theme="dark"] .node-menu,
+html[data-theme="dark"] .edge-menu,
+html[data-theme="dark"] .store-item,
+html[data-theme="dark"] .check-item,
+html[data-theme="dark"] .attr-row,
+html[data-theme="dark"] .participant,
+html[data-theme="dark"] .schema-table,
+html[data-theme="dark"] .zoom-chip,
+html[data-theme="dark"] .er-edge-label,
+html[data-theme="dark"] .isa-label { background: #0b1018; }
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea { background: #0c1220; border-color: #263048; }
+html[data-theme="dark"] pre.code { background: #04070d; }
+html[data-theme="dark"] .hero-art { background: #070c18; }
+html[data-theme="dark"] .er-entity { background: #111a2b; border-color: #2b3752; }
+html[data-theme="dark"] .er-rel .er-diamond polygon { fill: #0e1524; stroke: #8d99b8; }
+html[data-theme="dark"] .er-attr-node { background: #0e1524; border-color: #5d6b8c; }
+html[data-theme="dark"] .er-attr-node.is-key,
+html[data-theme="dark"] .er-attr-node.is-partial { background: #e9edf8; }
+html[data-theme="dark"] .er-attr-name { background: rgba(4, 7, 13, .9); color: #dbe3f4; }
+html[data-theme="dark"] .edges .e-dot,
+html[data-theme="dark"] .edges .e-isa-tri { fill: #0b1018; }
+html[data-theme="dark"] .check-item.err { background: #221012; }
+html[data-theme="dark"] .check-item.warn { background: #1f1a0f; }
+html[data-theme="dark"] .m-quick .btn,
+html[data-theme="dark"] .seg button,
+html[data-theme="dark"] .tab,
+html[data-theme="dark"] .side-toggle { background-color: rgba(14, 20, 32, .86); border-color: #222c42; }
+html[data-theme="dark"] .seg { background: #0c1220; }
+html[data-theme="dark"] .seg button.active { background: #1d2740; color: #eef2fb; }
+html[data-theme="dark"] .node-menu-item:hover,
+html[data-theme="dark"] .edge-menu .edge-menu-foot button:hover { background: #16202f; }
+html[data-theme="dark"] .toast { background: #0b1018; color: var(--ink); border-color: #263048; }
+/* ---------- 深色：工作区用面板色，与页面底色分开 ---------- */
+html[data-theme="dark"] .canvas {
+  background-color: #0b1018;
+  background-image: radial-gradient(#232d43 1.15px, transparent 1.15px);
+}
+html[data-theme="dark"] .tool-canvas .canvas { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .035); }
+html[data-theme="dark"] .tool-canvas .canvas-hint { background: #101725; border-color: #263048; }
+
+/* ---------- 首页 hero 色球放大 ---------- */
+.home-bg { height: 840px; filter: blur(72px); opacity: .6; }
+.home-bg .blob { width: 500px; height: 500px; }
+.home-bg .b1 { left: -3%; top: 10px; }
+.home-bg .b2 { right: -3%; top: 110px; }
+.home-bg .b3 { left: 43%; top: 300px; }
+html[data-theme="dark"] .home-bg { opacity: .34; }
+@media (max-width: 1024px) {
+  .home-bg { height: 720px; filter: blur(60px); opacity: .55; }
+  .home-bg .blob { width: 380px; height: 380px; }
+}
+@media (max-width: 640px) {
+  .home-bg { height: 620px; filter: blur(52px); opacity: .5; }
+  .home-bg .blob { width: 300px; height: 300px; }
+}
