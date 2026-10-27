@@ -2613,7 +2613,69 @@
     updateToolbar();
     if (allNodes().length) setTimeout(function () { if (!state.view.s || state.view.s === 1) fitView(); }, 60);
 
+    /* 触屏双指缩放（手机 / 平板） */
+    const removePinch = (function () {
+      const pts = new Map();
+      let active = false, startDist = 0, startS = 1, startVX = 0, startVY = 0;
+      let startMid = { x: 0, y: 0 }, swallowUntil = 0;
+      function midPoint(r) {
+        const list = Array.from(pts.values());
+        return { x: (list[0].x + list[1].x) / 2 - r.left, y: (list[0].y + list[1].y) / 2 - r.top };
+      }
+      function down(e) {
+        if (e.pointerType === 'mouse') return;
+        pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (pts.size !== 2) return;
+        const list = Array.from(pts.values());
+        const r = canvasEl.getBoundingClientRect();
+        active = true;
+        startDist = Math.hypot(list[0].x - list[1].x, list[0].y - list[1].y) || 1;
+        startS = state.view.s; startVX = state.view.x; startVY = state.view.y;
+        startMid = midPoint(r);
+        swallowUntil = Date.now() + 500;
+        e.preventDefault(); e.stopPropagation();
+      }
+      function move(e) {
+        if (!pts.has(e.pointerId)) return;
+        pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (!active || pts.size < 2) return;
+        const list = Array.from(pts.values());
+        const r = canvasEl.getBoundingClientRect();
+        const m = midPoint(r);
+        const d = Math.hypot(list[0].x - list[1].x, list[0].y - list[1].y) || startDist;
+        const ns = Math.max(0.2, Math.min(2.4, startS * (d / startDist)));
+        const wx = (startMid.x - startVX) / startS;
+        const wy = (startMid.y - startVY) / startS;
+        state.view.s = ns;
+        state.view.x = m.x - wx * ns;
+        state.view.y = m.y - wy * ns;
+        applyView();
+        drawEdges();
+        e.preventDefault(); e.stopPropagation();
+      }
+      function up(e) {
+        if (!pts.has(e.pointerId)) return;
+        pts.delete(e.pointerId);
+        if (active && pts.size < 2) { active = false; swallowUntil = Date.now() + 350; }
+      }
+      function swallowClick(e) {
+        if (Date.now() < swallowUntil) { e.preventDefault(); e.stopPropagation(); }
+      }
+      canvasEl.addEventListener('pointerdown', down, true);
+      window.addEventListener('pointermove', move, { passive: false, capture: true });
+      window.addEventListener('pointerup', up, true);
+      window.addEventListener('pointercancel', up, true);
+      canvasEl.addEventListener('click', swallowClick, true);
+      return function () {
+        canvasEl.removeEventListener('pointerdown', down, true);
+        window.removeEventListener('pointermove', move, true);
+        window.removeEventListener('pointerup', up, true);
+        window.removeEventListener('pointercancel', up, true);
+        canvasEl.removeEventListener('click', swallowClick, true);
+      };
+    })();
     return function unmount() {
+      if (removePinch) removePinch();
       document.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('pointermove', pointerMove);
       window.removeEventListener('pointerup', pointerUp);
