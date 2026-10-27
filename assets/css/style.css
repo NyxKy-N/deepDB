@@ -3236,3 +3236,9 @@ html[data-theme="dark"] .home-bg { opacity: .34; }
   .home-bg { height: 620px; filter: blur(52px); opacity: .5; }
   .home-bg .blob { width: 300px; height: 300px; }
 }
+/* ---------- 拖动左栏时关闭宽度过渡，避免跟手延迟 ---------- */
+.tool-body.lb-resizing,
+.tool-body.lb-resizing > .tool-left,
+.tool-body.lb-resizing > .tool-right {
+  transition: none !important;
+}

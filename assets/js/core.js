@@ -195,48 +195,78 @@ window.DDB = (function () {
         return 'translate(' + dx.toFixed(1) + 'px,' + (dy + 8).toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')';
       }
       /* 把“按钮中心 → 弹窗中心”的位移拆成几段：先从按钮里向下掉出来，再滑到中间 */
-      function curveVectors() {
+      /* 从触发按钮里长出来：中心→中心的弧形路径，全程慢-快-慢 */
+      const EASE = 'cubic-bezier(.45,0,.55,1)';
+      const OPEN_MS = 390;
+      const CLOSE_MS = 390;
+      function motionVectors() {
+        if (!panel) return { dx: 0, dy: 0, sc: 1, cx: 0, cy: 0 };
         const r = panel.getBoundingClientRect();
-        const px = r.left + r.width / 2;
-        const py = r.top + r.height / 2;
+        const px = r.left + r.width / 2, py = r.top + r.height / 2;
         const ox = originRect ? originRect.left + originRect.width / 2 : px;
-        const oy = originRect ? originRect.top + originRect.height / 2 : py - 60;
-        const dx = ox - px;
-        const dy = oy - py;
+        const oy = originRect ? originRect.top + originRect.height / 2 : py - 80;
+        const dx = ox - px, dy = oy - py;
+        const len = Math.sqrt(dx * dx + dy * dy) || 1;
         const sc = Math.max(0.16, Math.min(0.46, (originRect ? originRect.width : 120) / Math.max(120, r.width)));
-        return { dx: dx, dy: dy, sc: sc };
+        /* 先从按钮中心往下掉，再滑向屏幕中心 */
+        const bow = Math.max(52, 0.3 * len);
+        return { dx: dx, dy: dy, sc: sc, cx: dx / 2, cy: dy / 2 + bow };
+      }
+      function frameAt(t, v, dir) {
+        const u = 1 - t;
+        const x = u * u * v.dx + 2 * u * t * v.cx;
+        const y = u * u * v.dy + 2 * u * t * v.cy;
+        const k = t * t * (3 - 2 * t);
+        const sc = dir > 0 ? v.sc + (1 - v.sc) * k : 1 - (1 - v.sc) * k;
+        const op = dir > 0 ? 0.4 + 0.6 * Math.min(1, t * 1.7) : 1 - k;
+        return { transform: 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')', opacity: op };
+      }
+      function buildFrames(v, dir) {
+        const out = []; const n = 10;
+        for (let i = 0; i <= n; i++) out.push(frameAt(i / n, v, dir));
+        return out;
       }
       function animateIn() {
         if (!panel) return;
-        const v = curveVectors();
-        const mid = v.sc + (1 - v.sc) * 0.34;
-        panel.animate([
-          { transform: 'translate(' + v.dx.toFixed(1) + 'px,' + v.dy.toFixed(1) + 'px) scale(' + v.sc.toFixed(3) + ')' },
-          { transform: 'translate(' + (v.dx * 0.78).toFixed(1) + 'px,' + (v.dy * 0.94 - 10).toFixed(1) + 'px) scale(' + mid.toFixed(3) + ')', offset: 0.34 },
-          { transform: 'translate(' + (v.dx * 0.26).toFixed(1) + 'px,' + (v.dy * 0.26).toFixed(1) + 'px) scale(1.02)', offset: 0.72 },
-          { transform: 'none' }
-        ], { duration: 380, easing: 'cubic-bezier(.18,.86,.26,1)' });
+        const v = motionVectors();
+        if (reduceMotion) {
+          panel.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 140, easing: 'ease-out', fill: 'both' });
+          return;
+        }
+        back.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out', fill: 'both' });
+        panel.animate(buildFrames(v, 1), { duration: OPEN_MS, easing: EASE, fill: 'both' });
       }
+      let finished = false;
       function close() {
         if (closed) return;
         closed = true;
         document.removeEventListener('keydown', onKey);
         const finish = function () {
+          if (finished) return;
+          finished = true;
           host.innerHTML = '';
           if (o.onDismiss) o.onDismiss();
         };
         if (!panel) { finish(); return; }
-        const v = curveVectors();
-        const mid = v.sc + (1 - v.sc) * 0.34;
-        const anim = panel.animate([
-          { transform: 'none' },
-          { transform: 'translate(' + (v.dx * 0.26).toFixed(1) + 'px,' + (v.dy * 0.26).toFixed(1) + 'px) scale(1.02)', offset: 0.28 },
-          { transform: 'translate(' + (v.dx * 0.78).toFixed(1) + 'px,' + (v.dy * 0.94 - 10).toFixed(1) + 'px) scale(' + mid.toFixed(3) + ')', offset: 0.66 },
-          { transform: 'translate(' + v.dx.toFixed(1) + 'px,' + v.dy.toFixed(1) + 'px) scale(' + v.sc.toFixed(3) + ')' }
-        ], { duration: 300, easing: 'cubic-bezier(.5,0,.75,.4)' });
+        if (reduceMotion) {
+          panel.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease-in', fill: 'both' });
+          setTimeout(finish, 160);
+          return;
+        }
+        const v = motionVectors();
+        const frames = buildFrames(v, 1).reverse();
+        frames.forEach(function (f) { delete f.opacity; });
+        /* 透明度单独走一个线性轨迹：在 58% 之前几乎不透明，最后 40% 才慢慢淡出 */
+        back.animate([{ opacity: 1 }, { opacity: 0 }], { duration: CLOSE_MS, easing: 'ease-in', fill: 'both' });
+        /* 回收时的淡出：等回收运动走到第 390ms 时开始，到 480ms 完全透明 */
+        panel.animate([
+          { opacity: 1 },
+          { opacity: 0 }
+        ], { duration: CLOSE_MS - 300, delay: 300, easing: 'linear', fill: 'both' });
+        const anim = panel.animate(frames, { duration: CLOSE_MS, easing: EASE, fill: 'both' });
         anim.onfinish = finish;
         anim.oncancel = finish;
-        setTimeout(finish, 360);
+        setTimeout(finish, CLOSE_MS + 140);
       }
       function onKey(e) { if (e.key === 'Escape') close(); }
       document.addEventListener('keydown', onKey);

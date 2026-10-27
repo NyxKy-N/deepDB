@@ -13,11 +13,11 @@
   const nav = document.getElementById('appNav');
 
   const ROUTES = {
-    '': { key: 'home', nav: 'home', title: 'deepDB · 数据库设计教学工具' },
-    'tools/er': { key: 'er', nav: 'er', title: 'designER · 关系设计' },
-    'tools/noer': { key: 'noer', nav: 'noer', title: 'noER · 文档数据库设计' },
-    'tools/ra': { key: 'ra', nav: 'ra', title: 'designQT basic · 关系代数表达式' },
-    'tools/translater': { key: 'translater', nav: 'translater', title: 'translatER · ER → 关系模式' }
+    '': { key: 'home', nav: 'home', title: 'deepDB · Database design teaching tools' },
+    'tools/er': { key: 'er', nav: 'er', title: 'designER · Relational design' },
+    'tools/noer': { key: 'noer', nav: 'noer', title: 'noER · Document database design' },
+    'tools/ra': { key: 'ra', nav: 'ra', title: 'designQT basic · Relational algebra' },
+    'tools/translater': { key: 'translater', nav: 'translater', title: 'translatER · ER → relational schema' }
   };
 
   ROUTES['lab'] = { key: 'lab', nav: '', title: 'deepDB · Motion lab' };
@@ -308,8 +308,19 @@
     try { localStorage.setItem(PANEL_KEY, JSON.stringify(p)); } catch (err) { }
   }
   function applyPanels(body, p) {
+    var wasLeftCollapsed = body.classList.contains('lb-collapsed');
     body.classList.toggle('lb-collapsed', !!p.left);
     body.classList.toggle('rb-collapsed', !!p.right);
+    /* ????????????????????????????????????? resize ?? */
+    if (body.style) {
+      if (p.left) {
+        body.style.setProperty('--lbw', '0px');
+      } else if (wasLeftCollapsed || !body.style.getPropertyValue('--lbw')) {
+        var savedW = Number(localStorage.getItem(LBW_KEY) || 0);
+        var w2 = savedW >= LBW_MIN && savedW <= LBW_MAX ? savedW : 224;
+        body.style.setProperty('--lbw', w2 + 'px');
+      }
+    }
     const phone = window.innerWidth <= 640;
     const lb = body.querySelector('.side-toggle[data-side="left"]');
     const rb = body.querySelector('.side-toggle[data-side="right"]');
@@ -420,6 +431,7 @@
     grip.addEventListener('pointerdown', function (e) {
       if (window.innerWidth <= 1024) return;
       start = { x: e.clientX, w: left.getBoundingClientRect().width };
+      body.classList.add('lb-resizing');
       grip.classList.add('dragging');
       grip.setPointerCapture(e.pointerId);
       e.preventDefault();
@@ -433,6 +445,7 @@
     function end(e) {
       if (!start) return;
       start = null;
+      body.classList.remove('lb-resizing');
       grip.classList.remove('dragging');
       const raw = parseInt(body.style.getPropertyValue('--lbw'), 10);
       const w = Number.isFinite(raw) ? raw : Math.round(left.getBoundingClientRect().width);
