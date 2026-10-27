@@ -572,6 +572,10 @@
     view.classList.remove('is-entering');
     void view.offsetWidth;
     view.classList.add('is-entering');
+    window.clearTimeout(render._enterTimer);
+    render._enterTimer = window.setTimeout(function () {
+      view.classList.remove('is-entering');
+    }, 320);
     if (route.key === 'home') setupReveal();
   }
 

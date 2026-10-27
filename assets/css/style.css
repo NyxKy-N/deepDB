@@ -2937,3 +2937,21 @@ html[data-theme="dark"] .tabbar {
 /* 未进入视口的分节：完全隐藏（避免半透明“发灰”观感） */
 .home-section.is-below { opacity: 0; transform: translateY(18px); }
 .home-section.is-visible { opacity: 1; transform: none; }
+
+/* 首页工具行 hover：只轻微移动内容，背景是整行圆角高亮 */
+.tool-row { border-radius: 14px; }
+.tool-row:hover { transform: translateY(0); background: var(--surface-2); }
+html[data-theme="dark"] .tool-row:hover { background: rgba(255, 255, 255, .05); }
+.tool-row-main { transition: transform .22s cubic-bezier(.2,.8,.2,1); }
+.tool-row:hover .tool-row-main { transform: translateX(4px); }
+.tool-row:hover .tool-row-head { transform: none; }
+
+/* 首页工具行：hover 不再显示灰色底 */
+.tool-row:hover,
+.tool-row:focus-within {
+  background: transparent;
+}
+html[data-theme="dark"] .tool-row:hover,
+html[data-theme="dark"] .tool-row:focus-within {
+  background: transparent;
+}
