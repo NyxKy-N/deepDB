@@ -119,6 +119,7 @@
 
   /* ---------------- 首页 ---------------- */
   function homeHTML() {
+    if (window.DDB_HOMEALT) return window.DDB_HOMEALT.html();
     const ic = function (inner) {
       return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + inner + '</svg>';
     };
@@ -391,6 +392,7 @@
   }
 
   let homeMotionBound = false;
+  let altUnmount = null;
   function bindHomeMotion() {
     const home = view.querySelector('.home');
     const art = view.querySelector('.hero-art');
@@ -567,6 +569,14 @@
     });
   }
   function showHome() {
+    if (window.DDB_HOMEALT) {
+      view.innerHTML = window.DDB_HOMEALT.html();
+      view.classList.remove('view--tool');
+      view.classList.add('view--althome');
+      if (altUnmount) { try { altUnmount(); } catch (e) {} altUnmount = null; }
+      altUnmount = window.DDB_HOMEALT.mount(view);
+      return;
+    }
     view.innerHTML = homeHTML();
     view.classList.remove('view--tool');
     homeMotionBound = false;
@@ -926,6 +936,9 @@
 
   function render() {
     const route = parseRoute();
+    if (altUnmount) { try { altUnmount(); } catch (e) {} altUnmount = null; }
+    view.classList.remove('view--althome');
+    if (window.DDB_HOMEALT) document.body.setAttribute('data-route', route.key);
     document.title = route.title;
     setActiveNav(route);
     // 先把旧内容摘下（保留缓存，便于切换后继续编辑）
@@ -941,11 +954,17 @@
     render._enterTimer = window.setTimeout(function () {
       view.classList.remove('is-entering');
     }, 320);
-    if (route.key === 'home') setupReveal();
+    if (route.key === 'home' && !window.DDB_HOMEALT) setupReveal();
   }
 
   const settingsBtn = document.getElementById('settingsBtn');
   if (settingsBtn) settingsBtn.addEventListener('click', function () { openSettings(settingsBtn); });
+  document.addEventListener('click', function (e) {
+    const t = e.target && e.target.closest ? e.target.closest('[data-alt-settings]') : null;
+    if (!t) return;
+    e.preventDefault();
+    openSettings(t);
+  });
 
   let lastCompact = window.innerWidth <= 1024;
   window.addEventListener('resize', function () {

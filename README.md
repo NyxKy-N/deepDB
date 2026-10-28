@@ -11,6 +11,21 @@ Models are stored in your own browser (localStorage) and are never uploaded anyw
 
 ---
 
+## Home
+
+The landing page is an editorial, **Alt Shift–inspired** experience built from scratch with deepDB's own content:
+
+- **Hero**: a cream → coral → violet scroll gradient, a full-bleed `DEEP.DB` wordmark set in Anton, a floating reel that cycles through the four tool previews, and a live grain layer.
+- **Workflow marquee**: two counter-scrolling display bands ("SKETCH IT. · CHECK IT. · SHIP IT.") plus a live browser clock.
+- **Tools, pinned**: a four-step scroll story (`designER → translatER → noER → designQT`), each with its own preview window and a link into the tool.
+- **Statement**: halftone dot-matrix typography ("MODELS DRIFT. SCHEMAS ALIGN. DEEP.DB MAKES THEM TALK.") with floating UI objects, followed by a capabilities table.
+- **Built on / exports to**: a display-type marquee of the formats the tools speak (PostgreSQL, MySQL, SQLite, JSON Schema, MongoDB, Mongoose…).
+- **Tools stack + footer**: a dimmed giant word stack that brightens as you scroll, then a cream → lavender → magenta footer with live X/Y coordinates, `HELLO@ DEEPDB.APP`, floating keycaps and every link in one place.
+
+Interactions: scroll-scrubbed gradients, pinned sections, marquee bands, halftone reveals, pointer parallax, live clock and cursor coordinates. All copy stays in the three supported languages (tool names and code samples stay as-is), and every animation respects `prefers-reduced-motion`.
+
+---
+
 ## Quick start
 
 1. Open this folder;
