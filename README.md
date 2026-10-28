@@ -1,6 +1,6 @@
 # deepDB · Database Design Toolkit
 
-> Author: **NyxKy** · Mascot & helper: **Deepseek 🐋** · Repository: <https://github.com/NyxKy-N/deepDB.git>
+> Author: **NyxKy** · Mascot & helper: **Deepseek 🐋** · Web: <https://deepdbweb.vercel.app/#/>
 
 A **pure-static** database-design teaching site, modelled on the tool set of [designerdb.io](https://designerdb.io/#tools):
 ER modelling, NoSQL document modelling, relational-algebra expressions and an ER → relational-schema translator.
