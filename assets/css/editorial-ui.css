@@ -2809,3 +2809,76 @@ html[data-theme="dark"] .btn--primary span,
 html[data-theme="dark"] .btn--primary i {
   color: var(--accent-ink, #fff) !important;
 }
+
+/* m10999: file dropdown transition (open/close) */
+.dd-file-pop {
+  animation: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transform: translateY(-8px) scale(.97) !important;
+  pointer-events: none !important;
+  transition: opacity .2s cubic-bezier(.2,.8,.2,1), transform .2s cubic-bezier(.2,.8,.2,1), visibility .2s !important;
+}
+.dd-file-menu .dd-file-pop { will-change: opacity, transform; }
+.dd-file-menu.is-open .dd-file-pop {
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: auto !important;
+}
+.dd-file-menu.is-open .dd-file-sum .df-caret { transform: rotate(180deg); }
+.dd-file-menu.is-open .dd-file-sum { border-color: var(--accent) !important; color: var(--accent) !important; }
+
+/* m10999: attribute chips in the workspace inspector (small balls) */
+.insp .attr-editor { display: flex; flex-wrap: wrap; gap: 8px; }
+.insp .attr-row {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 5px 12px 5px 10px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--ed-line, rgba(0,0,0,.12)) !important;
+  background: var(--panel-solid, #fffdf8) !important;
+  box-shadow: 0 2px 8px rgba(20,16,8,.05);
+}
+.insp .attr-row::before {
+  content: "";
+  width: 10px; height: 10px; border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+  border: 1.5px solid var(--accent);
+  flex: 0 0 auto;
+}
+.insp .attr-row[data-attr-id] .an { font-size: 12.5px !important; font-weight: 600 !important; }
+.insp .attr-row .tags { display: inline-flex; gap: 4px; margin: 0 !important; }
+.insp .attr-row .tag { padding: 1px 6px !important; font-size: 9.5px !important; border-radius: 999px !important; }
+.insp .attr-row[data-composite="1"]::after { content: "composite"; font-size: 9px; color: var(--muted); }
+
+/* m10999: composite attribute in the canvas = pill */
+.er-attr-node.is-composite {
+  border-radius: 999px !important;
+  width: auto !important;
+  min-width: 34px !important;
+  height: 16px !important;
+}
+.er-attr-node:not(.is-composite) { border-radius: 50% !important; }
+
+/* m10999: unified rounder corners; entity cards intentionally untouched */
+* { corner-shape: round !important; }
+.tool-bar, .tool-left, .tool-right, .tool-canvas, .tool-body { border-radius: 28px !important; }
+.tool-bar { border-radius: 22px !important; }
+.btn, .icon-btn, .icon-x, .seg button, .tab, .badge, .tag, .tr-chip, .dd-nav-pill, .dd-menu-btn, .ddq { border-radius: 18px !important; }
+.seg, .tabbar, .dd-file-pop, .dd-menu-panel, .modal-card, .toast, .card, .tool-card, .insp-card, .m-card, .tool-row, .hstep, .dd-file-sum { border-radius: 26px !important; }
+.field input, .field select, .dd-file-pop button, .insp input, .insp select { border-radius: 14px !important; }
+.er-entity, .er-rel { corner-shape: initial !important; }
+
+/* m10999: no dark mode — force the warm light canvas tokens */
+html { color-scheme: light !important; }
+
+/* m10999: closed state must win over legacy [open]-era opacity rules */
+.dd-file-menu:not(.is-open) .dd-file-pop {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transform: translateY(-8px) scale(.97) !important;
+  pointer-events: none !important;
+}

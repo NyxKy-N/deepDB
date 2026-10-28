@@ -5,14 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>deepDB · 数据库设计工具集</title>
 <meta name="description" content="数据库设计工具集：ER 建模、逻辑模式重构、NoSQL 文档模型设计、关系代数表达式编辑。">
-<meta name="theme-color" content="#3341e0">
+<meta name="theme-color" content="#f1efe7">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%233341e0'/%3E%3Ctext x='32' y='45' font-family='Helvetica,Arial' font-size='34' font-weight='700' fill='%23fff' text-anchor='middle'%3Ed%3C/text%3E%3C/svg%3E">
 <script>
-  /* 首屏前恢复主题，避免闪白 */
+  /* 固定浅色主题，并恢复强调色，避免闪白 */
   try {
-    var t = localStorage.getItem('designerdb:v1:theme') || 'system';
-    var dark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', 'light');
     var accents = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple'];
     var accent = localStorage.getItem('designerdb:v1:accent');
     if (accents.indexOf(accent) < 0) accent = 'blue';

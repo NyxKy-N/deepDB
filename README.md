@@ -4,7 +4,7 @@
 
 A **pure-static** database-design teaching site, modelled on the tool set of [designerdb.io](https://designerdb.io/#tools):
 ER modelling, NoSQL document modelling, relational-algebra expressions and an ER → relational-schema translator.
-The interface is available in **English, 中文 and Italiano**, with **light / dark** themes.
+The interface is available in **English, 中文 and Italiano**, on a single warm paper-cream theme.
 
 No installation, no server: **double-click `index.html`** and it runs offline.
 Models are stored in your own browser (localStorage) and are never uploaded anywhere.
@@ -37,7 +37,7 @@ The Alt Shift–inspired language is applied to **every page**, not just the lan
 - **Buttons & controls** — every button is a pill with a translucent, backdrop-blurred surface; primary actions use the electric blue accent, destructive actions red; inputs, selects and segmented controls follow the same glass treatment.
 - **Panels, cards, tables, canvas** — translucent frosted panels with hairline borders and generous radii; the ER/RA/noER canvases sit inside an inset rounded frame.
 - **Menus, modals & toasts** — node menus, chip menus, the settings modal and toasts all use heavy gaussian blur (`backdrop-filter`) over the page.
-- **Typography** — Space Grotesk for UI, SF Mono for labels and counters (small uppercase, wide tracking), Anton reserved for display type. Same tokens drive light and dark themes: warm paper cream in light, near-black in dark.
+- **Typography** — Space Grotesk for UI, SF Mono for labels and counters (small uppercase, wide tracking), Anton reserved for display type. The tokens paint one warm paper palette: cream surfaces, near-black ink, and a single accent colour.
 - **About page** (`index.html#/about`) — editorial hero with an `ABOUT` display title, cards for **the author (NyxKy)** and **the helper (Deepseek)** with avatars and links, followed by a project fact table (what it is, tools, stack, inspiration, source, licence).
 
 All new interface strings are translated into Chinese and Italian; the English build has no CJK leaks. Layouts are verified at 1440 / 1024 / 390 px with no horizontal overflow.
@@ -59,7 +59,7 @@ All new interface strings are translated into Chinese and Italian; the English b
 | designQT basic | `index.html#/tools/ra` |
 
 The language defaults to **English**; open the header **Menu** pill → **Settings** → Language.
-Theme: Light / Dark / Follow system, plus seven accent colours that retint buttons, links, canvas edges and highlights.
+Design: one warm light theme, plus seven accent colours that retint buttons, links, canvas edges and highlights.
 
 ---
 
@@ -103,8 +103,8 @@ Theme: Light / Dark / Follow system, plus seven accent colours that retint butto
 
 ## Interface details
 
-- **Settings** (gear): language and theme; the panel grows out of the button and shrinks back into it;
-- The theme switch reveals the new theme radially from the clicked point;
+- **Settings** (gear): language and accent colour; the panel grows out of the button and shrinks back into it;
+- Accent changes repaint buttons, links, canvas edges and highlight rings;
 - Toasts, modals, menus and drawers animate in and out with a matching reverse animation (all 250–420 ms, respecting `prefers-reduced-motion`);
 - Side panels collapse with the `‹` `›` buttons on the canvas edge; on tablets they become slide-in drawers (one at a time), on phones they become bottom sheets;
 - On tablets/phones a quick-action bar (add entity / relationship / attribute, etc.) sits at the bottom of the canvas;
@@ -137,7 +137,7 @@ Every tool keeps a **draft** in `localStorage`, so refreshing the page does not 
 - `designerdb:v1:draft:er` — ER model + viewport
 - `designerdb:v1:draft:noer` — document model + viewport
 - `designerdb:v1:draft:ra` — expression tree + viewport
-- `designerdb:v1:lang`, `designerdb:v1:theme`, `designerdb:v1:panels`, `designerdb:v1:lbw` — preferences
+- `designerdb:v1:lang`, `designerdb:v1:accent`, `designerdb:v1:panels`, `designerdb:v1:lbw` — preferences
 - `designerdb:v1:store:<kind>:<name>` — named saves created with Save
 
 Exported / saved file names use English defaults (`untitled-er-model.json`, `.noer.json`, `.ra.json`, `schema.txt`).
@@ -149,7 +149,7 @@ deepDB/
 ├─ index.html               single entry page
 ├─ README.md
 └─ assets/
-   ├─ css/style.css         all styles (themes, responsive, animations)
+   ├─ css/style.css         all styles (layout tokens, responsive, animations)
    ├─ img/avatar.jpg        author avatar
    └─ js/
       ├─ core.js            utilities, UI (toast/modal/prompt), storage, IO

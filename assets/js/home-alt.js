@@ -42,7 +42,7 @@
     ['RELATIONAL ALGEBRA', 'DESIGNQT', 'σ π ρ ⋈ × ∪ ∩ − γ ÷ in a visual expression tree.'],
     ['ONE-CLICK TRANSLATION', 'TRANSLATER', 'Turn the finished ER model into relational schema text.'],
     ['THREE LANGUAGES', 'I18N', 'Chinese, English and Italiano — switch without losing the model.'],
-    ['DARK / LIGHT', 'THEME', 'Two themes, one system follow, and a radial reveal in between.']
+    ['ONE-PAGE TOOLS', 'OFFLINE', 'Four tools in one static page — no build step, no upload.']
   ];
 
   var TECHS = ['PostgreSQL', 'MySQL', 'SQLite', 'JSON Schema', 'MongoDB', 'Mongoose', 'Prisma', 'Supabase', 'Figma', 'Git'];

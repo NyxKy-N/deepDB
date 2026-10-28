@@ -1,5 +1,5 @@
 /*!
- * app.js · 路由 + 首页 + 设置（语言 / 主题）
+ * app.js · 路由 + 首页 + 设置（语言 / 强调色）
  * 纯静态、无构建，hash 路由：#/ · #/tools/er · #/tools/noer · #/tools/ra
  */
 (function () {
@@ -35,41 +35,7 @@ const ROUTES = {
 
   ROUTES['about'] = { key: 'about', nav: '', title: 'About · deepDB' };
 
-  /* ---------------- 主题 ---------------- */
-  const THEME_KEY = 'designerdb:v1:theme';
-  const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-
-  function readTheme() {
-    try { return localStorage.getItem(THEME_KEY) || 'system'; } catch (err) { return 'system'; }
-  }
-  function applyTheme(mode) {
-    const dark = mode === 'dark' || (mode === 'system' && mq && mq.matches);
-    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-  }
-  function setTheme(mode, originEvent) {
-    const commit = function () {
-      try { localStorage.setItem(THEME_KEY, mode); } catch (err) { }
-      applyTheme(mode);
-    };
-    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!document.startViewTransition || reduce) { commit(); return; }
-    const x = originEvent && isFinite(originEvent.clientX) ? originEvent.clientX : window.innerWidth / 2;
-    const y = originEvent && isFinite(originEvent.clientY) ? originEvent.clientY : window.innerHeight / 2;
-    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y)) + 24;
-    let vt = null;
-    try { vt = document.startViewTransition(commit); } catch (e) { commit(); return; }
-    // 面板折叠：桌面展开、窄屏默认收起
-    setTimeout(function () {
-      const want = mode === 'dark' ? 'dark' : (mode === 'light' ? 'light' : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-      if (document.documentElement.getAttribute('data-theme') !== want) commit();
-    }, 700);
-    vt.ready.then(function () {
-      document.documentElement.animate(
-        { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + radius + 'px at ' + x + 'px ' + y + 'px)'] },
-        { duration: 520, easing: 'cubic-bezier(.32,.72,.24,1)', pseudoElement: '::view-transition-new(root)' }
-      );
-    }).catch(function () { });
-  }
+  /* ---------------- 界面（单一浅色主题） ---------------- */
   /* ---------------- 强调色 ---------------- */
   const ACCENT_KEY = 'designerdb:v1:accent';
   const ACCENTS = [
@@ -105,25 +71,13 @@ const ROUTES = {
     if (icon) icon.setAttribute('href', faviconFor(a.hex));
   }
 
-  if (mq) {
-    const onScheme = function () { if (readTheme() === 'system') applyTheme('system'); };
-    if (mq.addEventListener) mq.addEventListener('change', onScheme);
-    else if (mq.addListener) mq.addListener(onScheme);
-  }
-
   /* ---------------- 设置弹窗 ---------------- */
   function openSettings(invoker) {
     const lang = (window.DDB_I18N && window.DDB_I18N.lang) || 'zh';
-    const theme = readTheme();
     const langs = [
       { id: 'zh', label: '中文' },
       { id: 'en', label: 'English' },
       { id: 'it', label: 'Italiano' }
-    ];
-    const themes = [
-      { id: 'light', label: '浅色' },
-      { id: 'dark', label: '深色' },
-      { id: 'system', label: '跟随系统' }
     ];
     const seg = function (name, items, cur) {
       return '<div class="seg seg--wide" role="group" aria-label="' + name + '">' + items.map(function (it) {
@@ -135,8 +89,6 @@ const ROUTES = {
       origin: invoker || (document.getElementById('settingsBtn') || null),
       body: [
         '<div class="set-block"><div class="set-label">语言</div>' + seg('lang', langs, lang) + '</div>',
-        '<div class="set-block"><div class="set-label">主题</div>' + seg('theme', themes, theme) +
-        '<div class="hint">跟随系统时自动切换深浅色。</div></div>' +
         '<div class="set-block"><div class="set-label">强调色</div><div class="swatches" role="group" aria-label="accent">' +
         ACCENTS.map(function (a) {
           const on = a.id === readAccent();
@@ -168,16 +120,6 @@ const ROUTES = {
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
         return;
-      }
-      const tb = e.target.closest('[data-set-theme]');
-      if (tb) {
-        const next = tb.getAttribute('data-set-theme');
-        setTheme(next, e);
-        m.querySelectorAll('[data-set-theme]').forEach(function (b) {
-          const on = b.getAttribute('data-set-theme') === next;
-          b.classList.toggle('active', on);
-          b.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
       }
     });
   }
@@ -656,7 +598,7 @@ const ROUTES = {
       '    <a class="btn btn--sm about-back" href="#/"><span>← HOME</span></a>',
       '    <div class="about-label">( ABOUT DEEPDB )</div>',
       '    <h1 class="about-title">ABOUT</h1>',
-      '    <p class="about-lead">A tiny database-design studio in the browser. Four tools, three languages, two themes — drawn by one author and helped by one very patient whale.</p>',
+      '    <p class="about-lead">A tiny database-design studio in the browser. Four tools, three languages, one theme — drawn by one author and helped by one very patient whale.</p>',
       '  </section>',
       '  <div class="about-grid">',
       '    <article class="about-card">',
@@ -1263,7 +1205,7 @@ const ROUTES = {
     });
   });
 
-  applyTheme(readTheme());
+
   applyAccent(readAccent());
   window.addEventListener('hashchange', render);
   if (!location.hash) location.replace('#/');
@@ -1271,17 +1213,39 @@ const ROUTES = {
   if (DDB) DDB.version = DDB.version || '1.0.0';
 })();
 
-/* file dropdown: close after choosing an item or clicking outside */
+/* file dropdown (details): click toggles, hover opens, 200ms slide/fade, ESC/outside closes */
 (() => {
-  document.addEventListener('click', (e) => {
-    const item = e.target.closest('.dd-file-pop button, .dd-file-pop a');
-    const inside = e.target.closest('.dd-file-menu');
-    if (item) {
-      const d = item.closest('.dd-file-menu');
-      if (d) d.open = false;
-    } else if (!inside) {
-      document.querySelectorAll('.dd-file-menu[open]').forEach((d) => { d.open = false; });
+  function openFileMenu(d) {
+    if (!d) return;
+    d.classList.add("is-open");
+    try { d.open = true; } catch (err) { }
+  }
+  function closeFileMenu(d) {
+    if (!d) return;
+    d.classList.remove("is-open");
+    window.setTimeout(function () {
+      try { d.open = false; } catch (err) { }
+    }, 190);
+  }
+  document.addEventListener("click", function (e) {
+    const sum = e.target.closest(".dd-file-sum");
+    if (sum) {
+      e.preventDefault();
+      const d = sum.parentElement;
+      if (d.classList.contains("is-open")) closeFileMenu(d);
+      else openFileMenu(d);
+      return;
     }
+    const item = e.target.closest(".dd-file-pop button, .dd-file-pop a");
+    if (item) { closeFileMenu(item.closest(".dd-file-menu")); return; }
+    document.querySelectorAll(".dd-file-menu.is-open").forEach(function (d) { closeFileMenu(d); });
+  });
+  document.addEventListener("pointerenter", function (e) {
+    const sum = e.target.closest(".dd-file-sum");
+    if (sum) openFileMenu(sum.parentElement);
+  }, true);
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    document.querySelectorAll(".dd-file-menu.is-open").forEach(function (d) { closeFileMenu(d); });
   });
 })();
-
