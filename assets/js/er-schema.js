@@ -63,6 +63,29 @@ window.ERSCHEMA = (function () {
     return null;
   }
 
+  /** 生成当前界面语言的一句话（检查提示/重构笔记用，避免碎片翻译） */
+  function tr(zh, en, it) {
+    const l = (document.documentElement.lang || 'zh').slice(0, 2);
+    if (l === 'en') return en;
+    if (l === 'it') return it;
+    return zh;
+  }
+
+  /** 有效外键：引用的实体/属性存在且是被引用实体的主键，关系也存在 */
+  function validFks(model, ent) {
+    const out = [];
+    (ent.fks || []).forEach(function (f) {
+      const target = getEntity(model, f.refEntityId);
+      if (!target) return;
+      const ref = target.attributes.find(function (a) { return a.id === f.refAttrId; });
+      if (!ref || !ref.key || ref.multi) return;
+      const rel = getRel(model, f.relId);
+      if (!rel) return;
+      out.push({ fk: f, target: target, ref: ref, rel: rel });
+    });
+    return out;
+  }
+
   /* ---------------- 检查 ---------------- */
   function checks(model) {
     const out = [];
@@ -104,8 +127,21 @@ window.ERSCHEMA = (function () {
         }
         if (!keyAttrs.length) warn('弱实体「' + label + '」没有设置部分键（部分键用于区分同一所有者下的实例）。', target);
       } else if (!pm[ent.id]) {
-        if (!keyAttrs.length) err('实体「' + label + '」缺少主键（请勾选一个属性为「主键」）。', target);
-        else if (keyAttrs.length > 1) info('实体「' + label + '」使用复合主键（' + keyAttrs.map(function (a) { return a.name; }).join(', ') + '）。', target);
+        const extFks = validFks(model, ent);
+        if (!keyAttrs.length) {
+          if (extFks.length) {
+            const names = extFks.map(function (x) { return x.target.name + '.' + x.ref.name; }).join(', ');
+            info(tr(
+              '实体「' + label + '」没有自有主键属性，主键由外键（' + names + '）充当。',
+              'Entity "' + label + '" has no key attribute of its own; its foreign key (' + names + ') acts as the primary key.',
+              'L’entità "' + label + '" non ha attributi chiave propri; la chiave esterna (' + names + ') funge da chiave primaria.'
+            ), target);
+          } else {
+            err('实体「' + label + '」缺少主键（请勾选一个属性为「主键」）。', target);
+          }
+        } else if (keyAttrs.length > 1) {
+          info('实体「' + label + '」使用复合主键（' + keyAttrs.map(function (a) { return a.name; }).join(', ') + '）。', target);
+        }
       }
       ent.attributes.forEach(function (a) {
         if (a.multi) info('多值属性「' + label + '.' + a.name + '」在重构时会生成独立的表。', target);
@@ -321,9 +357,16 @@ window.ERSCHEMA = (function () {
           keyCols.forEach(function (c) { addColumn(table, { name: c.name, type: c.type, pk: true, nn: true }); });
           if (keyCols.length > 1) notes.push('实体「' + ent.name + '」使用复合主键：' + keyCols.map(function (c) { return c.name; }).join(', ') + '。');
         } else {
-          addColumn(table, { name: 'id', type: 'INT', pk: true, nn: true });
-          warnings.push('实体「' + ent.name + '」没有主键，已生成代理主键 id。');
-          notes.push('实体「' + ent.name + '」缺少主键，使用代理键 id。');
+          const extFks = validFks(model, ent);
+          if (extFks.length) {
+            table._fkPk = extFks.map(function (x) {
+              return { targetEntityId: x.target.id, refName: x.ref.name, refType: inferType(x.ref.name, x.ref.type) };
+            });
+          } else {
+            addColumn(table, { name: 'id', type: 'INT', pk: true, nn: true });
+            warnings.push('实体「' + ent.name + '」没有主键，已生成代理主键 id。');
+            notes.push('实体「' + ent.name + '」缺少主键，使用代理键 id。');
+          }
         }
         cols.forEach(function (c) {
           if (c.key) return;
@@ -512,6 +555,71 @@ window.ERSCHEMA = (function () {
       tables.push(jt);
       notes.push(rel.participants.length + ' 元关系「' + rel.name + '」：生成关联表 ' + jt.name + '，包含全部参与实体的外键。');
     });
+
+    /* ---- 3b. 外键充当主键：把声明外键对应的列标记为主键 ---- */
+    (function resolveFkPks() {
+      const pending = entities.filter(function (e) {
+        return tableByEntity[e.id] && tableByEntity[e.id]._fkPk;
+      });
+      let rounds = 0;
+      while (pending.length && rounds < 6) {
+        rounds += 1;
+        let progressed = false;
+        pending.forEach(function (ent) {
+          const table = tableByEntity[ent.id];
+          if (!table || !table._fkPk) return;
+          const wanted = [];
+          let unresolved = false;
+          table._fkPk.forEach(function (x) {
+            const tt = tableByEntity[x.targetEntityId];
+            const pcs = tt ? pkColumnsOf(tt) : [];
+            if (!pcs.length) unresolved = true;
+            pcs.forEach(function (pc) { wanted.push({ table: tt, pc: pc }); });
+          });
+          if (!wanted.length) {
+            if (!unresolved) { delete table._fkPk; }
+            return;
+          }
+          let marked = 0;
+          wanted.forEach(function (w) {
+            table.columns.forEach(function (c) {
+              if (c.fk && c.fk.table === w.table.name && c.fk.column === w.pc.name) {
+                c.pk = true; c.nn = true; marked += 1;
+              }
+            });
+          });
+          if (!marked) {
+            wanted.forEach(function (w) {
+              addColumn(table, {
+                name: util.lowerFirst(w.table.name) + '_' + w.pc.name, type: w.pc.type,
+                pk: true, nn: true, fk: { table: w.table.name, column: w.pc.name }, note: '外键主键'
+              });
+            });
+            marked = wanted.length;
+          }
+          const fkNames = wanted.map(function (w) { return w.table.name + '.' + w.pc.name; }).join(', ');
+          notes.push(tr(
+            '实体「' + ent.name + '」的主键由外键充当：' + fkNames + '。',
+            'Entity "' + ent.name + '" uses its foreign key as the primary key: ' + fkNames + '.',
+            'L’entità "' + ent.name + '" usa la chiave esterna come chiave primaria: ' + fkNames + '.'
+          ));
+          delete table._fkPk;
+          dedupe(table);
+          progressed = true;
+        });
+        if (!progressed) break;
+      }
+      pending.forEach(function (ent) {
+        const table = tableByEntity[ent.id];
+        if (!table || !table._fkPk) return;
+        if (!pkColumnsOf(table).length) {
+          addColumn(table, { name: 'id', type: 'INT', pk: true, nn: true });
+          warnings.push('实体「' + ent.name + '」的外键主键目标不存在或没有主键，已生成代理主键 id。');
+          dedupe(table);
+        }
+        delete table._fkPk;
+      });
+    })();
 
     /* ---- 4. 自检：外键目标是否存在 ---- */
     tables.forEach(function (t) {

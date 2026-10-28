@@ -2978,3 +2978,13 @@ html { color-scheme: light !important; }
 @media (max-width: 640px) {
   :root, html[data-theme] { --header-h: 68px !important; }
 }
+
+/* m11605: workspace menu pill + single divider */
+html body .app-header .dd-nav-pill,
+html body .app-header .dd-nav-pill .dd-menu-btn {
+  border-radius: 999px !important;
+  corner-shape: round !important;
+}
+html body .tool-right .insp-section + .insp-section {
+  border-top: 0 !important;
+}
