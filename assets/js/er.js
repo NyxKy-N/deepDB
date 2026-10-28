@@ -595,6 +595,22 @@
       return '<div class="er-fk" title="外键：' + esc(text) + '">' +
         '<span class="er-fk-k">外键</span><span class="er-fk-v">' + esc(clipLabel(text, 26)) + '</span></div>';
     }
+    /* 实体主键标签：外键参与时按用户规则显示为 PK / 复合键 */
+    function entityKeyHTML(ent) {
+      const own = keyNamesOf(ent);
+      const fkNames = fkEntries(ent).map(fkLabel);
+      if (fkNames.length) {
+        if (!own.length) {
+          const fkText = fkNames.join(' · ');
+          return '<div class="er-fk er-fk-pk" title="主键：' + esc(fkText) + '">' +
+            '<span class="er-fk-k">PK</span><span class="er-fk-v">' + esc(clipLabel(fkText, 26)) + '</span></div>';
+        }
+        const all = own.concat(fkNames);
+        return '<div class="er-cpk er-cpk-fk" title="复合键：' + esc(all.join(' + ')) + '">' +
+          '<span class="er-cpk-k">复合键</span><span class="er-cpk-v">' + esc(all.join(' + ')) + '</span></div>';
+      }
+      return compoundKeyHTML(ent);
+    }
     /* 某个实体可选的外键来源：它能参与的每个关系里，另一端实体的主键属性 */
     function fkCandidates(ent) {
       const seen = {};
@@ -666,8 +682,7 @@
       return '<div class="er-node er-entity' + (ent.weak ? ' weak' : '') + (selected ? ' selected' : '') + '" data-node="' + ent.id + '" data-ntype="entity" style="transform:translate(' + Math.round(ent.x) + 'px,' + Math.round(ent.y) + 'px)">' +
         '<div class="er-entity-head">' +
         '<span class="er-entity-name" data-edit-name title="' + esc(ent.name) + '">' + esc(clipLabel(ent.name, 14)) + '</span></div>' +
-        compoundKeyHTML(ent) +
-        foreignKeyHTML(ent) +
+        entityKeyHTML(ent) +
         '</div>';
     }
 
