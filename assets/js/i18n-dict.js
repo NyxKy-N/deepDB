@@ -2479,3 +2479,29 @@ window.DDB_I18N_DICT = {
   D.zh.texts["Reset"] = "重置";
   D.it.texts["Reset"] = "Reimposta";
 })();
+
+/* patch-isa-toast */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D) return;
+  var key = "泛化已删除，实体已恢复为普通实体";
+  D.zh.texts[key] = key;
+  D.en.texts[key] = "Generalization deleted; entities are plain entities again.";
+  D.it.texts[key] = "Generalizzazione eliminata; le entità tornano entità semplici.";
+})();
+
+/* patch-isa-msg */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D) return;
+  var k = "已有父实体：ISA 不允许继承多个实体";
+  D.zh.texts[k] = k;
+  D.en.texts[k] = "A superclass already exists: ISA does not allow inheriting from multiple entities.";
+  D.it.texts[k] = "Esiste già una superclasse: la generalizzazione non consente più eredità.";
+})();
+
+/* patch-import-rename */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D) return;
+  function put(k, en, zh, it) { D.en.texts[k] = en; D.zh.texts[k] = zh; D.it.texts[k] = it; }
+  put("Rename attribute", "Rename attribute", "重命名属性", "Rinomina attributo");
+  put("Name", "Name", "名称", "Nome");
+})();

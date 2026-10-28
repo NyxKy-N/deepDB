@@ -188,17 +188,36 @@
         });
       });
       tablesEl.querySelectorAll('[data-chip]').forEach(function (chip) {
+        chip.addEventListener('dblclick', function (e) {
+          e.preventDefault(); e.stopPropagation();
+          var t = tableById(chip.getAttribute('data-table')); if (!t) return;
+          var a = t.attrs.filter(function (x) { return x.id === chip.getAttribute('data-chip'); })[0]; if (!a) return;
+          hideMenu();
+          ui.prompt({ title: 'Rename attribute', label: 'Name', value: a.name }).then(function (v) {
+            if (v == null) return;
+            var name = String(v).trim();
+            if (!name) return;
+            a.name = name; state.checked = false;
+            renderTables(); renderOut(); clear();
+          });
+        });
         chip.addEventListener('click', function (e) {
           e.stopPropagation();
           var t = tableById(chip.getAttribute('data-table')); if (!t) return;
           var a = t.attrs.filter(function (x) { return x.id === chip.getAttribute('data-chip'); })[0]; if (!a) return;
+          if (menuFor && menuFor.t === t && menuFor.a === a && !menuEl.hidden) { hideMenu(); return; }
           openMenu(t, a, chip);
         });
       });
       tablesEl.querySelectorAll('[data-del-table]').forEach(function (b) {
         b.addEventListener('click', function () {
-          state.tables = state.tables.filter(function (t) { return t.id !== b.getAttribute('data-del-table'); });
-          state.checked = false; renderTables(); renderOut(); clear();
+          var tid = b.getAttribute('data-del-table');
+          var tb = tableById(tid);
+          ui.confirm({ title: 'Delete table', message: 'Delete table "' + (tb ? tb.name : '') + '"? Its attributes will be removed too.', okLabel: 'Delete', danger: true }).then(function (ok) {
+            if (!ok) return;
+            state.tables = state.tables.filter(function (t) { return t.id !== tid; });
+            state.checked = false; renderTables(); renderOut(); clear();
+          });
         });
       });
     }
@@ -233,16 +252,34 @@
         '<button type="button" class="tr-menu-item' + (a.pk ? ' on' : '') + '" data-chip-act="pk">' + (a.pk ? 'Unset PK' : 'Set PK') + '</button>' +
         '<button type="button" class="tr-menu-item' + (a.fk ? ' on' : '') + '" data-chip-act="fk">' + (a.fk ? 'Unset FK' : 'Set FK') + '</button>' +
         '<button type="button" class="tr-menu-item danger" data-chip-act="del">Delete attribute</button>';
-      var r = anchor.getBoundingClientRect(), br = root.getBoundingClientRect();
-      menuEl.style.left = Math.max(8, Math.min(r.left - br.left, br.width - 214)) + 'px';
-      menuEl.style.top = Math.max(8, Math.min(r.bottom - br.top + 6, br.height - 160)) + 'px';
+      menuEl.hidden = false;
+      var r = anchor.getBoundingClientRect();
+      var mw = menuEl.offsetWidth || 210, mh = menuEl.offsetHeight || 150;
+      var left = Math.min(Math.max(10, r.left - 6), window.innerWidth - mw - 10);
+      var below = r.bottom + 8;
+      var above = r.top - mh - 8;
+      var top = (below + mh <= window.innerHeight - 10) ? below : above;
+      top = Math.max(10, Math.min(top, window.innerHeight - mh - 10));
+      menuEl.style.left = left + 'px';
+      menuEl.style.top = top + 'px';
+      menuEl.classList.remove('open');
+      void menuEl.offsetWidth;
+      menuEl.classList.add('open');
     }
-    function hideMenu() { menuEl.hidden = true; menuFor = null; }
+    function hideMenu() { menuEl.hidden = true; menuEl.classList.remove('open'); menuFor = null; }
     menuEl.addEventListener('click', function (e) {
       var b = e.target.closest('[data-chip-act]'); if (!b || !menuFor) return;
       var act = b.getAttribute('data-chip-act'), t = menuFor.t, a = menuFor.a;
       if (act === 'pk') { a.pk = !a.pk; if (a.pk) a._ord = Date.now(); } else if (act === 'fk') { a.fk = !a.fk; if (a.fk) a._ord = Date.now(); }
-      else if (act === 'del') t.attrs = t.attrs.filter(function (x) { return x.id !== a.id; });
+      else if (act === 'del') {
+        hideMenu();
+        ui.confirm({ title: 'Delete attribute', message: 'Delete attribute "' + a.name + '"?', okLabel: 'Delete', danger: true }).then(function (ok) {
+          if (!ok) return;
+          t.attrs = t.attrs.filter(function (x) { return x.id !== a.id; });
+          orderAttrs(t); state.checked = false; renderTables(); renderOut(); clear();
+        });
+        return;
+      }
       orderAttrs(t); state.checked = false; hideMenu(); renderTables(); renderOut(); clear();
     });
     root.addEventListener('click', function (e) {
@@ -363,10 +400,11 @@
     }
 
     async function importJson() {
-      var f = await DDB.io.pickFile('.json,application/json');
+      var f = await DDB.io.pickFile('.json,.er,application/json');
       if (!f) return;
       try {
         var data = JSON.parse(f.text);
+        if (window.DDB_ER_ADAPT) data = window.DDB_ER_ADAPT(data);
         var model = norm(data && data.model ? data.model : data);
         if (!model || (!model.entities.length && !model.relationships.length)) { ui.toast('This JSON does not contain an ER model', 'err'); return; }
         model.name = model.name || f.name.replace(/\.json$/i, '');

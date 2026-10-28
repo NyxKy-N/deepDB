@@ -40,12 +40,13 @@ Theme: Light / Dark / Follow system.
 - Every element is editable: double-click to rename, click to open its menu (Rename / Link / Delete), drag to move, click a cardinality `(0,1)` chip to change it, click a `(t,e)` ISA label to pick one of the four generalization kinds (Total/Partial × Exclusive/Overlapping);
 - **Automatic checks** (errors / warnings / notes, each points at the element), then refactor into a **logical schema** (keys, foreign keys, unique constraints) shown in *Logical schema*;
 - **Auto layout** arranges entities by ISA hierarchy, keeps relationships near their participants, avoids overlaps and routes connection lines around other elements;
-- Save / open models in the browser, export / import JSON.
+- Save / open models in the browser; export JSON, or import a saved deepDB JSON **and designerdb.io-style `.er` files** (entities, relationships, participations and attributes are converted automatically);
+- Generalizations: select an entity and press **Link entity (create ISA)**, then click another entity ? the selected one becomes its **child**; an entity can have many children but only one parent, chains are allowed, cycles are rejected, and the connector is always drawn from the centre line of both entities.
 
 ### 2. translatER — ER → relational schema (hand-written)
 
 - The left pane shows the source ER model: entities (with PK-marked attributes), relationships (participants + cardinality) and relationship attributes;
-- Load a model with **Sample ER / Open saved ER / Import JSON**, or press **New** and type the schema yourself;
+- Load a model with **Sample ER / Open saved ER / Import JSON** (`.json` or designerdb.io `.er`) and press **Translate** for a one-click conversion, or press **New** and type the schema yourself;
 - Type a table name: it is matched **case-insensitively** against entity/relationship names, upper-cased, and the opening parenthesis is added for you;
 - Type attribute names separated by `,` (or press Enter) to add them as chips;
 - Click a chip to toggle **PK** / **FK** / delete — **an attribute can be both PK and FK at the same time**;

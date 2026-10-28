@@ -1817,7 +1817,7 @@ html[data-theme="dark"] .er-cpk { background: rgba(255, 255, 255, .07); border-c
   .site-footer { padding-top: 56px; }
 }
 
-/* ?????????????????????? */
+/* section */
 .btn--danger,
 html[data-theme="dark"] .btn--danger {
   background: var(--danger);
@@ -1835,7 +1835,7 @@ html[data-theme="dark"] .btn--danger:hover {
 .btn--danger, html[data-theme="dark"] .btn--danger { background: #cc3a2e; border-color: #cc3a2e; color: #fff; }
 .btn--danger:hover, html[data-theme="dark"] .btn--danger:hover { background: #b3312a; border-color: #b3312a; color: #fff; }
 
-/* ?????????????? */
+/* section */
 .er-cpk { max-width: none; flex-wrap: wrap; }
 .er-cpk-v { white-space: normal; overflow: visible; text-overflow: clip; }
 
@@ -1880,7 +1880,7 @@ html[data-theme="dark"] .seg button.active {
   box-shadow: none;
 }
 
-/* ?????????????? */
+/* section */
 html[data-theme="dark"] .node-menu-item.danger { color: #f08b80; }
 html[data-theme="dark"] .node-menu-item.danger:hover { background: #3a2024; color: #ffb4ab; }
 .node-menu-item.danger .ico, .node-menu-item.danger svg { color: inherit; }
@@ -3242,3 +3242,20 @@ html[data-theme="dark"] .home-bg { opacity: .34; }
 .tool-body.lb-resizing > .tool-right {
   transition: none !important;
 }
+
+/* ===== fix-81: translatER ?????????????? ===== */
+.tool.tr-tool{position:relative}
+.tr-chip-menu{z-index:80}
+
+/* patch-import-fixes */
+.er-attr-node .er-attr-name{max-width:none;overflow:visible;text-overflow:clip;}
+.er-rel .er-rel-title{max-width:none;}
+.tr-chip-menu{transform-origin:8px 100%;border-radius:12px;padding:6px;}
+html[data-theme="dark"] .tr-chip-menu{background:rgba(13,18,32,.97);border-color:var(--border-strong);box-shadow:0 18px 44px rgba(0,0,0,.62);}
+html[data-theme="dark"] .tr-menu-item.danger{color:#ff938a;}
+html[data-theme="dark"] .tr-menu-item.danger:hover{background:#2a1512;color:#ffb3ab;}
+.tr-chip-menu.open{animation:trMenuPop .16s cubic-bezier(.2,1.35,.4,1);}
+@keyframes trMenuPop{from{opacity:0;transform:translateY(5px) scale(.94);}to{opacity:1;transform:none;}}
+
+/* patch-chip-menu-fixed */
+.tr-chip-menu { position: fixed; z-index: 240; }

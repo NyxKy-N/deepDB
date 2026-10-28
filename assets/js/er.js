@@ -16,9 +16,103 @@
     return { version: 1, name: 'Untitled ER model', entities: [], relationships: [], isas: [] };
   }
   function newAttr(name) {
-    return { id: uid('a'), name: name || 'attr1', type: 'AUTO', key: false, partial: false, multi: false, nocard: false, composite: false, x: null, y: null, children: [] };
+    return { id: uid('a'), name: name || 'attr1', type: 'AUTO', key: false, partial: false, multi: false, nocard: true, composite: false, x: null, y: null, children: [] };
   }
   function numOrNull(v) { return (typeof v === 'number' && isFinite(v)) ? v : null; }
+  /* section */
+  /* designerdb.io .er wrapper (itemsArray) */
+  function adaptModel(raw) {
+    if (!raw || typeof raw !== 'object') return raw;
+    var src = raw;
+    if (raw.erDesign && raw.erDesign.model) src = raw.erDesign.model;
+    else if (raw.model && (raw.model.itemsArray || raw.model.entities)) src = raw.model;
+    if (src && Array.isArray(src.itemsArray)) return convertItemsModel(src, raw);
+    if (src && Array.isArray(src.entities)) return src;
+    return raw;
+  }
+  function typeFor(name, isId) {
+    if (typeof ERSCHEMA !== 'undefined' && ERSCHEMA.guessType) {
+      var t = ERSCHEMA.guessType(name);
+      return t || (isId ? 'INT' : 'VARCHAR(64)');
+    }
+    return isId ? 'INT' : 'VARCHAR(64)';
+  }
+  function convertItemsModel(src, root) {
+    var items = src.itemsArray || [];
+    var byId = {};
+    items.forEach(function (it) { if (it && it._id != null) byId[it._id] = it; });
+    var eId = function (n) { return 'ent_er' + n; };
+    var rId = function (n) { return 'rel_er' + n; };
+    var aId = function (n) { return 'a_er' + n; };
+    var model = { version: 1, name: 'Imported .er model', entities: [], relationships: [], isas: [] };
+    var entBy = {}, relBy = {};
+    items.forEach(function (it) {
+      if (!it) return;
+      if (it.__type === 'Entity') {
+        var ent = { id: eId(it._id), type: 'entity', name: it._name || 'Entity', x: Number(it._x) || 0, y: Number(it._y) || 0, weak: !!it._weak, attributes: [] };
+        model.entities.push(ent); entBy[it._id] = ent;
+      } else if (it.__type === 'Relationship') {
+        var rel = { id: rId(it._id), type: 'relationship', name: it._name || 'Relationship', x: Number(it._x) || 0, y: Number(it._y) || 0, participants: [], attributes: [] };
+        model.relationships.push(rel); relBy[it._id] = rel;
+      }
+    });
+    var parseCard = function (v) {
+      var parts = String(v || '0_N').split('_');
+      var min = String(parts[0]) === '1' ? 1 : 0;
+      var max = String(parts[1] || 'N').toUpperCase() === 'N' ? 'N' : '1';
+      return { min: min, max: max };
+    };
+    var attrMap = {};
+    var mkAttr = function (it) {
+      var card = String(it._cardinality || '');
+      var lo = String(card).split('_')[0] === '1' ? 1 : 0;
+      return { id: aId(it._id), name: it._name || 'attr', type: typeFor(it._name, !!it._identifier), key: !!it._identifier, partial: false, multi: /N$/.test(card), min: lo, nocard: !/N$/.test(card), composite: false, x: null, y: null, children: [] };
+    };
+    items.forEach(function (it) {
+      if (!it) return;
+      if (it.__type === 'Attribute') { var a = mkAttr(it); attrMap[it._id] = a; }
+    });
+    items.forEach(function (it) {
+      if (!it) return;
+      if (it.__type === 'Participation') {
+        var rel = relBy[it._relationshipId]; var ent = entBy[it._entityId];
+        if (!rel || !ent) return;
+        var c = parseCard(it._cardinality);
+        rel.participants.push({ id: 'p_er' + it._id, entityId: ent.id, min: c.min, max: c.max, role: it._role || '' });
+      } else if (it.__type === 'Attribute') {
+        var parent = byId[it._parentId]; var attr = attrMap[it._id];
+        if (!parent || !attr) return;
+        if (parent.__type === 'Entity' && entBy[parent._id]) entBy[parent._id].attributes.push(attr);
+        else if (parent.__type === 'Relationship' && relBy[parent._id]) relBy[parent._id].attributes.push(attr);
+        else if (parent.__type === 'Attribute' && attrMap[parent._id]) {
+          var pa = attrMap[parent._id];
+          pa.composite = true; pa.children.push({ id: attr.id, name: attr.name, type: attr.type, key: false, partial: false, multi: attr.multi, min: attr.min || 0, nocard: attr.nocard, x: null, y: null });
+        }
+      }
+    });
+    /* Generalization / GeneralizationChild -> isas */
+    var genList = items.filter(function (it) { return it && it.__type === 'Generalization'; });
+    var gchild = items.filter(function (it) { return it && it.__type === 'GeneralizationChild'; });
+    genList.forEach(function (g) {
+      var parent = entBy[g._entityId];
+      if (!parent) return;
+      var kids = gchild.filter(function (c) { return c._generalizationId === g._id; })
+        .map(function (c) { return entBy[c._entityId]; })
+        .filter(Boolean)
+        .map(function (e) { return e.id; });
+      if (!kids.length) return;
+      var kind = String(g._type || 't_e');
+      model.isas.push({
+        id: 'isa_er' + g._id, type: 'isa', name: 'ISA', x: 0, y: 0,
+        parentId: parent.id, childIds: kids,
+        totality: kind.charAt(0) === 't' ? 't' : 'p',
+        exclusivity: kind.charAt(2) === 'e' ? 'e' : 'o'
+      });
+    });
+    return model;
+  }
+  window.DDB_ER_ADAPT = adaptModel;
+
   function normalizeAttr(a) {
     return {
       id: a.id || uid('a'),
@@ -27,12 +121,13 @@
       key: !!a.key,
       partial: !!a.partial,
       multi: !!a.multi,
+      min: Number(a.min) === 1 ? 1 : 0,
       nocard: !!a.nocard,
       composite: !!a.composite,
       x: numOrNull(a.x),
       y: numOrNull(a.y),
       children: (a.children || []).map(function (c) {
-        return { id: c.id || uid('c'), name: c.name || 'child', type: c.type || 'AUTO', key: !!c.key, partial: !!c.partial, x: numOrNull(c.x), y: numOrNull(c.y) };
+        return { id: c.id || uid('c'), name: c.name || 'child', type: c.type || 'AUTO', key: !!c.key, partial: !!c.partial, multi: !!c.multi, min: Number(c.min) === 1 ? 1 : 0, nocard: c.nocard !== false, x: numOrNull(c.x), y: numOrNull(c.y) };
       })
     };
   }
@@ -441,21 +536,33 @@
       return '<div class="er-cpk" title="复合键：' + esc(names.join(' + ')) + '">' +
         '<span class="er-cpk-k">复合键</span><span class="er-cpk-v">' + esc(names.join(' + ')) + '</span></div>';
     }
+    function clipLabel(name, max) {
+      var chars = Array.from(String(name == null ? '' : name));
+      if (chars.length <= (max || 14)) return String(name == null ? '' : name);
+      return chars.slice(0, max || 14).join('') + '\u2026';
+    }
     function entityNodeHTML(ent) {
       const selected = state.selected && !state.selected.attrOnly && state.selected.ntype === 'entity' && state.selected.id === ent.id;
       return '<div class="er-node er-entity' + (ent.weak ? ' weak' : '') + (selected ? ' selected' : '') + '" data-node="' + ent.id + '" data-ntype="entity" style="transform:translate(' + Math.round(ent.x) + 'px,' + Math.round(ent.y) + 'px)">' +
         '<div class="er-entity-head">' +
-        '<span class="er-entity-name" data-edit-name>' + esc(ent.name) + '</span></div>' +
+        '<span class="er-entity-name" data-edit-name title="' + esc(ent.name) + '">' + esc(clipLabel(ent.name, 14)) + '</span></div>' +
         compoundKeyHTML(ent) +
         '</div>';
     }
 
+    function relWidth(name) {
+      var w = 24;
+      Array.from(String(name || '')).forEach(function (ch) { w += /[\u4e00-\u9fff]/.test(ch) ? 13 : 7.6; });
+      return Math.max(160, Math.min(340, Math.round(w + 44)));
+    }
     function relNodeHTML(rel) {
+      var shown = clipLabel(rel.name, 14);
+      var rw = relWidth(shown);
       const selected = state.selected && !state.selected.attrOnly && state.selected.ntype === 'relationship' && state.selected.id === rel.id;
-      return '<div class="er-node er-rel' + (selected ? ' selected' : '') + '" data-node="' + rel.id + '" data-ntype="relationship" style="transform:translate(' + Math.round(rel.x) + 'px,' + Math.round(rel.y) + 'px)">' +
-        '<svg class="er-diamond" width="160" height="92" viewBox="0 0 160 92" aria-hidden="true">' +
+      return '<div class="er-node er-rel' + (selected ? ' selected' : '') + '" data-node="' + rel.id + '" data-ntype="relationship" style="width:' + rw + 'px;transform:translate(' + Math.round(rel.x) + 'px,' + Math.round(rel.y) + 'px)">' +
+        '<svg class="er-diamond" width="' + rw + '" height="92" viewBox="0 0 160 92" preserveAspectRatio="none" aria-hidden="true">' +
         '<polygon points="80,6 154,46 80,86 6,46"></polygon></svg>' +
-        '<div class="er-rel-title" data-edit-name>' + esc(rel.name) + '</div>' +
+        '<div class="er-rel-title" data-edit-name title="' + esc(rel.name) + '">' + esc(shown) + '</div>' +
         compoundKeyHTML(rel) +
         '</div>';
     }
@@ -494,10 +601,7 @@
         ' data-owner-kind="' + ownerKind + '" data-owner-id="' + ownerId + '"' +
         ' data-nid="' + rootId + '" data-nk="' + rootKind + '" data-dir="up">' +
         '<span class="er-attr-name">' + esc(a.name) + '</span>' +
-        (a.children && a.children.length
-          ? '<span class="er-attr-children">' + a.children.map(function (c) { return esc(c.name); }).join(' · ') + '</span>'
-          : '') +
-        (a.nocard ? '' : '<span class="er-attr-card">' + (a.multi ? '(0,N)' : '(0,1)') + '</span>') +
+        (a.nocard ? '' : '<span class="er-attr-card">(' + (a.multi ? String(a.min || 0) + ',N' : '0,1') + ')</span>') +
         '</div>';
     }
     function renderAttrNodes() {
@@ -653,7 +757,7 @@
       const ux = dx / len, uy = dy / len;
       let t;
       if (shape.ntype === 'entity') t = 1 / (Math.abs(ux) / (shape.w / 2 + 2) + Math.abs(uy) / (shape.h / 2 + 2));
-      else if (shape.ntype === 'relationship') t = 1 / (Math.abs(ux) / 76 + Math.abs(uy) / 42);
+      else if (shape.ntype === 'relationship') t = 1 / (Math.abs(ux) / ((shape.w || 160) / 2) + Math.abs(uy) / ((shape.h || 92) / 2));
       else if (shape.ntype === 'attr') t = 1 / (Math.abs(ux) / ((shape.w || 18) / 2) + Math.abs(uy) / ((shape.h || 18) / 2));
       else t = 30;
       t = Math.min(t, len);
@@ -901,16 +1005,16 @@
         // 每个子实体的落点：沿总线方向平移 30px 再垂直 / 水平落到实体边界，
         // 全部是直线段（不画斜线），同时避开边界正中的属性小球
         const drops = projs.map(function (o) {
-          const side = o.off >= 0 ? 1 : -1;
-          const t = o.off - side * 30;
+          const t = o.off;
           const k = o.k;
+          const hw = (k.w || 160) / 2, hh = (k.h || 92) / 2;
           let tx, ty;
           if (vertical) {
-            tx = util.clamp(k.x + side * 30, k.x - (k.w || 160) / 2 + 12, k.x + (k.w || 160) / 2 - 12);
-            ty = sign > 0 ? k.y : k.y + (k.h || 92);
+            tx = k.x;
+            ty = sign > 0 ? k.y - hh : k.y + hh;
           } else {
-            ty = util.clamp(k.y + side * 30, k.y - (k.h || 92) / 2 + 12, k.y + (k.h || 92) / 2 - 12);
-            tx = sign > 0 ? k.x : k.x + (k.w || 160);
+            ty = k.y;
+            tx = sign > 0 ? k.x - hw : k.x + hw;
           }
           return { t: t, x: tx, y: ty };
         });
@@ -1100,10 +1204,11 @@
       if (from.id === id) { ui.toast('不能链接到自身', 'err'); return; }
       if (state.linking === 'isa') {
         if (from.ntype !== 'entity' || ntype !== 'entity') { ui.toast('ISA 链接需要两个实体', 'err'); return; }
-        const parent = getEntity(from.id), child = getEntity(id);
+        const child = getEntity(from.id), parent = getEntity(id);
         if (!parent || !child) return;
         const childHas = state.model.isas.find(function (i) { return i.childIds.indexOf(child.id) >= 0; });
-        if (childHas) { ui.toast(child.name + ' 已有超类，ISA 不允许继承多个实体', 'err'); return; }
+        if (childHas) { ui.toast('已有父实体：ISA 不允许继承多个实体', 'err'); return; }
+        if (isaWouldCycle(child.id, parent.id)) { ui.toast('不能形成循环继承（实体不能成为自己后代的子类）', 'err'); return; }
         let isa = state.model.isas.find(function (i) { return i.parentId === parent.id; });
         if (!isa) {
           isa = { id: uid('isa'), type: 'isa', name: 'ISA', x: (parent.x + child.x) / 2, y: (parent.y + child.y) / 2 - 40, parentId: parent.id, childIds: [] };
@@ -1273,7 +1378,7 @@
           '</div>';
         html += '<div class="insp-section"><div class="insp-actions">' +
           '<button class="btn btn--sm" data-act="locate" data-ntype="isa" data-id="' + isa.id + '">居中显示</button>' +
-          '<button class="btn btn--sm btn--danger" data-act="del-node" data-ntype="isa" data-id="' + isa.id + '">删除 ISA</button></div></div>';
+          '<button class="btn btn--sm btn--danger" data-act="del-isa" data-id="' + isa.id + '">删除 ISA</button></div></div>';
       }
       html += '</div>';
       box.innerHTML = html;
@@ -1676,8 +1781,8 @@
             r.participants = r.participants.filter(function (p) { return p.entityId !== id; });
           });
           state.model.relationships = state.model.relationships.filter(function (r) { return r.participants.length > 0; });
+          state.model.isas = state.model.isas.filter(function (i) { return i.parentId !== id; });
           state.model.isas.forEach(function (i) {
-            if (i.parentId === id) i.parentId = null;
             i.childIds = i.childIds.filter(function (c) { return c !== id; });
           });
           state.selected = null; state.selectedAttr = null;
@@ -2078,10 +2183,14 @@
       ui.toast('已导出 JSON', 'ok');
     }
     function importJson() {
-      io.pickFile('.json,application/json').then(function (f) {
+      io.pickFile('.json,.er,application/json').then(function (f) {
         if (!f) return;
         try {
-          state.model = normalize(JSON.parse(f.text));
+          var raw = JSON.parse(f.text);
+          state.model = normalize(adaptModel(raw));
+          if (/^Imported/.test(String(state.model.name))) {
+            state.model.name = f.name.replace(/\.(json|er)$/i, '');
+          }
           history.reset();
           state.selected = null; state.selectedAttr = null;
           refresh();
@@ -2142,7 +2251,6 @@
           ox: cx, oy: cy, moved: false,
           nk: attrEl.dataset.nk, nid: attrEl.dataset.nid
         };
-        e.preventDefault();
         return;
       }
       if (e.button === 1 || (e.button === 0 && !nodeEl)) {
@@ -2159,7 +2267,6 @@
         el: nodeEl, ntype: nodeEl.dataset.ntype, id: id,
         sx: e.clientX, sy: e.clientY, ox: n.x, oy: n.y, moved: false
       };
-      e.preventDefault();
     }
     function pointerMove(e) {
       if (attrDrag) {
@@ -2276,6 +2383,7 @@
       if (!nodeEl) return;
       const n = getNode(nodeEl.dataset.ntype, nodeEl.dataset.node);
       if (!n) return;
+      span.textContent = n.name;
       inlineRename(span, n.name, function (v) { n.name = v; });
     }
     function wheel(e) {
@@ -2422,6 +2530,12 @@
           pushNow();
           refresh({ keepInspector: true });
           hideEdgeMenu(false);
+          (function (relId, pid) {
+            setTimeout(function () {
+              var lbl = canvasEl.querySelector('[data-act="edit-card"][data-rel-id="' + relId + '"][data-pid="' + pid + '"]');
+              if (lbl) showCardMenu(relId, pid, lbl.getBoundingClientRect());
+            }, 0);
+          })(d.relId, d.pid);
           break;
         }
         case 'set-isa': {
@@ -2506,6 +2620,7 @@
         case 'add-part': addParticipant(d.relId); break;
         case 'del-part': hideEdgeMenu(false); delParticipant(d.relId, d.pid); break;
         case 'del-isa-child': delIsaChild(d.isaId, d.childId); break;
+        case 'del-isa': removeIsa(d.id || d.isaId); break;
         default: break;
       }
     }
@@ -2547,6 +2662,34 @@
       rel.participants = rel.participants.filter(function (p) { return p.id !== pid; });
       dirty = true; pushNow(); refresh();
     }
+    /* 删除整个泛化：子实体自动变回普通实体 */
+    function isaWouldCycle(childId, parentId) {
+      var cur = parentId, guard = 0;
+      while (cur && guard < 64) {
+        if (cur === childId) return true;
+        var up = state.model.isas.find(function (i) { return i.childIds.indexOf(cur) >= 0; });
+        cur = up ? up.parentId : null;
+        guard += 1;
+      }
+      return false;
+    }
+
+    function removeIsa(isaId) {
+      const isa = getIsa(isaId);
+      if (!isa) return;
+      const kids = isa.childIds.map(function (id) { return getEntity(id); }).filter(Boolean);
+      state.model.isas = state.model.isas.filter(function (i) { return i.id !== isaId; });
+      if (state.selected && state.selected.ntype === 'isa' && state.selected.id === isaId) {
+        state.selected = null;
+        state.selectedAttr = null;
+      }
+      hideEdgeMenu(false);
+      hideNodeMenu(false);
+      pushNow();
+      refresh();
+      ui.toast('泛化已删除，实体已恢复为普通实体');
+    }
+
     function delIsaChild(isaId, childId) {
       const isa = getIsa(isaId);
       if (!isa) return;
