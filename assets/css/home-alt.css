@@ -798,3 +798,38 @@ html[data-theme="light"] .althome { --ah-bg: #0c0c0a; }
 /* home menu pill behaves like a drawer trigger */
 .ah-menu { cursor: pointer; }
 body.dd-menu-open { overflow: hidden; }
+
+/* halftone dots must live on the animated word boxes (inline-block children
+   are not painted by the parent's background-clip:text) */
+.ah-halftone span,
+.ah-halftone span:nth-child(4) {
+  background-image: none !important;
+  color: var(--ah-fg);
+  opacity: 1;
+}
+.ah-hw {
+  color: transparent;
+  background-image: radial-gradient(
+    circle at 1.4px 1.4px,
+    rgba(244, 243, 238, 0.95) 1.2px,
+    transparent 1.8px
+  );
+  background-size: 6px 6px;
+  -webkit-background-clip: text;
+  background-clip: text;
+  padding-right: 0.18em;
+}
+
+/* pills: whiter glass, round button too */
+.ah-pill {
+  background: rgba(249, 247, 241, 0.86) !important;
+  border-color: rgba(255, 255, 255, 0.72) !important;
+}
+.ah-pill:hover { background: rgba(252, 250, 245, 0.96) !important; }
+.ah-round {
+  background: rgba(249, 247, 241, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
+  backdrop-filter: blur(22px) saturate(165%);
+  box-shadow: 0 10px 28px rgba(24, 18, 8, 0.1);
+}

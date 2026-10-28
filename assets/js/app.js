@@ -692,11 +692,27 @@
     return el;
   }
 
-  function openMenuDrawer() {
+  function openMenuDrawer(trigger) {
     const el = buildMenuDrawer();
     window.clearTimeout(menuCloseTimer);
+    const panel = el.querySelector('.dd-menu-panel');
+    const r = trigger && trigger.getBoundingClientRect ? trigger.getBoundingClientRect() : null;
+    const margin = 12;
+    const pw = Math.min(430, window.innerWidth - margin * 2);
+    const maxRight = Math.max(margin, window.innerWidth - pw - margin);
+    if (r) {
+      const right = Math.min(maxRight, Math.max(margin, window.innerWidth - r.left + 10));
+      panel.style.right = right + 'px';
+      panel.style.left = 'auto';
+    } else {
+      panel.style.right = maxRight + 'px';
+    }
     el.classList.add('on');
     el.setAttribute('aria-hidden', 'false');
+    const ph = panel.offsetHeight || 460;
+    let top = r ? r.top : margin;
+    top = Math.min(Math.max(margin, top), Math.max(margin, window.innerHeight - ph - margin));
+    panel.style.top = top + 'px';
     document.body.classList.add('dd-menu-open');
   }
 
@@ -715,7 +731,7 @@
       btn.__ddMenuBound = true;
       btn.addEventListener('pointerenter', function () {
         if (window.matchMedia && window.matchMedia('(hover: none)').matches) return;
-        openMenuDrawer();
+        openMenuDrawer(btn);
       });
       btn.addEventListener('pointerleave', function () {
         if (menuPinned) return;
@@ -728,7 +744,7 @@
         const open = menuDrawer && menuDrawer.classList.contains('on');
         if (open && menuPinned) { closeMenuDrawer(true); return; }
         menuPinned = true;
-        openMenuDrawer();
+        openMenuDrawer(btn);
       });
     });
   }
