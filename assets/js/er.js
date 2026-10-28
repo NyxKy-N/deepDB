@@ -357,6 +357,7 @@
     const hintEl = $('#erHint');
     const menuEl = $('#erMenu');
     const edgeMenuEl = $('#erEdgeMenu');
+    const EDGE_POP = { scale: 0.16, shift: 1, open: 220, close: 180 };
     let menuCloseTimer = 0;
     let edgeCloseTimer = 0;
 
@@ -368,7 +369,7 @@
     });
     history.reset();
 
-    function markDirty() { dirty = true; }
+
     function pushNow() {
       if (!dirty) return;
       clearTimeout(histTimer);
@@ -525,6 +526,8 @@
       applyView();
     }
     function zoomAt(factor, cx, cy) {
+      if (!menuEl.hidden) hideNodeMenu(false);
+      if (!edgeMenuEl.hidden) hideEdgeMenu(false);
       const r = canvasEl.getBoundingClientRect();
       const sx = cx == null ? r.width / 2 : cx - r.left;
       const sy = cy == null ? r.height / 2 : cy - r.top;
@@ -588,13 +591,7 @@
     function fkLabel(e) {
       return e.target.name + '.' + e.ref.name;
     }
-    function foreignKeyHTML(ent) {
-      const list = fkEntries(ent);
-      if (!list.length) return '';
-      const text = list.map(fkLabel).join(' · ');
-      return '<div class="er-fk" title="外键：' + esc(text) + '">' +
-        '<span class="er-fk-k">外键</span><span class="er-fk-v">' + esc(clipLabel(text, 26)) + '</span></div>';
-    }
+
     /* 实体主键标签：外键参与时按用户规则显示为 PK / 复合键 */
     function entityKeyHTML(ent) {
       const own = keyNamesOf(ent);
@@ -760,7 +757,6 @@
       });
       attrNodesEl.innerHTML = parts.join('');
     }
-    function attrElById(attrId) { return attrNodesEl.querySelector('[data-attr-id="' + attrId + '"]'); }
 
     /* 找到属性（含子属性）的模型对象 */
     function findAttrModel(id) {
@@ -1228,11 +1224,7 @@
 
     /* ---------- 渲染：属性面板 ---------- */
     function b(spec) { return "data-bind='" + JSON.stringify(spec) + "'"; }
-    function typeOptions(sel) {
-      return TYPES.map(function (t) {
-        return '<option value="' + t + '"' + (t === sel ? ' selected' : '') + '>' + (t === 'AUTO' ? '自动' : t) + '</option>';
-      }).join('');
-    }
+
     function attrTagList(a, isWeakOwner) {
       const tags = [];
       if (a.key) tags.push(isWeakOwner ? '部分键' : 'PK');
@@ -1332,7 +1324,7 @@
         (isFull ? '<div class="kv"><span class="k">检查</span><span class="v">' + (ERSCHEMA.checks(state.model).length) + '</span></div>' : '') +
         '</div></div>' +
         '<div class="insp-section"><div class="insp-title">提示</div>' +
-        '<div class="hint">属性以小球围绕实体；「🔗 链接实体」可建 ISA 或加参与端。</div></div>' +
+        '<div class="hint">属性以小球围绕实体；「链接实体」可建 ISA 或加参与端。</div></div>' +
         '</div>';
     }
 
@@ -1372,6 +1364,7 @@
         }
         isa.childIds.push(child.id);
         cancelLink();
+        dirty = true;
         pushNow();
         select('entity', parent.id, null);
         ui.toast(parent.name + ' ⇢ ' + child.name + '：ISA 链接已创建');
@@ -1384,6 +1377,7 @@
         }
         rel.participants.push({ id: uid('part'), entityId: ent.id, min: 0, max: 'N', role: '' });
         cancelLink();
+        dirty = true;
         pushNow();
         select('relationship', rel.id, null);
         ui.toast(rel.name + ' ⇤ ' + ent.name + '：参与端已添加（默认 (0,N)，可在右侧改基数）');
@@ -1424,7 +1418,7 @@
         const sup = asChild ? getEntity(asChild.parentId) : null;
         html += '<div class="insp-section"><div class="insp-title">ISA 泛化</div>' +
           '<button class="btn btn--sm btn--block ' + (state.linking === 'isa' ? 'btn--on' : 'btn--primary') + '" data-act="link-isa" data-id="' + ent.id + '">' +
-          (state.linking === 'isa' ? '🔗 正在链接…点击另一个实体' : '🔗 链接实体（连成 ISA）') + '</button>' +
+          (state.linking === 'isa' ? '正在链接…点击另一个实体' : '链接实体（连成 ISA）') + '</button>' +
           (asParent ? '<div class="kv"><span class="k">子类</span><span class="v">' + asParent.childIds.map(function (cid) {
             const e = getEntity(cid);
             return esc(e ? e.name : '（已删除）');
@@ -1481,7 +1475,7 @@
           '</div>' +
           '<div class="insp-actions" style="margin-top:8px">' +
           '<button class="btn btn--sm ' + (state.linking === 'part' ? 'btn--on' : 'btn--primary') + '" data-act="link-part" data-rel-id="' + rel.id + '">' +
-          (state.linking === 'part' ? '🔗 正在链接…点击实体' : '🔗 链接实体（添加参与端）') + '</button>' +
+          (state.linking === 'part' ? '正在链接…点击实体' : '链接实体（添加参与端）') + '</button>' +
           '<button class="btn btn--sm" data-act="add-part" data-rel-id="' + rel.id + '">＋ 添加参与端</button>' +
           '</div>' +
           '<div class="hint">参与端 (min,max)：N 表示多；min=1 为完全参与（双线）。</div>' +
@@ -1693,30 +1687,16 @@
     function hideNodeMenu(animate) {
       if (!menuEl || menuEl.hidden) return;
       clearTimeout(menuCloseTimer);
-      if (animate === false) {
-        menuEl.hidden = true;
-        menuEl.classList.remove('closing');
-        return;
-      }
-      menuEl.classList.add('closing');
-      menuCloseTimer = setTimeout(function () {
-        menuEl.hidden = true;
-        menuEl.classList.remove('closing');
-      }, 150);
+      menuEl.classList.remove('closing');
+      if (animate === false || !ui.popFrom) { menuEl.hidden = true; return; }
+      ui.popFrom(menuEl, menuEl._popAnchor || null, 'close', function () { menuEl.hidden = true; });
     }
     function hideEdgeMenu(animate) {
       if (!edgeMenuEl || edgeMenuEl.hidden) return;
       clearTimeout(edgeCloseTimer);
-      if (animate === false) {
-        edgeMenuEl.hidden = true;
-        edgeMenuEl.classList.remove('closing');
-        return;
-      }
-      edgeMenuEl.classList.add('closing');
-      edgeCloseTimer = setTimeout(function () {
-        edgeMenuEl.hidden = true;
-        edgeMenuEl.classList.remove('closing');
-      }, 150);
+      edgeMenuEl.classList.remove('closing');
+      if (animate === false || !ui.popFrom) { edgeMenuEl.hidden = true; return; }
+      ui.popFrom(edgeMenuEl, edgeMenuEl._popAnchor || null, 'close', function () { edgeMenuEl.hidden = true; }, EDGE_POP);
     }
     function placeMenu(el, rect) {
       if (!el) return;
@@ -1750,7 +1730,9 @@
         '<div class="edge-menu-row"><span>最少</span>' + opt('set-min', '0', '0', p.min === 0) + opt('set-min', '1', '1', p.min === 1) + '</div>' +
         '<div class="edge-menu-row"><span>最多</span>' + opt('set-max', '1', '1', p.max === '1') + opt('set-max', 'N', 'N', p.max === 'N') + '</div>' +
         '<div class="edge-menu-foot"><button type="button" class="node-menu-item danger" data-act="del-part" data-rel-id="' + relId + '" data-pid="' + pid + '">删除该参与端</button></div>';
+      edgeMenuEl._popAnchor = rect;
       placeMenu(edgeMenuEl, rect);
+      if (ui.popFrom) ui.popFrom(edgeMenuEl, rect, 'open', null, EDGE_POP);
     }
     function showIsaMenu(isaId, rect) {
       const isa = getIsa(isaId);
@@ -1772,7 +1754,9 @@
           return '<button type="button" class="node-menu-item' + (on ? ' on' : '') + '" data-act="set-isa" data-v="' + o[0] + '" data-id="' + isaId + '">' + o[1] + '</button>';
         }).join('') +
         '<div class="edge-menu-foot"><button type="button" class="node-menu-item danger" data-act="del-isa" data-id="' + isaId + '">删除泛化</button></div>';
+      edgeMenuEl._popAnchor = rect;
       placeMenu(edgeMenuEl, rect);
+      if (ui.popFrom) ui.popFrom(edgeMenuEl, rect, 'open', null, EDGE_POP);
     }
     function showNodeMenu(ntype, id) {
       if (!menuEl) return;
@@ -1786,18 +1770,19 @@
       menuEl.dataset.ntype = ntype;
       menuEl.dataset.node = id;
       const items = ['<button type="button" class="node-menu-item" data-act="menu-rename" data-ntype="' + ntype + '" data-id="' + id + '">改名</button>'];
-      if (ntype === 'entity') items.push('<button type="button" class="node-menu-item" data-act="menu-link-isa" data-id="' + id + '">🔗 链接（ISA）</button>');
-      if (ntype === 'relationship') items.push('<button type="button" class="node-menu-item" data-act="menu-link-part" data-rel-id="' + id + '">🔗 链接（参与端）</button>');
+      if (ntype === 'entity') items.push('<button type="button" class="node-menu-item" data-act="menu-link-isa" data-id="' + id + '">链接（ISA）</button>');
+      if (ntype === 'relationship') items.push('<button type="button" class="node-menu-item" data-act="menu-link-part" data-rel-id="' + id + '">链接（参与端）</button>');
       items.push('<button type="button" class="node-menu-item danger" data-act="menu-del" data-ntype="' + ntype + '" data-id="' + id + '">删除</button>');
       menuEl.innerHTML = items.join('');
       const cr = canvasEl.getBoundingClientRect();
       let x = 40, y = 40;
+      let anchor = null;
       if (ntype === 'isa') {
         const lab = overlayEl.querySelector('.isa-label[data-node="' + id + '"]');
-        if (lab) { const r = lab.getBoundingClientRect(); x = r.left - cr.left; y = r.bottom - cr.top + 6; }
+        if (lab) { anchor = lab; const r = lab.getBoundingClientRect(); x = r.left - cr.left; y = r.bottom - cr.top + 6; }
       } else {
         const el = nodesEl.querySelector('[data-node="' + id + '"]');
-        if (el) { const r = el.getBoundingClientRect(); x = r.left - cr.left; y = r.bottom - cr.top + 6; }
+        if (el) { anchor = el; const r = el.getBoundingClientRect(); x = r.left - cr.left; y = r.bottom - cr.top + 6; }
       }
       menuEl.hidden = false;
       const mw = menuEl.offsetWidth || 120, mh = menuEl.offsetHeight || 110;
@@ -1805,6 +1790,8 @@
       y = util.clamp(y, 8, Math.max(8, cr.height - mh - 8));
       menuEl.style.left = Math.round(x) + 'px';
       menuEl.style.top = Math.round(y) + 'px';
+      menuEl._popAnchor = anchor;
+      if (ui.popFrom) ui.popFrom(menuEl, anchor, 'open');
     }
     /* ---------- 选择 ---------- */
     /* 只切换选中类，避免整块 DOM 重建造成一次闪烁 */
@@ -1853,6 +1840,7 @@
         attributes: []
       };
       state.model.entities.push(ent);
+      dirty = true;
       pushNow();
       refresh();
       select('entity', ent.id);
@@ -1868,24 +1856,13 @@
         participants: [], attributes: []
       };
       state.model.relationships.push(rel);
+      dirty = true;
       pushNow();
       refresh();
       select('relationship', rel.id);
       return rel;
     }
-    function addIsa() {
-      const c = viewCenter();
-      const isa = {
-        id: uid('isa'), type: 'isa', name: 'ISA',
-        x: Math.round(c.x - 65), y: Math.round(c.y - 48),
-        parentId: null, childIds: []
-      };
-      state.model.isas.push(isa);
-      pushNow();
-      refresh();
-      select('isa', isa.id);
-      return isa;
-    }
+
     function focusInspectorName() {
       setTimeout(function () {
         const list = root.querySelectorAll('#erTabInsp input[data-bind]');
@@ -1944,6 +1921,7 @@
             i.childIds = i.childIds.filter(function (c) { return c !== id; });
           });
           state.selected = null; state.selectedAttr = null;
+          dirty = true;
           pushNow();
           refresh();
           ui.toast('已删除实体 ' + n.name, 'ok');
@@ -1959,6 +1937,7 @@
         state.model.isas = state.model.isas.filter(function (i) { return i.id !== id; });
       }
       state.selected = null; state.selectedAttr = null;
+      dirty = true;
       pushNow();
       refresh();
     }
@@ -1969,20 +1948,18 @@
       owner.attributes = owner.attributes.filter(function (a) { return a.id !== attrId; });
       normalizeKeys(owner);
       state.selectedAttr = null;
+      dirty = true;
       pushNow();
       refresh();
     }
 
     /* ---------- 几何位置 ---------- */
-    function geoOf(id) {
-      const geo = computeGeo();
-      return geo[id] || { x: 0, y: 0 };
-    }
 
     /* ---------- 自动布局 ---------- */
     function autoLayout() {
       const ents = state.model.entities;
       if (!ents.length) return;
+      hideNodeMenu(false); hideEdgeMenu(false);
       const geo = computeGeo();
       const byId = {};
       ents.forEach(function (e) {
@@ -1990,11 +1967,11 @@
         byId[e.id] = { id: e.id, w: g ? g.w : 200, h: g ? g.h : 64 };
       });
 
-      /* 1. ISA 层级：父在上、子在下，同层横排 */
+      /* 1. ISA 层级（同一父下的子实体按模型顺序） */
       const parentOf = {}, childrenOf = {};
       state.model.isas.forEach(function (isa) {
         if (!isa.parentId || !byId[isa.parentId]) return;
-        isa.childIds.forEach(function (cid) {
+        (isa.childIds || []).forEach(function (cid) {
           if (!byId[cid] || parentOf[cid]) return;
           parentOf[cid] = isa.parentId;
           (childrenOf[isa.parentId] = childrenOf[isa.parentId] || []).push(cid);
@@ -2006,291 +1983,118 @@
         depth[id] = d;
         (childrenOf[id] || []).forEach(function (cid) { setDepth(cid, d + 1); });
       }
-      const roots = ents.filter(function (e) { return !parentOf[e.id]; }).map(function (e) { return e.id; });
-      roots.forEach(function (id) { setDepth(id, 0); });
-      ents.forEach(function (e) { if (depth[e.id] == null) depth[e.id] = 0; });
+      ents.forEach(function (e) { if (!parentOf[e.id]) setDepth(e.id, 0); });
+      ents.forEach(function (e) { if (depth[e.id] == null) setDepth(e.id, 0); });
 
-      /* 2. 按层摆位：根节点等距横排，子类挂在父类下方居中 */
-      const tight = state.model.entities.length <= 6;
-      const ROW = tight ? 300 : 340;
-      const PITCH = tight ? 320 : 360;
+      /* 2. 稳定遍历顺序：根按模型顺序，先父后子，从左到右、从上到下 */
+      const order = [], seen = {};
+      function walk(id) {
+        if (seen[id]) return;
+        seen[id] = true;
+        order.push(id);
+        (childrenOf[id] || []).forEach(walk);
+      }
+      ents.forEach(function (e) { if (!parentOf[e.id]) walk(e.id); });
+      ents.forEach(function (e) { walk(e.id); });
+
+      const levels = [];
+      order.forEach(function (id) {
+        const d = depth[id] || 0;
+        (levels[d] = levels[d] || []).push(id);
+      });
+      for (let d = 0; d < levels.length; d++) if (!levels[d]) levels[d] = [];
+
+      /* 3. 列 = 层级：x 严格从左到右；行 = 同层从上到下 */
+      const GAP_X = 170, GAP_Y = 140;
+      const colW = [], rowH = [];
+      levels.forEach(function (ids, d) {
+        colW[d] = Math.max.apply(null, ids.map(function (id) { return byId[id].w; }).concat([140]));
+        rowH[d] = Math.max.apply(null, ids.map(function (id) { return byId[id].h; }).concat([64]));
+      });
+      const lefts = [], centersX = [];
+      let cursor = 0;
+      levels.forEach(function (ids, d) {
+        lefts[d] = cursor;
+        centersX[d] = cursor + colW[d] / 2;
+        cursor += colW[d] + GAP_X;
+      });
       const pos = {};
-      let row0x = 0;
-      roots.forEach(function (id) {
-        pos[id] = { x: row0x, y: 0 };
-        row0x += PITCH;
-      });
-      const allDepths = Object.keys(depth).map(function (k) { return depth[k]; });
-      const maxDepth = allDepths.length ? Math.max.apply(null, allDepths) : 0;
-      for (let d = 1; d <= maxDepth; d++) {
-        ents.forEach(function (e) {
-          if (depth[e.id] !== d || pos[e.id]) return;
-          const par = parentOf[e.id] ? pos[parentOf[e.id]] : null;
-          const base = par ? par.x : row0x + PITCH;
-          const sibs = (childrenOf[parentOf[e.id]] || []).filter(function (cid) { return depth[cid] === d; });
-          const idx = Math.max(0, sibs.indexOf(e.id));
-          const span = (sibs.length - 1) * PITCH * 0.9;
-          pos[e.id] = { x: base + idx * PITCH * 0.9 - span / 2, y: d * ROW };
+      levels.forEach(function (ids, d) {
+        const pitch = rowH[d] + GAP_Y;
+        const total = ids.length * pitch - GAP_Y;
+        let y = -total / 2;
+        ids.forEach(function (id) {
+          pos[id] = { x: centersX[d], y: y + byId[id].h / 2 };
+          y += pitch;
         });
-      }
-      ents.forEach(function (e) { if (!pos[e.id]) pos[e.id] = { x: row0x, y: depth[e.id] * ROW }; });
-
-      /* 3. 盒子模型：把属性环与名字一起算进包围盒，先做一次腾挪 */
-      const boxes = ents.map(function (e) {
-        const b = byId[e.id];
-        const p0 = pos[e.id];
-        return { id: e.id, w: b.w, h: b.h, hw: b.w / 2 + 92, hh: b.h / 2 + 58, cx: p0.x + b.w / 2, cy: p0.y + b.h / 2 };
       });
-      const boxOf = {};
-      boxes.forEach(function (b) { boxOf[b.id] = b; });
-      for (let pass = 0; pass < 200; pass++) {
-        let moved = false;
-        for (let a = 0; a < boxes.length; a++) {
-          for (let b2 = a + 1; b2 < boxes.length; b2++) {
-            const A = boxes[a], B = boxes[b2];
-            const dx = B.cx - A.cx, dy = B.cy - A.cy;
-            const ox = A.hw + B.hw + 18 - Math.abs(dx);
-            const oy = A.hh + B.hh + 18 - Math.abs(dy);
-            if (ox <= 0 || oy <= 0) continue;
-            moved = true;
-            if (ox < oy) {
-              const sg = dx >= 0 ? 1 : -1;
-              A.cx -= sg * ox / 2; B.cx += sg * ox / 2;
-            } else {
-              const sg = dy >= 0 ? 1 : -1;
-              A.cy -= sg * oy / 2; B.cy += sg * oy / 2;
-            }
-          }
-        }
-        if (!moved) break;
-      }
 
-      /* 4. 关系放在参与实体重心；候选位置避开实体、其它关系，并惩罚连线穿过其它元素 */
-      const rw = 160 / 2 + 78, rh = 92 / 2 + 64;
-      const taken = boxes.map(function (b) {
-        return { cx: b.cx, cy: b.cy, hw: b.w / 2 + 64, hh: b.h / 2 + 50 };
-      });
-      function segHits(x1, y1, x2, y2, cx, cy, hw, hh) {
-        for (let i = 1; i < 30; i++) {
-          const t = i / 30;
-          const px = x1 + (x2 - x1) * t, py = y1 + (y2 - y1) * t;
-          if (Math.abs(px - cx) < hw && Math.abs(py - cy) < hh) return true;
+      /* 4. 关系放在参与者右侧的确定性候选位，按顺序放置 */
+      function hitsEntity(cx, cy) {
+        /* m13662: use the diamond's real half-size (80x46) with a 2px pad so a
+           relationship can sit in the narrow gap between two participants */
+        for (const id in pos) {
+          const b = byId[id], p = pos[id];
+          if (Math.abs(cx - p.x) < b.w / 2 + 80 + 2 && Math.abs(cy - p.y) < b.h / 2 + 46 + 2) return true;
         }
         return false;
       }
-      function score(cx, cy, ox0, oy0, ids) {
-        let sc = 0;
-        taken.forEach(function (b) {
-          const ox = b.hw + rw - Math.abs(cx - b.cx);
-          const oy = b.hh + rh - Math.abs(cy - b.cy);
-          if (ox > 0 && oy > 0) sc += ox * oy * 2.2;
-        });
-        sc += Math.hypot(cx - ox0, cy - oy0) * 70;
-        ids.forEach(function (id) {
-          const target = boxOf[id];
-          if (!target) return;
-          boxes.forEach(function (o) {
-            if (o.id === id) return;
-            if (segHits(cx, cy, target.cx, target.cy, o.cx, o.cy, o.w / 2 + 30, o.h / 2 + 26)) sc += 5200;
-          });
-          taken.forEach(function (tb) {
-            if (segHits(cx, cy, target.cx, target.cy, tb.cx, tb.cy, tb.hw + 10, tb.hh + 10)) sc += 1200;
-          });
-        });
-        return sc;
+      const placed = [];
+      function hitsRel(cx, cy) {
+        for (let i = 0; i < placed.length; i++) {
+          const R = placed[i];
+          if (Math.abs(cx - R.cx) < 80 + 18 && Math.abs(cy - R.cy) < 46 + 18) return true;
+        }
+        return false;
       }
-      const relBoxes = [];
       state.model.relationships.forEach(function (rel) {
-        const ids = rel.participants.map(function (p) { return p.entityId; }).filter(function (id) { return boxOf[id]; });
-        let cx = 0, cy = 0;
-        if (ids.length) {
-          ids.forEach(function (id) { cx += boxOf[id].cx; cy += boxOf[id].cy; });
-          cx /= ids.length; cy /= ids.length;
-        } else { cx = 140; cy = 90; }
+        const pts = (rel.participants || []).map(function (p) { return pos[p.entityId || p.entity]; }).filter(Boolean);
+        const cx = pts.length ? pts.reduce(function (s, p) { return s + p.x; }, 0) / pts.length : 0;
+        const cy = pts.length ? pts.reduce(function (s, p) { return s + p.y; }, 0) / pts.length : 0;
+        /* midpoint first, then a deterministic ring around it */
+        const offsets = [[0, 0], [180, 0], [-180, 0], [0, 160], [0, -160], [180, -160], [180, 160], [-180, -160], [-180, 160], [360, 0], [-360, 0], [0, 320], [0, -320]];
         let best = null;
-        const steps = tight ? [0, 1, -1, 2, -2] : [0, 1, -1, 2, -2, 3, -3];
-        steps.forEach(function (mx) {
-          steps.forEach(function (my) {
-            const px = cx + mx * (tight ? 96 : 116), py = cy + my * (tight ? 84 : 102);
-            const sc = score(px, py, cx, cy, ids);
-            if (!best || sc < best.s - 0.5) best = { x: px, y: py, s: sc };
-          });
-        });
-        rel.x = Math.round(best.x - 160 / 2);
-        rel.y = Math.round(best.y - 92 / 2);
-        taken.push({ cx: best.x, cy: best.y, hw: rw, hh: rh });
-        relBoxes.push({ rel: rel, cx: best.x, cy: best.y });
+        for (let i = 0; i < offsets.length; i++) {
+          const tx = cx + offsets[i][0], ty = cy + offsets[i][1];
+          if (!hitsEntity(tx, ty) && !hitsRel(tx, ty)) { best = { cx: tx, cy: ty }; break; }
+        }
+        if (!best) best = { cx: cx, cy: cy };
+        placed.push({ rel: rel, cx: best.cx, cy: best.cy });
       });
 
-      /* 4b. 关系盒子之间、关系与实体之间再推一轮，保证互不重叠 */
-      for (let pass = 0; pass < 120; pass++) {
-        let moved = false;
-        for (let i = 0; i < relBoxes.length; i++) {
-          for (let j = i + 1; j < relBoxes.length; j++) {
-            const A = relBoxes[i], B = relBoxes[j];
-            const dx = B.cx - A.cx, dy = B.cy - A.cy;
-            const ox = rw * 2 + 30 - Math.abs(dx), oy = rh * 2 + 30 - Math.abs(dy);
-            if (ox <= 0 || oy <= 0) continue;
-            moved = true;
-            if (ox < oy) { const sg = dx >= 0 ? 1 : -1; A.cx -= sg * ox / 2; B.cx += sg * ox / 2; }
-            else { const sg = dy >= 0 ? 1 : -1; A.cy -= sg * oy / 2; B.cy += sg * oy / 2; }
-          }
-        }
-        relBoxes.forEach(function (R) {
-          boxes.forEach(function (B) {
-            const dx = R.cx - B.cx, dy = R.cy - B.cy;
-            const ox = rw + B.hw + 16 - Math.abs(dx), oy = rh + B.hh + 12 - Math.abs(dy);
-            if (ox <= 0 || oy <= 0) return;
-            moved = true;
-            if (ox < oy) { const sg = dx >= 0 ? 1 : -1; R.cx += sg * ox; }
-            else { const sg = dy >= 0 ? 1 : -1; R.cy += sg * oy; }
-          });
-        });
-        if (!moved) break;
-      }
-      function overlapAt(cx, cy) {
-        let hit = 0;
-        boxes.forEach(function (B) {
-          if (Math.abs(cx - B.cx) < rw + B.w / 2 + 30 && Math.abs(cy - B.cy) < rh + B.h / 2 + 24) hit++;
-        });
-        relBoxes.forEach(function (O) {
-          if (O.cx === cx && O.cy === cy) return;
-          if (Math.abs(cx - O.cx) < rw * 2 + 20 && Math.abs(cy - O.cy) < rh * 2 + 20) hit++;
-        });
-        return hit;
-      }
-      function crossesAt(rel, cx, cy) {
-        let n = 0;
-        rel.participants.forEach(function (pp) {
-          const target = boxOf[pp.entityId];
-          if (!target) return;
-          boxes.forEach(function (B) {
-            if (B.id === pp.entityId) return;
-            if (segHits(cx, cy, target.cx, target.cy, B.cx, B.cy, B.w / 2 + 24, B.h / 2 + 20)) n++;
-          });
-          relBoxes.forEach(function (O) {
-            if (O.rel === rel) return;
-            if (segHits(cx, cy, target.cx, target.cy, O.cx, O.cy, rw, rh)) n++;
-          });
-        });
-        return n;
-      }
-      for (let pass = 0; pass < 6; pass++) {
-        let improved = false;
-        relBoxes.forEach(function (R) {
-          const base = crossesAt(R.rel, R.cx, R.cy);
-          if (!base) return;
-          let best = { x: R.cx, y: R.cy, n: base };
-          [[70, 0], [-70, 0], [0, 70], [0, -70], [100, 100], [-100, 100], [100, -100], [-100, -100], [150, 0], [-150, 0], [0, 150], [0, -150]].forEach(function (d) {
-            const nx = R.cx + d[0], ny = R.cy + d[1];
-            if (overlapAt(nx, ny)) return;
-            const n = crossesAt(R.rel, nx, ny);
-            if (n < best.n) best = { x: nx, y: ny, n: n };
-          });
-          if (best.n < base) { R.cx = best.x; R.cy = best.y; improved = true; }
-        });
-        if (!improved) break;
-      }
-      relBoxes.forEach(function (R) {
-        R.rel.x = Math.round(R.cx - 160 / 2);
-        R.rel.y = Math.round(R.cy - 92 / 2);
+      /* 5. 整体平移到正坐标 */
+      let minX = Infinity, minY = Infinity;
+      ents.forEach(function (e) {
+        const p = pos[e.id], b = byId[e.id];
+        minX = Math.min(minX, p.x - b.w / 2);
+        minY = Math.min(minY, p.y - b.h / 2);
       });
-      /* 5. 回写坐标，属性回到环上 */
-      boxes.forEach(function (b) {
-        const e = getEntity(b.id);
-        if (!e) return;
-        e.x = Math.round(b.cx - b.w / 2);
-        e.y = Math.round(b.cy - b.h / 2);
+      placed.forEach(function (R) {
+        minX = Math.min(minX, R.cx - 80);
+        minY = Math.min(minY, R.cy - 46);
       });
+      const sx = 140 - minX, sy = 140 - minY;
+      ents.forEach(function (e) {
+        const p = pos[e.id], b = byId[e.id];
+        e.x = Math.round(p.x + sx - b.w / 2);
+        e.y = Math.round(p.y + sy - b.h / 2);
+      });
+      placed.forEach(function (R) {
+        R.rel.x = Math.round(R.cx + sx - 80);
+        R.rel.y = Math.round(R.cy + sy - 46);
+      });
+
       function resetAttrPos(list) {
         (list || []).forEach(function (a) { a.x = null; a.y = null; resetAttrPos(a.children); });
       }
       state.model.entities.forEach(function (e) { resetAttrPos(e.attributes); });
       state.model.relationships.forEach(function (r) { resetAttrPos(r.attributes); });
-      /* 4c. 依据最终画出的连线做两轮避让：把被线穿过的节点挪开 */
-      function worldBoxes() {
-        const geo = computeGeo();
-        const items = [];
-        state.model.entities.forEach(function (e) {
-          const g = geo[e.id];
-          if (g) items.push({ kind: 'entity', id: e.id, cx: g.x, cy: g.y, hw: g.w / 2 + 42, hh: g.h / 2 + 32, halfW: g.w / 2, halfH: g.h / 2 });
-        });
-        state.model.relationships.forEach(function (r) {
-          const g = geo[r.id];
-          if (g) items.push({ kind: 'relationship', id: r.id, cx: g.x, cy: g.y, hw: 80 + 34, hh: 46 + 26, halfW: 80, halfH: 46 });
-        });
-        return items;
-      }
-      function edgeLines() {
-        return Array.prototype.slice.call(edgesEl.querySelectorAll('line.e-line')).filter(function (l) {
-          const c = l.getAttribute('class') || '';
-          return c.indexOf('attr') < 0 && c.indexOf('keychain') < 0;
-        }).map(function (l) {
-          return { x1: +l.getAttribute('x1'), y1: +l.getAttribute('y1'), x2: +l.getAttribute('x2'), y2: +l.getAttribute('y2') };
-        });
-      }
-      function hitCount(box, lines) {
-        let n = 0;
-        lines.forEach(function (L) {
-          for (let k = 1; k < 20; k++) {
-            const t = k / 20;
-            const px = L.x1 + (L.x2 - L.x1) * t, py = L.y1 + (L.y2 - L.y1) * t;
-            if (Math.abs(px - box.cx) < box.hw && Math.abs(py - box.cy) < box.hh) { n++; break; }
-          }
-        });
-        return n;
-      }
-      function overlapsAny(box, items) {
-        for (let i = 0; i < items.length; i++) {
-          const B = items[i];
-          if (B === box) continue;
-          if (B.kind === box.kind && B.id === box.id) continue;
-          if (Math.abs(box.cx - B.cx) < box.hw + B.hw + 12 && Math.abs(box.cy - B.cy) < box.hh + B.hh + 10) return true;
-        }
-        return false;
-      }
-      function reduceCrossings() {
-        let items = worldBoxes();
-        let lines = edgeLines();
-        if (!lines.length) return;
-        const deltas = [[48, 0], [-48, 0], [0, 48], [0, -48], [72, 64], [-72, 64], [72, -64], [-72, -64], [110, 0], [-110, 0], [0, 110], [0, -110]];
-        for (let round = 0; round < 6; round++) {
-          let changed = false;
-          items = worldBoxes();
-          lines = edgeLines();
-          items.forEach(function (box) {
-            /* 只微调关系形状：移动实体会把 ISA 总线拉成巨型方框 */
-            if (box.kind !== 'relationship') return;
-            if (!hitCount(box, lines)) return;
-            let best = null;
-            deltas.forEach(function (d) {
-              const probe = { cx: box.cx + d[0], cy: box.cy + d[1], hw: box.hw, hh: box.hh, kind: box.kind, id: box.id };
-              if (overlapsAny(probe, items)) return;
-              const n = hitCount(probe, lines);
-              if (!best || n < best.n) best = { n: n, dx: d[0], dy: d[1] };
-            });
-            if (!best || best.n >= hitCount(box, lines)) return;
-            if (box.kind === 'entity') {
-              const e = getEntity(box.id);
-              if (e) { e.x = Math.round(e.x + best.dx); e.y = Math.round(e.y + best.dy); changed = true; }
-            } else {
-              const r = getRel(box.id);
-              if (r) { r.x = Math.round(r.x + best.dx); r.y = Math.round(r.y + best.dy); changed = true; }
-            }
-          });
-          if (!changed) break;
-          refresh();
-          lines = edgeLines();
-        }
-      }
       refresh();
-      reduceCrossings();
       fitView(0.42);
-      setTimeout(function () { fitView(0.42); }, 30);
+      setTimeout(fitView, 30);
       ui.toast('已重新排布', 'ok');
     }
 
-    /* ---------- 保存 / 打开 / 导入导出 ---------- */
     function saveModel() {
       ui.prompt({ title: '保存模型', label: '模型名称', value: state.model.name, hint: '保存在浏览器中，可随时从「打开」加载。' }).then(function (name) {
         if (!name) return;
@@ -2376,8 +2180,13 @@
     /* ---------- 画布交互 ---------- */
     function pointerDown(e) {
       if (e.button === 2) return;
-      if (menuEl && !menuEl.hidden && !e.target.closest('#erMenu, [data-node], [data-attr-node], .isa-label')) hideNodeMenu(true);
-      if (edgeMenuEl && !edgeMenuEl.hidden && !e.target.closest('#erEdgeMenu, [data-act="edit-card"], .isa-label')) hideEdgeMenu(true);
+      const downNode = e.target.closest('[data-node]');
+      menuEl._toggleIntent = null;
+      if (menuEl && !menuEl.hidden && !e.target.closest('#erMenu, [data-attr-node], .isa-label')) {
+        if (downNode && menuEl.dataset.ntype === downNode.dataset.ntype && menuEl.dataset.node === downNode.dataset.node) menuEl._toggleIntent = downNode.dataset.ntype + '|' + downNode.dataset.node;
+        hideNodeMenu(false);
+      }
+      if (edgeMenuEl && !edgeMenuEl.hidden && !e.target.closest('#erEdgeMenu, [data-act="edit-card"], .isa-label')) hideEdgeMenu(false);
       const isaLabel = e.target.closest('.isa-label');
       if (isaLabel) {
         select('isa', isaLabel.dataset.node, null);
@@ -2485,6 +2294,9 @@
           rebuildOutputs(); renderChecks(); renderSchema();
           drawEdges();
         } else {
+          const intent = menuEl && menuEl._toggleIntent;
+          if (menuEl) menuEl._toggleIntent = null;
+          if (intent && intent === d.ntype + '|' + d.id) { hideNodeMenu(true); select(d.ntype, d.id, null); return; }
           select(d.ntype, d.id, null);
           showNodeMenu(d.ntype, d.id);
         }
@@ -3018,5 +2830,5 @@
     };
   }
 
-  DDB.tools.er = { mount: mount };
+  if (window.DDB && DDB.registerTool) DDB.registerTool('er', { title: 'designER · 关系模型', mount: mount });
 })();

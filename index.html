@@ -1,24 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>deepDB · 数据库设计工具集</title>
-<meta name="description" content="数据库设计工具集：ER 建模、逻辑模式重构、NoSQL 文档模型设计、关系代数表达式编辑。">
+<title>deepDB · database design tools</title>
+<meta name="description" content="A local, offline toolkit for ER modelling, document schemas, relational-algebra expressions and ER-to-schema translation.">
 <meta name="theme-color" content="#f1efe7">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%233341e0'/%3E%3Ctext x='32' y='45' font-family='Helvetica,Arial' font-size='34' font-weight='700' fill='%23fff' text-anchor='middle'%3Ed%3C/text%3E%3C/svg%3E">
-<script>
-  /* 固定浅色主题，并恢复强调色，避免闪白 */
-  try {
-    document.documentElement.setAttribute('data-theme', 'light');
-    var accents = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple'];
-    var accent = localStorage.getItem('designerdb:v1:accent');
-    if (accents.indexOf(accent) < 0) accent = 'blue';
-    document.documentElement.setAttribute('data-accent', accent);
-    var map = { red: '#d93b35', orange: '#e06a24', yellow: '#d5a01d', green: '#2f8f57', cyan: '#1d8b9b', blue: '#1b18ff', purple: '#7a3edb' };
-    document.documentElement.style.setProperty('--accent', map[accent]);
-  } catch (e) {}
-</script>
+<script src="assets/js/boot.js"></script>
 <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/home-alt.css">
   <link rel="stylesheet" href="assets/css/editorial-ui.css">
@@ -46,12 +35,6 @@
 <script src="assets/js/core.js"></script>
 <script src="assets/js/i18n-dict.js"></script>
 <script src="assets/js/i18n.js"></script>
-<script src="assets/js/er.js"></script>
-<script src="assets/js/er-schema.js"></script>
-<script src="assets/js/noer.js"></script>
-<script src="assets/js/ra.js"></script>
-<script src="assets/js/translater.js"></script>
-<script src="assets/js/home-alt.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

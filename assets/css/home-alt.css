@@ -833,3 +833,36 @@ body.dd-menu-open { overflow: hidden; }
   backdrop-filter: blur(22px) saturate(165%);
   box-shadow: 0 10px 28px rgba(24, 18, 8, 0.1);
 }
+
+/* ===== m12924 keycap physics ===== */
+.ah-keys {
+  position: absolute;
+  inset: 0;
+  right: auto;
+  bottom: auto;
+  display: block;
+  gap: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.ah-keys .ah-key {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: none;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.ah-keys .ah-key.is-dragging {
+  cursor: grabbing;
+  z-index: 6;
+  filter: brightness(1.14);
+  box-shadow: 0 30px 46px -18px rgba(18, 18, 14, 0.55);
+}
+@media (max-width: 860px) {
+  .ah-keys { display: none !important; }
+}

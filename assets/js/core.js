@@ -12,6 +12,14 @@ window.DDB = (function () {
 
   /* ---------------- util ---------------- */
   let seq = 0;
+  const KEYS = {
+    prefix: 'designerdb:v1:',
+    accent: 'designerdb:v1:accent',
+    panels: 'designerdb:v1:panels',
+    lbw: 'designerdb:v1:lbw',
+    lang: 'designerdb:v1:lang'
+  };
+
   const util = {
     uid(prefix) {
       seq += 1;
@@ -24,14 +32,7 @@ window.DDB = (function () {
     },
     clone(o) { return o == null ? o : JSON.parse(JSON.stringify(o)); },
     clamp(v, a, b) { return Math.max(a, Math.min(b, v)); },
-    debounce(fn, ms) {
-      let t = null;
-      return function () {
-        const args = arguments, self = this;
-        clearTimeout(t);
-        t = setTimeout(function () { fn.apply(self, args); }, ms);
-      };
-    },
+
     pad2(n) { return n < 10 ? '0' + n : '' + n; },
     fmtTime(ts) {
       if (!ts) return '';
@@ -184,16 +185,7 @@ window.DDB = (function () {
       else if (!o.origin && lastTriggerRect) originRect = lastTriggerRect;
       const panel = back.querySelector('.modal');
       let closed = false;
-      function originTransform() {
-        if (!originRect || !panel) return null;
-        const r = panel.getBoundingClientRect();
-        const ox = originRect.left + originRect.width / 2;
-        const oy = originRect.top + originRect.height / 2;
-        const dx = ox - (r.left + r.width / 2);
-        const dy = oy - (r.top + r.height / 2);
-        const sc = Math.max(0.18, Math.min(0.5, originRect.width / Math.max(120, r.width)));
-        return 'translate(' + dx.toFixed(1) + 'px,' + (dy + 8).toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')';
-      }
+    
       /* 把“按钮中心 → 弹窗中心”的位移拆成几段：先从按钮里向下掉出来，再滑到中间 */
       /* 从触发按钮里长出来：中心→中心的弧形路径，全程慢-快-慢 */
       const EASE = 'cubic-bezier(.45,0,.55,1)';
@@ -282,6 +274,51 @@ window.DDB = (function () {
       if (o.onMount) o.onMount(modalEl, close);
       return modalEl;
     }
+  };
+
+  /* m13662: anchor-origin pop animation shared by secondary menus */
+  const POP_EASE = 'cubic-bezier(.45,0,.55,1)';
+  ui.popFrom = function (el, anchor, mode, done, opts) {
+    if (!el) { if (done) done(); return; }
+    var o = opts || {};
+    if (el._popAnim) { try { el._popAnim.cancel(); } catch (e) {} el._popAnim = null; }
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var rect = el.getBoundingClientRect();
+    var ax = rect.left + rect.width / 2;
+    var ay = rect.top + rect.height / 2;
+    if (anchor) {
+      if (typeof anchor.getBoundingClientRect === 'function') {
+        var ar = anchor.getBoundingClientRect();
+        if (ar.width || ar.height) { ax = ar.left + ar.width / 2; ay = ar.top + ar.height / 2; }
+      } else if (typeof anchor.x === 'number') { ax = anchor.x; ay = anchor.y; }
+    }
+    var ox = rect.width ? Math.max(0, Math.min(100, ((ax - rect.left) / rect.width) * 100)) : 50;
+    var oy = rect.height ? Math.max(0, Math.min(100, ((ay - rect.top) / rect.height) * 100)) : 0;
+    var dx = ax - (rect.left + rect.width * ox / 100);
+    var dy = ay - (rect.top + rect.height * oy / 100);
+    var scale = typeof o.scale === 'number' ? o.scale : 0.86;
+    var shift = typeof o.shift === 'number' ? o.shift : 0.55;
+    var dur = reduce ? 100 : (mode === 'open' ? (o.open || 240) : (o.close || 200));
+    el.style.transformOrigin = ox + '% ' + oy + '%';
+    var start = 'translate(' + (dx * shift).toFixed(2) + 'px,' + (dy * shift).toFixed(2) + 'px) scale(' + scale + ')';
+    var frames = mode === 'open'
+      ? [{ opacity: 0, transform: start }, { opacity: 1, transform: 'translate(0,0) scale(1)' }]
+      : [{ opacity: 1, transform: 'translate(0,0) scale(1)' }, { opacity: 0, transform: start }];
+    var anim;
+    try { anim = el.animate(frames, { duration: dur, easing: POP_EASE, fill: 'both' }); }
+    catch (err) { if (done) done(); return; }
+    el._popAnim = anim;
+    var settled = false;
+    var finish = function () {
+      if (settled) return;
+      settled = true;
+      try { anim.cancel(); } catch (e) {}
+      if (el._popAnim === anim) el._popAnim = null;
+      el.style.transformOrigin = ''; el.style.transform = ''; el.style.opacity = '';
+      if (done) done();
+    };
+    if (anim.finished && anim.finished.then) anim.finished.then(finish, finish);
+    else setTimeout(finish, dur + 20);
   };
 
   /* ---------------- store ---------------- */
@@ -418,6 +455,14 @@ window.DDB = (function () {
   };
 
   /* ---------------- history ---------------- */
+  function registerTool(id, def) {
+    const root = window.DDB;
+    if (!root || !id) return null;
+    const prev = (root.tools && root.tools[id]) || {};
+    root.tools[id] = Object.assign({ id: id, title: '' }, prev, def || {});
+    return root.tools[id];
+  }
+
   function createHistory(opts) {
     const get = opts.get;
     const set = opts.set;
@@ -477,9 +522,10 @@ window.DDB = (function () {
     draft: draft,
     io: io,
 
+    keys: KEYS,
     createHistory: createHistory,
-    tools: {},
-    version: '1.0.0'
+    registerTool: registerTool,
+    tools: {}
   };
 })();
 

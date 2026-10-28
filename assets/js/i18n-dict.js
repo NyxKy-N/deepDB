@@ -158,7 +158,7 @@ window.DDB_I18N_DICT = {
    "当前模型": "当前模型",
    "模型名": "模型名",
    "提示": "提示",
-   "属性小球连在实体周围；「🔗 链接实体」可建 ISA 或给关系加参与端。": "属性小球连在实体周围；「🔗 链接实体」可建 ISA 或给关系加参与端。",
+   "属性小球连在实体周围；「链接实体」可建 ISA 或给关系加参与端。": "属性小球连在实体周围；「链接实体」可建 ISA 或给关系加参与端。",
    "「检查」页看模型问题，「逻辑模式」页看重构结果。": "「检查」页看模型问题，「逻辑模式」页看重构结果。",
    "已取消链接": "已取消链接",
    "不能链接到自身": "不能链接到自身",
@@ -175,8 +175,8 @@ window.DDB_I18N_DICT = {
    "＋ 添加属性": "＋ 添加属性",
    "点小球或下面的行可编辑属性。": "点小球或下面的行可编辑属性。",
    "ISA 泛化": "ISA 泛化",
-   "🔗 正在链接…点击另一个实体": "🔗 正在链接…点击另一个实体",
-   "🔗 链接实体（连成 ISA）": "🔗 链接实体（连成 ISA）",
+   "正在链接…点击另一个实体": "正在链接…点击另一个实体",
+   "链接实体（连成 ISA）": "链接实体（连成 ISA）",
    "子类": "子类",
    "（已删除）": "（已删除）",
    "超类": "超类",
@@ -192,8 +192,8 @@ window.DDB_I18N_DICT = {
    "最小基数": "最小基数",
    "最大基数": "最大基数",
    "还没有参与实体。": "还没有参与实体。",
-   "🔗 正在链接…点击实体": "🔗 正在链接…点击实体",
-   "🔗 链接实体（添加参与端）": "🔗 链接实体（添加参与端）",
+   "正在链接…点击实体": "正在链接…点击实体",
+   "链接实体（添加参与端）": "链接实体（添加参与端）",
    "＋ 添加参与端": "＋ 添加参与端",
    "参与端 (min,max)：N 表示多个，min=1 表示完全参与（双线）。": "参与端 (min,max)：N 表示多个，min=1 表示完全参与（双线）。",
    "关系属性": "关系属性",
@@ -201,7 +201,7 @@ window.DDB_I18N_DICT = {
    "删除关系": "删除关系",
    "父实体（超类）": "父实体（超类）",
    "— 未设置 —": "— 未设置 —",
-   "在实体属性面板用「🔗 链接实体（连成 ISA）」创建，子类继承父类主键。": "在实体属性面板用「🔗 链接实体（连成 ISA）」创建，子类继承父类主键。",
+   "在实体属性面板用「链接实体（连成 ISA）」创建，子类继承父类主键。": "在实体属性面板用「链接实体（连成 ISA）」创建，子类继承父类主键。",
    "子实体（子类）": "子实体（子类）",
    "还没有子类。": "还没有子类。",
    "删除 ISA": "删除 ISA",
@@ -367,12 +367,12 @@ window.DDB_I18N_DICT = {
    "未命名文档模型": "未命名文档模型",
    "电商文档模型（示例）": "电商文档模型（示例）",
    "＋ 集合": "＋ 集合",
-   "🔗 引用": "🔗 引用",
+   "引用": "引用",
    "Mongoose 模型": "Mongoose 模型",
    "示例文档": "示例文档",
    "生成": "生成",
    "▤ 集合 Collection": "▤ 集合 Collection",
-   "🔗 引用另一个集合": "🔗 引用另一个集合",
+   "引用另一个集合": "引用另一个集合",
    "引用模式：先点发布引用的集合，再点被引用的集合。": "引用模式：先点发布引用的集合，再点被引用的集合。",
    "集合列表": "集合列表",
    "文档模型要点": "文档模型要点",
@@ -843,7 +843,7 @@ window.DDB_I18N_DICT = {
    "当前模型": "Current model",
    "模型名": "Model name",
    "提示": "Note",
-   "属性小球连在实体周围；「🔗 链接实体」可建 ISA 或给关系加参与端。": "Attributes appear as small circles around an entity; 「🔗 Link entity」 creates an ISA or adds a participating side to a relationship.",
+   "属性小球连在实体周围；「链接实体」可建 ISA 或给关系加参与端。": "Attributes appear as small circles around an entity; 「Link entity」 creates an ISA or adds a participating side to a relationship.",
    "「检查」页看模型问题，「逻辑模式」页看重构结果。": "The 「Check」 page shows model problems; the 「Logical schema」 page shows the refactored result.",
    "已取消链接": "Link canceled",
    "不能链接到自身": "Cannot link to itself",
@@ -860,8 +860,8 @@ window.DDB_I18N_DICT = {
    "＋ 添加属性": "＋ Add attribute",
    "点小球或下面的行可编辑属性。": "Click a circle or a row below to edit the attribute.",
    "ISA 泛化": "ISA generalization",
-   "🔗 正在链接…点击另一个实体": "🔗 Linking… click another entity",
-   "🔗 链接实体（连成 ISA）": "🔗 Link entity (create ISA)",
+   "正在链接…点击另一个实体": "Linking… click another entity",
+   "链接实体（连成 ISA）": "Link entity (create ISA)",
    "子类": "Subclass",
    "（已删除）": "(deleted)",
    "超类": "Superclass",
@@ -877,8 +877,8 @@ window.DDB_I18N_DICT = {
    "最小基数": "Minimum cardinality",
    "最大基数": "Maximum cardinality",
    "还没有参与实体。": "No participating entities yet.",
-   "🔗 正在链接…点击实体": "🔗 Linking… click an entity",
-   "🔗 链接实体（添加参与端）": "🔗 Link entity (add participating side)",
+   "正在链接…点击实体": "Linking… click an entity",
+   "链接实体（添加参与端）": "Link entity (add participating side)",
    "＋ 添加参与端": "＋ Add participating side",
    "参与端 (min,max)：N 表示多个，min=1 表示完全参与（双线）。": "Participating side (min,max): N means many, and min=1 means total participation (double line).",
    "关系属性": "Relationship attributes",
@@ -886,7 +886,7 @@ window.DDB_I18N_DICT = {
    "删除关系": "Delete relationship",
    "父实体（超类）": "Parent entity (superclass)",
    "— 未设置 —": "— Not set —",
-   "在实体属性面板用「🔗 链接实体（连成 ISA）」创建，子类继承父类主键。": "Create it in the entity properties panel with 「🔗 Link entity (create ISA)」; subclasses inherit the parent's primary key.",
+   "在实体属性面板用「链接实体（连成 ISA）」创建，子类继承父类主键。": "Create it in the entity properties panel with 「Link entity (create ISA)」; subclasses inherit the parent's primary key.",
    "子实体（子类）": "Child entity (subclass)",
    "还没有子类。": "No subclasses yet.",
    "删除 ISA": "Delete ISA",
@@ -1052,12 +1052,12 @@ window.DDB_I18N_DICT = {
    "未命名文档模型": "Untitled document model",
    "电商文档模型（示例）": "E-commerce document model (sample)",
    "＋ 集合": "＋ Collection",
-   "🔗 引用": "🔗 Reference",
+   "引用": "Reference",
    "Mongoose 模型": "Mongoose model",
    "示例文档": "Sample document",
    "生成": "Generate",
    "▤ 集合 Collection": "▤ Collection",
-   "🔗 引用另一个集合": "🔗 Reference another collection",
+   "引用另一个集合": "Reference another collection",
    "引用模式：先点发布引用的集合，再点被引用的集合。": "Reference mode: click the collection that holds the reference first, then the referenced collection.",
    "集合列表": "Collection list",
    "文档模型要点": "Document model key points",
@@ -1528,7 +1528,7 @@ window.DDB_I18N_DICT = {
    "当前模型": "Modello corrente",
    "模型名": "Nome del modello",
    "提示": "Nota",
-   "属性小球连在实体周围；「🔗 链接实体」可建 ISA 或给关系加参与端。": "I nodi degli attributi circondano l'entità; con 「🔗 Collega entità」 puoi creare un ISA o aggiungere un estremo partecipante a una relazione.",
+   "属性小球连在实体周围；「链接实体」可建 ISA 或给关系加参与端。": "I nodi degli attributi circondano l'entità; con 「Collega entità」 puoi creare un ISA o aggiungere un estremo partecipante a una relazione.",
    "「检查」页看模型问题，「逻辑模式」页看重构结果。": "La scheda 「Controllo del modello」 mostra i problemi del modello, la scheda 「Schema logico」 il risultato della ristrutturazione.",
    "已取消链接": "Collegamento annullato",
    "不能链接到自身": "Impossibile collegare un elemento a se stesso",
@@ -1545,8 +1545,8 @@ window.DDB_I18N_DICT = {
    "＋ 添加属性": "＋ Aggiungi attributo",
    "点小球或下面的行可编辑属性。": "Fai clic sul nodo o sulla riga sottostante per modificare l'attributo.",
    "ISA 泛化": "Generalizzazione ISA",
-   "🔗 正在链接…点击另一个实体": "🔗 Collegamento in corso… fai clic su un'altra entità",
-   "🔗 链接实体（连成 ISA）": "🔗 Collega entità (crea ISA)",
+   "正在链接…点击另一个实体": "Collegamento in corso… fai clic su un'altra entità",
+   "链接实体（连成 ISA）": "Collega entità (crea ISA)",
    "子类": "Sottoclasse",
    "（已删除）": "(eliminato)",
    "超类": "Superclasse",
@@ -1562,8 +1562,8 @@ window.DDB_I18N_DICT = {
    "最小基数": "Cardinalità minima",
    "最大基数": "Cardinalità massima",
    "还没有参与实体。": "Nessuna entità partecipante.",
-   "🔗 正在链接…点击实体": "🔗 Collegamento in corso… fai clic su un'entità",
-   "🔗 链接实体（添加参与端）": "🔗 Collega entità (aggiungi estremo partecipante)",
+   "正在链接…点击实体": "Collegamento in corso… fai clic su un'entità",
+   "链接实体（添加参与端）": "Collega entità (aggiungi estremo partecipante)",
    "＋ 添加参与端": "＋ Aggiungi estremo partecipante",
    "参与端 (min,max)：N 表示多个，min=1 表示完全参与（双线）。": "Estremo partecipante (min,max): N indica più valori, min=1 indica partecipazione totale (doppia linea).",
    "关系属性": "Attributi della relazione",
@@ -1571,7 +1571,7 @@ window.DDB_I18N_DICT = {
    "删除关系": "Elimina relazione",
    "父实体（超类）": "Entità padre (superclasse)",
    "— 未设置 —": "— Non impostato —",
-   "在实体属性面板用「🔗 链接实体（连成 ISA）」创建，子类继承父类主键。": "Creala nel pannello delle proprietà dell'entità con 「🔗 Collega entità (crea ISA)」; la sottoclasse eredita la chiave primaria della superclasse.",
+   "在实体属性面板用「链接实体（连成 ISA）」创建，子类继承父类主键。": "Creala nel pannello delle proprietà dell'entità con 「Collega entità (crea ISA)」; la sottoclasse eredita la chiave primaria della superclasse.",
    "子实体（子类）": "Entità figlia (sottoclasse)",
    "还没有子类。": "Nessuna sottoclasse.",
    "删除 ISA": "Elimina ISA",
@@ -1737,12 +1737,12 @@ window.DDB_I18N_DICT = {
    "未命名文档模型": "Modello documentale senza nome",
    "电商文档模型（示例）": "Modello documentale e-commerce (esempio)",
    "＋ 集合": "＋ Collezione",
-   "🔗 引用": "🔗 Riferimento",
+   "引用": "Riferimento",
    "Mongoose 模型": "Modello Mongoose",
    "示例文档": "Documento di esempio",
    "生成": "Genera",
    "▤ 集合 Collection": "▤ Collezione Collection",
-   "🔗 引用另一个集合": "🔗 Referenzia un'altra collezione",
+   "引用另一个集合": "Referenzia un'altra collezione",
    "引用模式：先点发布引用的集合，再点被引用的集合。": "Modalità riferimento: fai prima clic sulla collezione che pubblica il riferimento, poi su quella referenziata.",
    "集合列表": "Elenco delle collezioni",
    "文档模型要点": "Punti chiave del modello documentale",
@@ -2433,7 +2433,7 @@ window.DDB_I18N_DICT = {
 (function () {
   var D = window.DDB_I18N_DICT;
   if (!D) return;
-  var zh = {"四个工具：画 ER、翻译成关系模式、设计文档模型、搭关系代数。全部在浏览器里完成。":["Four tools: draw an ER, translate it into a relational schema, design document collections, build relational algebra. Everything runs in the browser.","Quattro strumenti: disegna un ER, traducilo in schema relazionale, progetta collezioni documentali, costruisci algebra relazionale. Tutto nel browser."],"画实体、属性、关系与 ISA，自动检查并重构为逻辑模式。":["Draw entities, attributes, relationships and ISA; checks then refactor into a logical schema.","Disegna entità, attributi, relazioni e ISA; controlli e ristrutturazione in schema logico."],"把 ER 手写或一键翻译成关系模式，并用 Done 校验。":["Write or one-click translate an ER into a relational schema, then validate with Done.","Scrivi o traduci con un clic un ER in schema relazionale, poi valida con Done."],"用集合与字段描述文档模型，自动检查命名与引用。":["Describe a document model with collections and fields; naming and references are checked.","Descrivi un modello documentale con collezioni e campi; nomi e riferimenti controllati."],"用 σ、π、⋈ 等算子搭表达式树并导出。":["Build expression trees with σ, π, ⋈ and more, then export.","Costruisci alberi di espressioni con σ, π, ⋈ e altri, poi esporta."],"添加实体、属性与关系。":["Add entities, attributes and relationships.","Aggiungi entità, attributi e relazioni."],"自动检查并重构为逻辑模式。":["Checks run, then refactor into a logical schema.","Controlli automatici, poi ristrutturazione in schema logico."],"复制或下载结果。":["Copy or download the result.","Copia o scarica il risultato."],"打开就能画，模型自动保留。":["Open and draw — models are kept automatically.","Apri e disegna — i modelli restano salvati."],"每条检查说明原因，可一键定位。":["Every check explains why and can jump to the element.","Ogni controllo spiega il perché e porta all’elemento."],"逻辑模式、JSON Schema 都可导出。":["Logical schema and JSON Schema can be exported.","Schema logico e JSON Schema esportabili."],"纯静态页面，无需安装。":["Static pages, nothing to install.","Pagine statiche, niente da installare."],"受 designerdb.io 启发的教学实现，支持中 / 英 / 意。":["A teaching implementation inspired by designerdb.io, in Chinese / English / Italian.","Un’implementazione didattica ispirata a designerdb.io, in cinese / inglese / italiano."],"跟随系统时自动切换深浅色。":["With System, light and dark follow the system appearance.","Con Sistema, chiaro e scuro seguono l’aspetto di sistema."],"属性以小球围绕实体；点击编辑，拖动移动。":["Attributes are small circles around an entity; click to edit, drag to move.","Gli attributi sono cerchietti attorno all’entità; clic per modificare, trascina per spostare."],"未选中元素。点击画布元素查看属性。":["No selection. Click an element on the canvas to edit it.","Nessuna selezione. Fai clic su un elemento della tela."],"约束显示在连接线上，点击也可选中。全参与＝每个父类实例必须有子类；排他＝只能属于一个子类。":["The constraint shows on the connector and is clickable. Total = every parent must have a subclass; exclusive = only one subclass.","Il vincolo è sulla linea ed è cliccabile. Totale = ogni padre deve avere una sottoclasse; esclusivo = una sola sottoclasse."],"参与端 (min,max)：N 表示多；min=1 为完全参与（双线）。":["Participant (min,max): N means many; min=1 is full participation (double line).","Estremo (min,max): N = molti; min=1 = partecipazione totale (linea doppia)."],"点小球可编辑；用上方「＋ 属性」新增。":["Click a circle to edit; use + Attribute above to add.","Clic su un cerchietto per modificare; usa + Attributo sopra per aggiungere."],"单主键为黑球；多主键为白球并连成复合键。":["A single primary key is a dark circle; several become white and are chained into a composite key.","Una chiave primaria è un cerchietto scuro; più chiavi diventano bianche e si concatenano in una chiave composta."],"有子属性的属性不能作主键；主键可由子属性组成。":["An attribute with children cannot be a primary key; its children can form one.","Un attributo con figli non può essere chiave primaria; i figli possono comporla."],"属性以小球围绕实体；「🔗 链接实体」可建 ISA 或加参与端。":["Attributes are circles around entities; “Link entity” creates an ISA or adds a participant.","Gli attributi sono cerchietti attorno alle entità; «Collega entità» crea una ISA o aggiunge un estremo."],"每个集合自带 _id<br>嵌套 = 内嵌 object<br>一对多放在「多」侧<br>unique 字段自动建索引":["Every collection has _id<br>Nested doc = embedded object<br>One-to-many lives on the “many” side<br>unique fields get an index","Ogni collezione ha _id<br>Documento annidato = object incorporato<br>Uno-a-molti sul lato “molti”<br>i campi unique hanno un indice"],"引用模式：先点来源集合，再点目标集合。":["Reference mode: click the source collection, then the target.","Modalità riferimento: clic sulla collezione di origine, poi quella di destinazione."],"先点占位符再选操作；选中节点会包一层。":["Click a placeholder, then an operation; selecting a node wraps it.","Clic su un segnaposto, poi su un’operazione; selezionare un nodo lo avvolge."],"σ 选择 · π 投影 · ρ 重命名 · ⋈ 连接 · × 积 · ∪ 并 · ∩ 交 · − 差 · γ 聚合 · ÷ 除。":["σ select · π project · ρ rename · ⋈ join · × product · ∪ union · ∩ intersect · − difference · γ aggregate · ÷ divide.","σ selezione · π proiezione · ρ rinomina · ⋈ join · × prodotto · ∪ unione · ∩ intersezione · − differenza · γ aggregazione · ÷ divisione."],"还没有实体；先添加实体与属性。":["No entities yet — add entities and attributes first.","Nessuna entità: aggiungi prima entità e attributi."]};
+  var zh = {"四个工具：画 ER、翻译成关系模式、设计文档模型、搭关系代数。全部在浏览器里完成。":["Four tools: draw an ER, translate it into a relational schema, design document collections, build relational algebra. Everything runs in the browser.","Quattro strumenti: disegna un ER, traducilo in schema relazionale, progetta collezioni documentali, costruisci algebra relazionale. Tutto nel browser."],"画实体、属性、关系与 ISA，自动检查并重构为逻辑模式。":["Draw entities, attributes, relationships and ISA; checks then refactor into a logical schema.","Disegna entità, attributi, relazioni e ISA; controlli e ristrutturazione in schema logico."],"把 ER 手写或一键翻译成关系模式，并用 Done 校验。":["Write or one-click translate an ER into a relational schema, then validate with Done.","Scrivi o traduci con un clic un ER in schema relazionale, poi valida con Done."],"用集合与字段描述文档模型，自动检查命名与引用。":["Describe a document model with collections and fields; naming and references are checked.","Descrivi un modello documentale con collezioni e campi; nomi e riferimenti controllati."],"用 σ、π、⋈ 等算子搭表达式树并导出。":["Build expression trees with σ, π, ⋈ and more, then export.","Costruisci alberi di espressioni con σ, π, ⋈ e altri, poi esporta."],"添加实体、属性与关系。":["Add entities, attributes and relationships.","Aggiungi entità, attributi e relazioni."],"自动检查并重构为逻辑模式。":["Checks run, then refactor into a logical schema.","Controlli automatici, poi ristrutturazione in schema logico."],"复制或下载结果。":["Copy or download the result.","Copia o scarica il risultato."],"打开就能画，模型自动保留。":["Open and draw — models are kept automatically.","Apri e disegna — i modelli restano salvati."],"每条检查说明原因，可一键定位。":["Every check explains why and can jump to the element.","Ogni controllo spiega il perché e porta all’elemento."],"逻辑模式、JSON Schema 都可导出。":["Logical schema and JSON Schema can be exported.","Schema logico e JSON Schema esportabili."],"纯静态页面，无需安装。":["Static pages, nothing to install.","Pagine statiche, niente da installare."],"受 designerdb.io 启发的教学实现，支持中 / 英 / 意。":["A teaching implementation inspired by designerdb.io, in Chinese / English / Italian.","Un’implementazione didattica ispirata a designerdb.io, in cinese / inglese / italiano."],"跟随系统时自动切换深浅色。":["With System, light and dark follow the system appearance.","Con Sistema, chiaro e scuro seguono l’aspetto di sistema."],"属性以小球围绕实体；点击编辑，拖动移动。":["Attributes are small circles around an entity; click to edit, drag to move.","Gli attributi sono cerchietti attorno all’entità; clic per modificare, trascina per spostare."],"未选中元素。点击画布元素查看属性。":["No selection. Click an element on the canvas to edit it.","Nessuna selezione. Fai clic su un elemento della tela."],"约束显示在连接线上，点击也可选中。全参与＝每个父类实例必须有子类；排他＝只能属于一个子类。":["The constraint shows on the connector and is clickable. Total = every parent must have a subclass; exclusive = only one subclass.","Il vincolo è sulla linea ed è cliccabile. Totale = ogni padre deve avere una sottoclasse; esclusivo = una sola sottoclasse."],"参与端 (min,max)：N 表示多；min=1 为完全参与（双线）。":["Participant (min,max): N means many; min=1 is full participation (double line).","Estremo (min,max): N = molti; min=1 = partecipazione totale (linea doppia)."],"点小球可编辑；用上方「＋ 属性」新增。":["Click a circle to edit; use + Attribute above to add.","Clic su un cerchietto per modificare; usa + Attributo sopra per aggiungere."],"单主键为黑球；多主键为白球并连成复合键。":["A single primary key is a dark circle; several become white and are chained into a composite key.","Una chiave primaria è un cerchietto scuro; più chiavi diventano bianche e si concatenano in una chiave composta."],"有子属性的属性不能作主键；主键可由子属性组成。":["An attribute with children cannot be a primary key; its children can form one.","Un attributo con figli non può essere chiave primaria; i figli possono comporla."],"属性以小球围绕实体；「链接实体」可建 ISA 或加参与端。":["Attributes are circles around entities; “Link entity” creates an ISA or adds a participant.","Gli attributi sono cerchietti attorno alle entità; «Collega entità» crea una ISA o aggiunge un estremo."],"每个集合自带 _id<br>嵌套 = 内嵌 object<br>一对多放在「多」侧<br>unique 字段自动建索引":["Every collection has _id<br>Nested doc = embedded object<br>One-to-many lives on the “many” side<br>unique fields get an index","Ogni collezione ha _id<br>Documento annidato = object incorporato<br>Uno-a-molti sul lato “molti”<br>i campi unique hanno un indice"],"引用模式：先点来源集合，再点目标集合。":["Reference mode: click the source collection, then the target.","Modalità riferimento: clic sulla collezione di origine, poi quella di destinazione."],"先点占位符再选操作；选中节点会包一层。":["Click a placeholder, then an operation; selecting a node wraps it.","Clic su un segnaposto, poi su un’operazione; selezionare un nodo lo avvolge."],"σ 选择 · π 投影 · ρ 重命名 · ⋈ 连接 · × 积 · ∪ 并 · ∩ 交 · − 差 · γ 聚合 · ÷ 除。":["σ select · π project · ρ rename · ⋈ join · × product · ∪ union · ∩ intersect · − difference · γ aggregate · ÷ divide.","σ selezione · π proiezione · ρ rinomina · ⋈ join · × prodotto · ∪ unione · ∩ intersezione · − differenza · γ aggregazione · ÷ divisione."],"还没有实体；先添加实体与属性。":["No entities yet — add entities and attributes first.","Nessuna entità: aggiungi prima entità e attributi."]};
   var en = {"Load a sample, open a saved ER, import JSON, or press New to start from scratch.":["载入示例、打开已保存的 ER、导入 JSON，或点新建从零开始。","Carica un esempio, apri un ER salvato, importa JSON, oppure Nuovo per iniziare da zero."],"Press + Table, then type an entity name (case-insensitive) — brackets are added for you.":["点「+ 表」后输入实体名（不区分大小写），括号会自动补上。","Premi + Tabella, poi digita il nome di un’entità (senza distinzione maiuscole) — le parentesi vengono aggiunte."],"Watch an ER model turn into a relational schema — pure CSS motion, no libraries.":["看着 ER 模型滑入关系模式——纯 CSS 动效，无库。","Guarda un modello ER trasformarsi in schema relazionale — solo CSS, nessuna libreria."],"Sections and cards enter in sequence, 70 ms apart, moving only transform and opacity.":["分节与卡片依次入场，间隔 70ms，只动 transform 与 opacity。","Sezioni e schede entrano in sequenza, 70 ms di distanza, solo transform e opacity."],"SVG paths grow their dash offset, so relationships look wired up.":["SVG 路径描边生长，关系像被接线一样出现。","I tracciati SVG animano il dash offset: le relazioni sembrano cablate."],"Every overlay returns along the same path. Motion is courtesy, not decoration.":["每个浮层沿进入的同一路径返回。动效是礼貌，不是装饰。","Ogni overlay torna lungo lo stesso percorso. Il movimento è cortesia, non decorazione."]};
   Object.keys(zh).forEach(function (k) {
     D.zh.texts[k] = k;
@@ -2562,4 +2562,19 @@ window.DDB_I18N_DICT = {
   var ZH = {"Menu":"菜单","CLOSE ✕":"关闭 ✕","Settings":"设置","About":"关于","Motion lab":"动效实验室","( MENU )":"（菜单）","AUTHOR · NYXKY":"作者 · NYXKY","HELPER · DEEPSEEK":"助手 · DEEPSEEK","( ABOUT DEEPDB )":"（关于 DEEPDB）","A tiny database-design studio in the browser. Four tools, three languages, one theme — drawn by one author and helped by one very patient whale.":"浏览器里的小型数据库设计工作室。四个工具、三种语言、一套主题——一位作者绘制，一只很有耐心的鲸鱼帮忙。","AUTHOR":"作者","HELPER":"助手","ABOUT":"关于","Designs and codes deepDB. Draws ER models for fun, then argues with the foreign-key checker.":"设计并编写 deepDB，闲下来就画 ER 模型，然后和检查器争论外键。","Mascot, rubber duck and co-author of the long patches. Stays calm while the layout gets rebuilt for the ninth time.":"吉祥物、橡皮鸭，也是长补丁的共同作者；第九次重做布局时依然很淡定。","← HOME":"← 首页","WHAT IT IS":"项目简介","TOOLS":"工具","STACK":"技术栈","INSPIRATION":"灵感来源","SOURCE":"源码","LICENCE":"版权","A pure-static teaching site for relational and document models — no build step, no server, no upload. Models stay in your browser.":"面向关系模型与文档模型的纯静态教学站：无需构建、无需服务器、不上传；模型只保存在浏览器里。","© 2026 deepDB® — models designed differently. Content and code by the author; helper credits to Deepseek.":"© 2026 deepDB® —— 用不同方式设计模型。内容与代码由作者完成，助手鸣谢 Deepseek。"};
   var IT = {"Menu":"Menu","CLOSE ✕":"CHIUDI ✕","Settings":"Impostazioni","About":"Informazioni","Motion lab":"Motion lab","( MENU )":"( MENU )","AUTHOR · NYXKY":"AUTORE · NYXKY","HELPER · DEEPSEEK":"ASSISTENTE · DEEPSEEK","( ABOUT DEEPDB )":"( INFORMAZIONI SU DEEPDB )","A tiny database-design studio in the browser. Four tools, three languages, one theme — drawn by one author and helped by one very patient whale.":"Un piccolo studio di progettazione di database nel browser. Quattro strumenti, tre lingue, un tema: disegnato da un autore e aiutato da una balena molto paziente.","AUTHOR":"AUTORE","HELPER":"ASSISTENTE","ABOUT":"INFORMAZIONI","Designs and codes deepDB. Draws ER models for fun, then argues with the foreign-key checker.":"Progetta e scrive deepDB. Disegna modelli ER per divertimento, poi litiga con il controllo delle chiavi esterne.","Mascot, rubber duck and co-author of the long patches. Stays calm while the layout gets rebuilt for the ninth time.":"Mascotte, paperella di gomma e co-autore delle lunghe patch. Resta calmo mentre il layout viene rifatto per la nona volta.","← HOME":"← HOME","WHAT IT IS":"COS'È","TOOLS":"STRUMENTI","STACK":"STACK","INSPIRATION":"ISPIRAZIONE","SOURCE":"SORGENTE","LICENCE":"LICENZA","A pure-static teaching site for relational and document models — no build step, no server, no upload. Models stay in your browser.":"Un sito didattico completamente statico per modelli relazionali e a documenti: nessuna build, nessun server, nessun upload. I modelli restano nel browser.","© 2026 deepDB® — models designed differently. Content and code by the author; helper credits to Deepseek.":"© 2026 deepDB® — modelli progettati in modo diverso. Contenuti e codice dell'autore; ringraziamenti all'assistente Deepseek."};
   Object.keys(EN).forEach(function (k) { D.en.texts[k] = EN[k]; D.zh.texts[k] = ZH[k] || k; D.it.texts[k] = IT[k] || k; });
+})();
+
+
+/* ---- app-level copy additions (moved out of app.js) ---- */
+(function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  if (D.en && D.en.texts) {
+    D.en.texts['强调色'] = 'Accent color';
+    D.en.texts['只改变按钮、链接与高亮等强调色，不影响界面底色。'] = 'Changes buttons, links, focus rings and highlights only — not the page background.';
+  }
+  if (D.it && D.it.texts) {
+    D.it.texts['强调色'] = 'Colore accento';
+    D.it.texts['只改变按钮、链接与高亮等强调色，不影响界面底色。'] = 'Cambia solo pulsanti, link, focus ed evidenziazioni, non lo sfondo della pagina.';
+  }
 })();

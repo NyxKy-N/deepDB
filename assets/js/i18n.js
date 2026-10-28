@@ -7,7 +7,7 @@
   'use strict';
 
   var DICT = window.DDB_I18N_DICT || { zh: { texts: {}, attrs: {} }, en: { texts: {}, attrs: {} }, it: { texts: {}, attrs: {} } };
-  var LANG_KEY = 'designerdb:v1:lang';
+  var LANG_KEY = (window.DDB_BOOT && window.DDB_BOOT.LANG_KEY) || 'designerdb:v1:lang';
   var ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
   // 这些区域是用户数据 / 代码 / 正在内联编辑的地方，不翻译
   var SKIP_SEL = [
@@ -228,13 +228,6 @@
     }
   }
 
-  function syncSwitch() {
-    var btns = document.querySelectorAll('[data-lang]');
-    for (var i = 0; i < btns.length; i++) {
-      btns[i].classList.toggle('active', btns[i].getAttribute('data-lang') === lang);
-      btns[i].setAttribute('aria-pressed', btns[i].getAttribute('data-lang') === lang ? 'true' : 'false');
-    }
-  }
 
   function setLang(next) {
     if (next !== 'zh' && next !== 'en' && next !== 'it') return;
@@ -249,7 +242,6 @@
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : (lang === 'it' ? 'it' : 'en');
     applying = true;
     try { walk(document.body); } finally { applying = false; }
-    syncSwitch();
     if (!reduce) {
       setLang._timer = window.setTimeout(function () {
         document.body.classList.remove('lang-switching');
@@ -258,14 +250,12 @@
     try { window.dispatchEvent(new CustomEvent('ddb:lang', { detail: { lang: lang } })); } catch (e) { }
   }
 
-  var stats = { scheduled: 0, waked: 0 };
   function schedule() {
-    stats.scheduled += 1;
-    if (scheduled || applying) return;
+    if (scheduled || applying || document.hidden) return;
     scheduled = true;
-    setTimeout(function () {
+    window.requestAnimationFrame(function () {
       scheduled = false;
-      stats.waked += 1;
+      if (document.hidden) return;
       applying = true;
       try { walk(document.body); } finally { applying = false; }
     });
@@ -276,18 +266,11 @@
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : (lang === 'it' ? 'it' : 'en');
     applying = true;
     try { walk(document.body); } finally { applying = false; }
-    syncSwitch();
 
     if (window.MutationObserver && document.body) {
       var mo = new MutationObserver(function () { schedule(); });
       mo.observe(document.body, { childList: true, subtree: true });
     }
-    document.addEventListener('click', function (e) {
-      var b = e.target && e.target.closest ? e.target.closest('[data-lang]') : null;
-      if (!b) return;
-      e.preventDefault();
-      setLang(b.getAttribute('data-lang'));
-    });
     window.DDB_I18N = {
       get lang() { return lang; },
       setLang: setLang,

@@ -267,15 +267,9 @@
     var clockEl = root.querySelector('#ahClock');
     var keys = Array.prototype.slice.call(root.querySelectorAll('.ah-key'));
     var reel = root.querySelector('.ah-reel');
+    var copyEl = root.querySelector('.ah-copy');
 
     function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
-    function progress(el, offset) {
-      if (!el) return 0;
-      var r = el.getBoundingClientRect();
-      var span = el.offsetHeight - vh;
-      if (span <= 0) return clamp((offset || 0) - r.top / vh);
-      return clamp(((offset || 0) - r.top) / span);
-    }
 
     function frame(p) {
       var n = frames.length;
@@ -358,10 +352,335 @@
       var ny = (y / window.innerHeight - 0.5);
       if (reel) reel.style.setProperty('--mx', (nx * 10).toFixed(2) + 'px');
       if (reel) reel.style.setProperty('--my', (ny * 8).toFixed(2) + 'px');
-      keys.forEach(function (k, i) {
-        var f = 1 + i * 0.35;
-        k.style.transform = 'translate3d(' + (nx * 18 * f).toFixed(1) + 'px,' + (ny * 14 * f).toFixed(1) + 'px,0) rotate(' + (nx * 6 * f).toFixed(1) + 'deg)';
+    }
+
+    /* m12924 — keycap physics: gravity, drag, collisions */
+    function setupKeyPhysics() {
+      if (!keys.length || !footer || !copyEl) return null;
+      var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      var bodies = [];
+      var byEl = [];
+      var raf2 = 0, last = 0, loopOn = false, started = false;
+      var io2 = null, drag = null;
+      var W = 0, H = 0, floorY = 0, wallL = 0, wallR = 0;
+      var G = 2600, REST = 0.34, WALLS = 0.42;
+      var ANGLES = [-9, 3, -4];
+      var RADIUS_FACTOR = 0.70711;
+      var MAX_SPIN = 420;
+
+      function radiusOf(size) { return Math.max(24, size * RADIUS_FACTOR); }
+      function refreshRadius(b) {
+        b.size = b.el.offsetWidth || b.size;
+        b.r = radiusOf(b.size);
+      }
+      function clampSpin(v) { return Math.max(-MAX_SPIN, Math.min(MAX_SPIN, v)); }
+
+      function metrics() {
+        W = footer.clientWidth;
+        H = footer.clientHeight;
+        wallL = W * 0.54;
+        wallR = W - W * 0.03 - 8;
+        floorY = (copyEl.offsetTop || H - 90) - 20;
+        if (floorY < H * 0.4) floorY = H * 0.4;
+      }
+
+      function clampBody(b) {
+        b.x = Math.max(wallL + b.r, Math.min(wallR - b.r, b.x));
+        if (b.y > floorY - b.size / 2) b.y = floorY - b.size / 2;
+        if (b.y < b.size / 2) b.y = b.size / 2;
+      }
+
+      function paintBody(b) {
+        b.el.style.transform = 'translate3d(' + (b.x - b.size / 2).toFixed(2) + 'px,' + (b.y - b.size / 2).toFixed(2) + 'px,0) rotate(' + b.ang.toFixed(2) + 'deg)';
+      }
+
+      function makeBody(el, i) {
+        var w = el.offsetWidth || 100;
+        var b = { el: el, size: w, r: radiusOf(w), ang: ANGLES[i % ANGLES.length], av: [-26, 22, -18][i % 3], x: 0, y: 0, vx: 0, vy: 0, drag: false, sleep: 0 };
+        byEl.push({ el: el, b: b });
+        bodies.push(b);
+        return b;
+      }
+
+      function layoutInitial() {
+        metrics();
+        var gap = 14;
+        bodies.forEach(refreshRadius);
+        var cx = wallR - bodies[bodies.length - 1].r - 2;
+        for (var i = bodies.length - 1; i >= 0; i--) {
+          var b = bodies[i];
+          b.x = cx;
+          b.y = Math.max(b.r + 6, H * (0.18 + i * 0.055));
+          b.vx = 0; b.vy = 0; b.sleep = 0; b.ang = ANGLES[i % ANGLES.length];
+          clampBody(b);
+          paintBody(b);
+          if (i > 0) cx -= (bodies[i].r + bodies[i - 1].r + gap);
+        }
+      }
+
+      function restInitial() {
+        metrics();
+        var gap = 14;
+        bodies.forEach(refreshRadius);
+        var cx = wallR - bodies[bodies.length - 1].r - 2;
+        for (var i = bodies.length - 1; i >= 0; i--) {
+          var b = bodies[i];
+          b.x = cx; b.y = floorY - b.size / 2; b.vx = 0; b.vy = 0; b.av = 0; b.ang = ANGLES[i % ANGLES.length];
+          clampBody(b); paintBody(b);
+          if (i > 0) cx -= (bodies[i].r + bodies[i - 1].r + gap);
+        }
+      }
+
+      function wake(b) { b.sleep = 0; }
+
+      function solvePair(a, b) {
+        var dx = b.x - a.x, dy = b.y - a.y;
+        var min = a.r + b.r;
+        var d2 = dx * dx + dy * dy;
+        if (d2 >= min * min) return false;
+        if (d2 < 0.0001) { dx = 1; dy = 0; d2 = 1; }
+        var d = Math.sqrt(d2);
+        var nx = dx / d, ny = dy / d;
+        var overlap = min - d;
+        var am = a.drag ? 0 : 1, bm = b.drag ? 0 : 1;
+        var sum = am + bm;
+        if (!sum) return false;
+        a.x -= nx * overlap * (am / sum); a.y -= ny * overlap * (am / sum);
+        b.x += nx * overlap * (bm / sum); b.y += ny * overlap * (bm / sum);
+        var rvn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+        if (rvn < 0) {
+          var j = -(1 + REST) * rvn / sum;
+          if (am) { a.vx -= j * nx; a.vy -= j * ny; }
+          if (bm) { b.vx += j * nx; b.vy += j * ny; }
+          if (am) a.av = clampSpin(a.av - rvn * 0.09);
+          if (bm) b.av = clampSpin(b.av + rvn * 0.09);
+        }
+        return true;
+      }
+
+
+      function step(now) {
+        raf2 = 0;
+        var t = Math.min(0.032, Math.max(0.008, (now - last) / 1000 || 0.016));
+        last = now;
+        var active = false;
+        bodies.forEach(function (b) {
+          if (b.drag) { active = true; return; }
+          b.vy += G * t;
+          b.ang += b.av * t;
+          b.av *= Math.max(0, 1 - 0.5 * t);
+          b.x += b.vx * t;
+          b.y += b.vy * t;
+          if (b.y >= floorY - b.size / 2) {
+            b.y = floorY - b.size / 2;
+            if (b.vy > 90) {
+              b.vy = -b.vy * REST;
+              b.av = clampSpin(b.av + b.vx * 0.04);
+            } else { b.vy = 0; }
+            b.vx *= Math.pow(0.0009, t);
+            b.av *= Math.pow(0.03, t);
+            if (Math.abs(b.vx) < 6) b.vx = 0;
+            if (Math.abs(b.av) < 6) b.av = 0;
+          }
+          if (b.x <= wallL + b.r) { b.x = wallL + b.r; if (b.vx < 0) b.vx = -b.vx * WALLS; b.av = -b.av * 0.5; }
+          if (b.x >= wallR - b.r) { b.x = wallR - b.r; if (b.vx > 0) b.vx = -b.vx * WALLS; b.av = -b.av * 0.5; }
+          if (b.y <= b.size / 2 && b.vy < 0) { b.y = b.size / 2; b.vy = 0; }
+        });
+        for (var it = 0; it < 5; it++) {
+          for (var i = 0; i < bodies.length; i++) {
+            for (var j = i + 1; j < bodies.length; j++) solvePair(bodies[i], bodies[j]);
+          }
+          bodies.forEach(clampBody);
+        }
+        bodies.forEach(function (b) {
+          paintBody(b);
+          var speed = Math.abs(b.vx) + Math.abs(b.vy);
+          if (!b.drag && speed < 9 && Math.abs(b.av) < 7 && b.y >= floorY - b.size / 2 - 0.6) {
+            b.sleep += t;
+            b.vx = 0; b.vy = 0; b.av = 0;
+          } else {
+            b.sleep = 0;
+            active = true;
+          }
+        });
+        if (drag) active = true;
+        if (active) raf2 = requestAnimationFrame(step); else loopOn = false;
+      }
+
+      function start() {
+        if (loopOn) return;
+        loopOn = true;
+        last = performance.now();
+        raf2 = requestAnimationFrame(step);
+      }
+
+      function stop() {
+        if (raf2) cancelAnimationFrame(raf2);
+        raf2 = 0;
+        loopOn = false;
+      }
+
+      function onDown(e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        var rec = null;
+        for (var i = 0; i < byEl.length; i++) { if (byEl[i].el === e.currentTarget) rec = byEl[i]; }
+        if (!rec) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var b = rec.b;
+        var r = footer.getBoundingClientRect();
+        b.drag = true;
+        b.sleep = 0;
+        b.el.classList.add('is-dragging');
+        if (b.el.setPointerCapture) { try { b.el.setPointerCapture(e.pointerId); } catch (err) {} }
+        drag = {
+          b: b,
+          id: e.pointerId,
+          dx: e.clientX - r.left - b.x,
+          dy: e.clientY - r.top - b.y,
+          lx: e.clientX, ly: e.clientY, lt: performance.now(), vx: 0, vy: 0
+        };
+        window.addEventListener('pointermove', onDragMove, { passive: false });
+        window.addEventListener('pointerup', onUp);
+        start();
+      }
+
+      function onDragMove(e) {
+        if (!drag) return;
+        e.preventDefault();
+        var r = footer.getBoundingClientRect();
+        var b = drag.b;
+        var nx = e.clientX - r.left - drag.dx;
+        var ny = e.clientY - r.top - drag.dy;
+        var beforeX = b.x;
+        b.x = Math.max(wallL + b.r, Math.min(wallR - b.r, nx));
+        b.y = Math.max(b.size / 2, Math.min(floorY - b.size / 2, ny));
+        var ddx = b.x - beforeX;
+        b.ang += ddx * 0.55;
+        drag.spin = (drag.spin || 0) * 0.7 + ddx * 0.4;
+        var now = performance.now();
+        var dt = Math.max(8, now - drag.lt);
+        drag.vx = (e.clientX - drag.lx) / dt * 1000;
+        drag.vy = (e.clientY - drag.ly) / dt * 1000;
+        drag.lx = e.clientX; drag.ly = e.clientY; drag.lt = now;
+        for (var pass = 0; pass < 60; pass++) {
+          var moved = false;
+          for (var i = 0; i < bodies.length; i++) {
+            for (var j = i + 1; j < bodies.length; j++) {
+              if (solvePair(bodies[i], bodies[j])) moved = true;
+            }
+          }
+          for (var k = 0; k < bodies.length; k++) if (bodies[k] !== b) clampBody(bodies[k]);
+          for (var m = 0; m < bodies.length; m++) {
+            var o = bodies[m];
+            if (o === b) continue;
+            var ox = b.x - o.x, oy = b.y - o.y, need = b.r + o.r;
+            var od = Math.sqrt(ox * ox + oy * oy) || 0.01;
+            if (od < need) {
+              b.x += (ox / od) * (need - od);
+              b.y += (oy / od) * (need - od);
+              moved = true;
+            }
+          }
+          clampBody(b);
+          if (!moved) break;
+        }
+        var others = [];
+        for (var q = 0; q < bodies.length; q++) if (bodies[q] !== b) others.push(bodies[q]);
+        others.sort(function (p, q) { return p.x - q.x; });
+        for (var qi = 0; qi < others.length - 1; qi++) {
+          var left = others[qi], right = others[qi + 1];
+          var needLR = left.r + right.r;
+          if (right.x - left.x < needLR) {
+            right.x = Math.min(wallR - right.r, left.x + needLR);
+            clampBody(right);
+            if (right.x - left.x < needLR) {
+              left.x = Math.max(wallL + left.r, right.x - needLR);
+              clampBody(left);
+            }
+          }
+        }
+        var squeeze = false;
+        for (var oi = 0; oi < bodies.length; oi++) {
+          var ob = bodies[oi];
+          if (ob === b) continue;
+          var ox3 = b.x - ob.x, oy3 = b.y - ob.y;
+          if (ox3 * ox3 + oy3 * oy3 < (b.r + ob.r) * (b.r + ob.r)) { squeeze = true; break; }
+        }
+        if (squeeze && others.length) {
+          if (b.x >= others[others.length - 1].x) {
+            b.x = Math.max(b.x, others[others.length - 1].x + b.r + others[others.length - 1].r);
+          } else if (b.x <= others[0].x) {
+            b.x = Math.min(b.x, others[0].x - b.r - others[0].r);
+          } else {
+            var midX = (others[0].x + others[others.length - 1].x) / 2;
+            if (b.x >= midX) {
+              b.x = Math.max(b.x, others[others.length - 1].x + b.r + others[others.length - 1].r);
+            } else {
+              b.x = Math.min(b.x, others[0].x - b.r - others[0].r);
+            }
+          }
+          clampBody(b);
+        }
+        bodies.forEach(paintBody);
+        bodies.forEach(function (o) { if (o !== b) o.sleep = 0; });
+        start();
+      }
+
+      function onUp() {
+        if (!drag) return;
+        var b = drag.b;
+        b.drag = false;
+        b.el.classList.remove('is-dragging');
+        b.vx = Math.max(-1400, Math.min(1400, drag.vx * 0.55));
+        b.vy = Math.max(-1400, Math.min(1400, drag.vy * 0.55));
+        b.av = clampSpin(b.av + (drag.spin || 0) * 1.15);
+        if (b.el.releasePointerCapture) { try { b.el.releasePointerCapture(drag.id); } catch (err) {} }
+        drag = null;
+        window.removeEventListener('pointermove', onDragMove);
+        window.removeEventListener('pointerup', onUp);
+        start();
+      }
+
+      function onResize() {
+        metrics();
+        bodies.forEach(function (b) { refreshRadius(b); clampBody(b); paintBody(b); });
+        start();
+      }
+
+      keys.forEach(function (el, i) {
+        var b = makeBody(el, i);
+        el.addEventListener('pointerdown', onDown);
+        el.style.cursor = 'grab';
       });
+      layoutInitial();
+      if (reduce) { restInitial(); return function () { keys.forEach(function (el) { el.removeEventListener('pointerdown', onDown); }); }; }
+
+      if (window.IntersectionObserver) {
+        io2 = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (!started && en.isIntersecting) {
+              started = true;
+              bodies.forEach(wake);
+              start();
+            }
+          });
+        }, { threshold: 0.08 });
+        io2.observe(footer);
+      } else {
+        started = true;
+        start();
+      }
+      window.addEventListener('resize', onResize);
+
+      return function () {
+        stop();
+        if (io2) { io2.disconnect(); io2 = null; }
+        window.removeEventListener('resize', onResize);
+        window.removeEventListener('pointermove', onDragMove);
+        window.removeEventListener('pointerup', onUp);
+        keys.forEach(function (el) { el.removeEventListener('pointerdown', onDown); });
+      };
     }
 
     function tickClock() {
@@ -397,8 +716,8 @@
     }
     function onAhKey(e) { if (e.key === 'Escape') setAhMenu(false); }
     if (ahWrap) {
-      ahWrap.addEventListener('pointerenter', function () { setAhMenu(true); });
-      ahWrap.addEventListener('pointerleave', function () { setAhMenu(false); });
+      ahWrap.addEventListener('pointerenter', function (e) { if (e.pointerType !== 'touch') setAhMenu(true); });
+      ahWrap.addEventListener('pointerleave', function (e) { if (e.pointerType !== 'touch') setAhMenu(false); });
       if (ahBtn) ahBtn.addEventListener('click', function (e) {
         e.preventDefault(); e.stopPropagation();
         setAhMenu(!ahWrap.classList.contains('open'));
@@ -423,6 +742,7 @@
     clockTimer = setInterval(tickClock, 1000);
     onScroll();
     paint();
+    var keyPhys = setupKeyPhysics();
 
     return function unmount() {
       if (ahWrap) {
@@ -434,6 +754,7 @@
       window.removeEventListener('resize', onScroll);
       window.removeEventListener('pointermove', onMove);
       clearInterval(clockTimer);
+      if (keyPhys) keyPhys();
       if (raf) cancelAnimationFrame(raf);
       if (io) io.disconnect();
       document.documentElement.style.removeProperty('--ah-scroll');

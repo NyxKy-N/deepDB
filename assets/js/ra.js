@@ -1130,9 +1130,5 @@
       root.innerHTML = '';
     };
   }
-
-  DDB.tools.ra = DDB.tools.ra || {};
-  DDB.tools.ra.id = 'ra';
-  DDB.tools.ra.title = 'designQT basic · 关系代数';
-  DDB.tools.ra.mount = mount;
+  if (window.DDB && DDB.registerTool) DDB.registerTool('ra', { title: 'designQT basic · 关系代数', mount: mount });
 })();

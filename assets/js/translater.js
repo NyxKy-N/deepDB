@@ -71,6 +71,7 @@
     ].join('');
     var $ = function (s) { return root.querySelector(s); };
     var srcEl = $('#trSrc'), tablesEl = $('#trTables'), doneEl = $('#trDone'), outEl = $('#trOut'), nameEl = $('#trModelName'), menuEl = $('#trMenu');
+    var CHIP_POP = { scale: 0.18, shift: 1, open: 220, close: 180 };
 
     function tableById(id) { return state.tables.filter(function (t) { return t.id === id; })[0] || null; }
     function names() {
@@ -131,7 +132,7 @@
       rest.sort(function (a, b) { return a._ord - b._ord; });
       t.attrs = pk.concat(fk, rest);
     }
-    function orderAll() { state.tables.forEach(orderAttrs); }
+
     function chips(t) {
       if (!t.attrs.length) return '<span class="tr-chips-empty">type attribute names, comma separated</span>';
       return t.attrs.map(function (a) {
@@ -263,10 +264,17 @@
       menuEl.style.left = left + 'px';
       menuEl.style.top = top + 'px';
       menuEl.classList.remove('open');
-      void menuEl.offsetWidth;
-      menuEl.classList.add('open');
+      menuEl._anchor = anchor;
+      if (ui.popFrom) ui.popFrom(menuEl, anchor, 'open', null, CHIP_POP);
     }
-    function hideMenu() { menuEl.hidden = true; menuEl.classList.remove('open'); menuFor = null; }
+    function hideMenu(immediate) {
+      if (!menuEl || menuEl.hidden) return;
+      const anchor = menuEl._anchor || null;
+      menuFor = null;
+      menuEl.classList.remove('open');
+      if (immediate === true || !ui.popFrom) { menuEl.hidden = true; return; }
+      ui.popFrom(menuEl, anchor, 'close', function () { menuEl.hidden = true; }, CHIP_POP);
+    }
     menuEl.addEventListener('click', function (e) {
       var b = e.target.closest('[data-chip-act]'); if (!b || !menuFor) return;
       var act = b.getAttribute('data-chip-act'), t = menuFor.t, a = menuFor.a;
@@ -438,5 +446,5 @@
     renderTables(); renderSrc(); renderOut();
   }
 
-  DDB.tools.translater = { id: 'translater', title: 'translatER · ER → schema', mount: mount };
+  if (window.DDB && DDB.registerTool) DDB.registerTool('translater', { title: 'translatER · ER → schema', mount: mount });
 })();

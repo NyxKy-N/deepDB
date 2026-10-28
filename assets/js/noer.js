@@ -157,7 +157,7 @@
       '    <button class="btn btn--sm" data-act="redo" title="重做 (Ctrl+Y)">↷</button>',
       '    <span class="sep"></span>',
       '    <button class="btn btn--sm" data-act="add-col">＋ 集合</button>',
-      '    <button class="btn btn--sm" data-act="ref-mode" title="引用模式：先点源集合，再点目标集合 (L)">🔗 引用</button>',
+      '    <button class="btn btn--sm" data-act="ref-mode" title="引用模式：先点源集合，再点目标集合 (L)">引用</button>',
       '    <button class="btn btn--sm" data-act="layout" title="重新排布所有集合">自动布局</button>',
       '  </div>',
       '  <div class="tool-body">',
@@ -165,7 +165,7 @@
       '      <div class="panel-body">',
       '        <div class="panel-title">添加元素</div>',
       '        <button class="btn btn--sm btn--block" data-act="add-col">▤ 集合 Collection</button>',
-      '        <button class="btn btn--sm btn--block" data-act="ref-mode">🔗 引用另一个集合</button>',
+      '        <button class="btn btn--sm btn--block" data-act="ref-mode">引用另一个集合</button>',
       '        <div class="hint">引用模式：先点来源集合，再点目标集合。</div>',
       '      </div>',
       '      <div class="panel-body">',
@@ -692,6 +692,7 @@
     /* ---------------- 数据操作 ---------------- */
     function mutate(fn, opts) {
       fn(state.model);
+      dirty = true;
       pushNow();
       refresh(opts || {});
     }
@@ -708,6 +709,7 @@
       col.fields.push({ id: util.uid('fld'), name: '_id', type: 'objectId', required: true, unique: true, key: true });
       state.model.collections.push(col);
       state.sel = { cid: col.id, fid: null, chid: null };
+      dirty = true;
       pushNow();
       refresh();
       centerCol(col.id);
@@ -720,6 +722,7 @@
       const nf = f || newField(util.uniqueName('field', names), 'string');
       c.fields.push(nf);
       state.sel = { cid: c.id, fid: nf.id, chid: null };
+      dirty = true;
       pushNow();
       refresh();
       ui.toast('已添加字段 ' + nf.name, 'ok');
@@ -731,6 +734,7 @@
       const ch = newChild(util.uniqueName('child', f.children.map(function (x) { return x.name; })), 'string');
       f.children.push(ch);
       state.sel = { cid: cid, fid: fid, chid: ch.id };
+      dirty = true;
       pushNow();
       refresh();
     }
@@ -1181,12 +1185,6 @@
     }
 
     // 对外暴露给 app.js 的保存/载入辅助（打开工具时若有草稿则恢复）
-    DDB.tools.noer = DDB.tools.noer || {};
-    DDB.tools.noer.mount = mount;
-    DDB.tools.noer.state = state;
-    DDB.tools.noer.save = save;
-    DDB.tools.noer.load = function (model) { state.model = normalize(model); state.sel = null; history.reset(); refresh(); fitView(); };
-    DDB.tools.noer.exportJSON = exportJSON;
     boot();
 
     /* 触屏双指缩放（手机 / 平板） */
@@ -1264,9 +1262,5 @@
       root.innerHTML = '';
     };
   }
-
-  DDB.tools.noer = DDB.tools.noer || {};
-  DDB.tools.noer.id = 'noer';
-  DDB.tools.noer.title = 'noER · 文档数据库设计';
-  DDB.tools.noer.mount = mount;
+  if (window.DDB && DDB.registerTool) DDB.registerTool('noer', { title: 'noER · 文档数据库设计', mount: mount });
 })();

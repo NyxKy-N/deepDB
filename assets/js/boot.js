@@ -1,0 +1,59 @@
+/*!
+ * boot.js · 启动前主题与强调色（无依赖，最先加载）
+ * 由 app.js 的调色板抽出，避免 index.html 内联重复维护。
+ */
+(function () {
+  'use strict';
+
+  const ACCENT_KEY = 'designerdb:v1:accent';
+  const ACCENTS = [
+    { id: 'red', hex: '#d93b35', ink: '#ffffff' },
+    { id: 'orange', hex: '#e06a24', ink: '#ffffff' },
+    { id: 'yellow', hex: '#d5a01d', ink: '#1b1505' },
+    { id: 'green', hex: '#2f8f57', ink: '#ffffff' },
+    { id: 'cyan', hex: '#1d8b9b', ink: '#ffffff' },
+    { id: 'blue', hex: '#1b18ff', ink: '#ffffff' },
+    { id: 'purple', hex: '#7a3edb', ink: '#ffffff' }
+  ];
+  const accentOf = function (id) {
+    for (let i = 0; i < ACCENTS.length; i++) if (ACCENTS[i].id === id) return ACCENTS[i];
+    return ACCENTS[5];
+  };
+  function readAccent() {
+    try { return accentOf(localStorage.getItem(ACCENT_KEY)).id; } catch (err) { return 'blue'; }
+  }
+  function faviconFor(hex) {
+    const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='18' fill='" + hex + "'/><text x='32' y='45' font-family='Helvetica,Arial' font-size='34' font-weight='700' fill='%23ffffff' text-anchor='middle'>d</text></svg>";
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+  }
+  function applyAccent(id, originEvent) {
+    const a = accentOf(id);
+    const el = document.documentElement;
+    el.setAttribute('data-accent', a.id);
+    el.style.setProperty('--accent', a.hex);
+    el.style.setProperty('--accent-ink', a.ink);
+    try { localStorage.setItem(ACCENT_KEY, a.id); } catch (err) { }
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', a.hex);
+    const icon = document.querySelector('link[rel="icon"]');
+    if (icon) icon.setAttribute('href', faviconFor(a.hex));
+  }
+
+  /* ---------------- 设置弹窗 ---------------- */
+
+  init();
+
+  function init() {
+    applyAccent(readAccent());
+  }
+
+  window.DDB_BOOT = {
+    ACCENT_KEY,
+    LANG_KEY: 'designerdb:v1:lang',
+    ACCENTS,
+    accentOf,
+    readAccent,
+    faviconFor,
+    applyAccent
+  };
+})();
