@@ -638,6 +638,7 @@
   let menuPinned = false;
   let menuCloseTimer = 0;
   let menuDrawer = null;
+  let hdrPinned = false;
   let menuBound = false;
 
   function buildMenuDrawer() {
@@ -717,7 +718,8 @@
   }
 
   function closeMenuDrawer(force) {
-    const el = buildMenuDrawer();
+    if (!menuDrawer) return;
+    const el = menuDrawer;
     if (!force && menuPinned) return;
     menuPinned = false;
     el.classList.remove('on');
@@ -727,6 +729,7 @@
 
   function bindMenuTriggers() {
     Array.prototype.forEach.call(document.querySelectorAll('[data-menu-trigger]'), function (btn) {
+      if (btn.closest('[data-nav-pill]') || btn.closest('[data-ahmenu]')) return;
       if (btn.__ddMenuBound) return;
       btn.__ddMenuBound = true;
       btn.addEventListener('pointerenter', function () {
@@ -751,14 +754,43 @@
 
   function ensureHeaderMenu() {
     const right = document.querySelector('.app-header .header-right');
-    if (!right || right.querySelector('[data-menu-trigger]')) return;
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'dd-menu-btn';
-    btn.setAttribute('data-menu-trigger', '');
-    btn.innerHTML = '<span>Menu</span><i class="dd-dots"><b></b><b></b></i>';
-    right.insertBefore(btn, right.firstChild);
-    bindMenuTriggers();
+    if (!right) return;
+    if (right.querySelector('[data-nav-pill]')) return;
+    right.innerHTML =
+      '<div class="dd-nav-pill" data-nav-pill>' +
+      '  <a class="ddq ddq-lab" href="#/lab"><span>Motion lab</span><i>↗</i></a>' +
+      '  <button type="button" class="ddq" data-hdr-settings><span>Settings</span><i>↗</i></button>' +
+      '  <a class="ddq" href="#/about"><span>About</span><i>↗</i></a>' +
+      '  <button type="button" class="dd-menu-btn" data-menu-trigger aria-expanded="false"><span>Menu</span><i class="dd-dots"><b></b><b></b></i></button>' +
+      '</div>';
+    const pill = right.querySelector('[data-nav-pill]');
+    const mb = pill.querySelector('[data-menu-trigger]');
+    const setBtn = pill.querySelector('[data-hdr-settings]');
+    const setOpen = function (v) {
+      hdrPinned = v;
+      pill.classList.toggle('open', v);
+      mb.setAttribute('aria-expanded', v ? 'true' : 'false');
+    };
+    if (setBtn) setBtn.addEventListener('click', function () { openSettings(setBtn); });
+    pill.addEventListener('pointerenter', function () { if (!hdrPinned) pill.classList.add('open'); });
+    pill.addEventListener('pointerleave', function () { if (!hdrPinned) pill.classList.remove('open'); });
+    mb.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      setOpen(!pill.classList.contains('open'));
+    });
+    Array.prototype.forEach.call(pill.querySelectorAll('a.ddq'), function (a) {
+      a.addEventListener('click', function () { setOpen(false); });
+    });
+    document.addEventListener('click', function (e) {
+      if (!pill.classList.contains('open') || hdrPinned !== true) return;
+      if (pill.contains(e.target)) return;
+      setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && pill.classList.contains('open')) setOpen(false);
+    });
+    if (window.DDB_I18N && window.DDB_I18N.retranslate) window.DDB_I18N.retranslate(pill);
   }
 
   /* 两侧面板：可折叠 / 展开，状态跨工具与刷新保留 */

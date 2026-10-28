@@ -113,7 +113,11 @@
         '</div>' +
         '<a class="ah-mark" href="#/" aria-label="deepDB home"><span>DB</span></a>' +
         '<div class="ah-nav-right">' +
-          '<button class="ah-pill ah-menu" data-menu-trigger aria-haspopup="dialog"><span>Menu</span><i class="ah-dots"><b></b><b></b></i></button>' +
+          '<div class="ah-menu-wrap" data-ahmenu>' +
+            '<a class="ah-menu-link" href="#works" data-ah-scroll="works"><span>Works</span><i>↗</i></a>' +
+            '<a class="ah-menu-link" href="#/about"><span>Contact</span><i>↗</i></a>' +
+            '<button class="ah-pill ah-menu" data-ahmenu-toggle aria-expanded="false" aria-haspopup="menu"><span>Menu</span><i class="ah-dots"><b></b><b></b></i></button>' +
+          '</div>' +
         '</div>' +
       '</nav>' +
 
@@ -151,7 +155,7 @@
         '<span class="ah-sec-label">( THE WORKFLOW )</span>' +
       '</section>' +
 
-      '<section class="ah-works" data-sec="works">' +
+      '<section class="ah-works" id="works" data-sec="works">' +
         '<div class="ah-works-sticky">' +
           '<a class="ah-pill ah-pill-ghost ah-see" href="#/tools/er"><span>SEE ALL TOOLS</span><i>↗</i></a>' +
           '<div class="ah-slides">' + slides + '</div>' +
@@ -312,13 +316,15 @@
 
       /* statement */
       var sr = statement.getBoundingClientRect();
-      var sp = clamp((vh - sr.top) / (vh + sr.height * 0.35));
+      var stTop = statement.offsetTop;
+      var sp = clamp((y - stTop) / Math.max(1, statement.offsetHeight - vh));
       lines.forEach(function (ln, i) {
         var t = clamp((sp - i * 0.09) * 2.6);
         ln.style.setProperty('--ha', String(0.35 + t * 0.65));
       });
       hwords.forEach(function (w, i) {
-        var t = clamp((sp - i * 0.075) * 3.4);
+        var step = 0.78 / Math.max(1, hwords.length - 1);
+        var t = clamp((sp - i * step) / 0.085);
         w.style.opacity = String(0.06 + t * 0.94);
         w.style.transform = 'translate3d(0,' + (1 - t) * 34 + 'px,0)';
       });
@@ -378,6 +384,39 @@
       Array.prototype.forEach.call(root.querySelectorAll('.ah-reveal'), function (el) { el.classList.add('in'); });
     }
 
+    /* in-pill home menu: Works / Contact unfold inside the same capsule */
+    var ahWrap = root.querySelector('[data-ahmenu]');
+    var ahBtn = ahWrap && ahWrap.querySelector('[data-ahmenu-toggle]');
+    function setAhMenu(open) {
+      if (!ahWrap) return;
+      ahWrap.classList.toggle('open', open);
+      if (ahBtn) ahBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    function onAhDocClick(e) {
+      if (!ahWrap || !ahWrap.classList.contains('open')) return;
+      if (!e.target.closest('[data-ahmenu]')) setAhMenu(false);
+    }
+    function onAhKey(e) { if (e.key === 'Escape') setAhMenu(false); }
+    if (ahWrap) {
+      ahWrap.addEventListener('pointerenter', function () { setAhMenu(true); });
+      ahWrap.addEventListener('pointerleave', function () { setAhMenu(false); });
+      if (ahBtn) ahBtn.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        setAhMenu(!ahWrap.classList.contains('open'));
+      });
+      ahWrap.addEventListener('click', function (e) {
+        var trg = e.target.closest('[data-ah-scroll]');
+        if (trg) {
+          e.preventDefault();
+          var sec = document.getElementById(trg.getAttribute('data-ah-scroll'));
+          if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setAhMenu(false);
+        }
+      });
+      document.addEventListener('click', onAhDocClick);
+      document.addEventListener('keydown', onAhKey);
+    }
+
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     window.addEventListener('pointermove', onMove, { passive: true });
@@ -387,6 +426,11 @@
     paint();
 
     return function unmount() {
+      if (ahWrap) {
+        document.removeEventListener('click', onAhDocClick);
+        document.removeEventListener('keydown', onAhKey);
+        setAhMenu(false);
+      }
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
       window.removeEventListener('pointermove', onMove);

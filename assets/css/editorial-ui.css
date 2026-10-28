@@ -1466,3 +1466,426 @@ html[data-theme="dark"] .tabbar .tab.active { color: #12120e; }
   border-color: rgba(255, 255, 255, 0.72) !important;
 }
 .ah-pill:hover { background: rgba(252, 250, 245, 0.96) !important; }
+
+/* ============================================================
+   m09722 · in-pill expanding menu, squircle corners, floating
+   cards, word-by-word statement, crisper glass
+   ============================================================ */
+
+/* 1. header: one cream pill; links unfold inside it */
+.dd-nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 52px;
+  padding: 0 8px 0 8px;
+  border-radius: 999px;
+  background: rgba(249, 247, 241, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(26px) saturate(175%);
+  backdrop-filter: blur(26px) saturate(175%);
+  box-shadow: 0 2px 6px rgba(30, 22, 8, 0.08), 0 18px 40px rgba(30, 22, 8, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  corner-shape: squircle;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.dd-nav-pill:hover { background: rgba(252, 250, 245, 0.96); }
+.dd-nav-pill .ddq {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  max-width: 0;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  white-space: nowrap;
+  border: 0;
+  background: none;
+  color: #14130f;
+  font: 500 12.5px/1 var(--sans, system-ui);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  border-radius: 999px;
+  corner-shape: squircle;
+  transition: max-width 0.36s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease,
+    padding 0.36s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease;
+}
+.dd-nav-pill .ddq i { font-style: normal; font-size: 11px; opacity: 0.55; }
+.dd-nav-pill.open .ddq,
+.dd-nav-pill:hover .ddq,
+.dd-nav-pill:focus-within .ddq {
+  max-width: 150px;
+  padding: 0 11px;
+  opacity: 1;
+}
+.dd-nav-pill .ddq:hover { background: rgba(20, 19, 15, 0.07); }
+.dd-nav-pill .dd-menu-btn {
+  height: 38px;
+  margin: 0;
+  padding: 0 6px 0 12px !important;
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  color: #14130f !important;
+  font: 600 13px/1 var(--sans, system-ui);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.dd-nav-pill .dd-dots {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  corner-shape: squircle;
+  background: #14130f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dd-nav-pill .dd-dots b {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: #f7f5ef;
+}
+.dd-nav-pill.open .dd-dots { transform: rotate(180deg); }
+
+/* 2. SEE ALL TOOLS: ink on frosted cream, no ghost tint */
+.ah-see.ah-pill,
+.ah-see.ah-pill.ah-pill-ghost {
+  color: #12120e !important;
+  background: rgba(249, 247, 241, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.72) !important;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+}
+.ah-see.ah-pill i,
+.ah-see.ah-pill.ah-pill-ghost i { color: #12120e; opacity: 0.62; }
+.ah-see.ah-pill:hover,
+.ah-see.ah-pill.ah-pill-ghost:hover {
+  background: rgba(253, 251, 246, 0.98) !important;
+  color: #12120e !important;
+}
+
+/* 3. halftone statement: crisper, whiter dots */
+.ah-halftone span,
+.ah-halftone span:nth-child(4) {
+  background-image: radial-gradient(circle at 1.4px 1.4px, rgba(250, 248, 241, 1) 1.35px, transparent 1.95px);
+  background-size: 5.5px 5.5px;
+}
+.ah-halftone span { -webkit-background-clip: text; background-clip: text; }
+
+/* 4. floating cards: slow idle drift (separate from JS parallax transform) */
+.ah-obj {
+  animation: ahObjFloat 8.5s ease-in-out infinite;
+  will-change: translate;
+}
+.ah-obj-1 { animation-duration: 9.2s; animation-delay: -1.4s; }
+.ah-obj-2 { animation-duration: 7.6s; animation-delay: -3.1s; }
+.ah-obj-3 { animation-duration: 10.4s; animation-delay: -5.2s; }
+.ah-obj:hover { animation-play-state: paused; }
+@keyframes ahObjFloat {
+  0% { translate: 0 0; }
+  28% { translate: 7px -10px; }
+  52% { translate: -3px -16px; }
+  76% { translate: -8px -4px; }
+  100% { translate: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ah-obj { animation: none; }
+}
+
+/* 5. squircle (G2 continuous curvature) across the UI */
+.btn,
+.btn--sm,
+.ah-pill,
+.ah-round,
+.ah-see,
+.ah-obj,
+.ah-reel,
+.ah-word,
+.ah-slide,
+.ah-cap,
+.ah-tech-in,
+.dd-nav-pill,
+.dd-menu-btn,
+.dd-dots,
+.settings-btn,
+.zoom-chip,
+.tab,
+.seg,
+.seg button,
+.tool-left,
+.tool-right,
+.m-quick,
+.m-acc,
+.node-menu,
+.modal,
+.toast,
+.er-entity,
+.er-attr-node,
+.noer-card,
+.noer-field,
+.ra-card,
+.ra-slot,
+.ra-root-empty,
+.check-item,
+.schema-table,
+.schema-col,
+.store-item,
+.tr-card,
+.tr-chip,
+.tr-chip-menu,
+.tr-src,
+.badge,
+.lang-switch,
+.tool-row,
+.tool-card,
+.step,
+.feature,
+.side-toggle {
+  corner-shape: squircle;
+}
+/* slightly softer, consistent radii for surfaces */
+.tool-left, .tool-right { border-radius: 20px; }
+.tool-canvas { border-radius: 22px; }
+.modal { border-radius: 26px; }
+.modal--wide { border-radius: 26px; }
+.toast { border-radius: 14px; }
+.m-quick { border-radius: 20px; }
+.m-acc { border-radius: 16px; }
+.node-menu { border-radius: 16px; }
+.er-entity { border-radius: 14px; }
+.er-attr-node { border-radius: 999px; }
+.noer-card, .ra-card { border-radius: 18px; }
+.noer-field, .ra-slot { border-radius: 12px; }
+.check-item { border-radius: 12px; }
+.schema-table { border-radius: 16px; }
+.schema-col { border-radius: 10px; }
+.store-item, .tr-src { border-radius: 14px; }
+.tr-chip { border-radius: 999px; }
+.tr-chip-menu { border-radius: 14px; }
+input[type="text"], input[type="search"], input:not([type]), textarea, select {
+  border-radius: 12px;
+}
+.tool-row { border-radius: 20px; }
+.tool-card { border-radius: 24px; }
+.step, .feature { border-radius: 18px; }
+.ah-obj { border-radius: 16px; }
+
+/* mobile: keep the pill compact, hide the extra lab link */
+@media (max-width: 640px) {
+  .dd-nav-pill { height: 46px; padding: 0 5px 0 7px; gap: 1px; }
+  .dd-nav-pill .ddq-lab { display: none; }
+  .dd-nav-pill .ddq { font-size: 11.5px; }
+  .dd-nav-pill .dd-menu-btn { height: 36px; padding: 0 4px 0 8px !important; gap: 8px; font-size: 12px; }
+  .dd-nav-pill .dd-dots { width: 30px; height: 30px; }
+  .dd-nav-pill.open .ddq, .dd-nav-pill:hover .ddq, .dd-nav-pill:focus-within .ddq { max-width: 112px; padding: 0 9px; }
+}
+
+/* ============================================================
+   m09722 · home floating menu: Works / Contact unfold inside
+   the same capsule (fig1 -> fig2)
+   ============================================================ */
+.ah-menu-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 52px;
+  padding: 0 5px 0 3px;
+  border-radius: 999px;
+  background: rgba(249, 247, 241, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(26px) saturate(175%);
+  backdrop-filter: blur(26px) saturate(175%);
+  box-shadow: 0 2px 6px rgba(30, 22, 8, 0.08), 0 18px 40px rgba(30, 22, 8, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  corner-shape: squircle;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.ah-menu-wrap:hover,
+.ah-menu-wrap.open { background: rgba(252, 250, 245, 0.96); }
+
+.ah-menu-wrap .ah-menu {
+  height: 44px;
+  padding: 0 14px 0 12px;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.ah-menu-wrap .ah-menu:hover { background: rgba(20, 19, 15, 0.06) !important; }
+
+.ah-menu-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 0;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  color: #14130f !important;
+  font: 600 12px/1 var(--sg, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif);
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border-radius: 999px;
+  corner-shape: squircle;
+  transition: max-width 0.36s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease,
+    padding 0.36s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease;
+}
+.ah-menu-link i { font-style: normal; font-size: 11px; opacity: 0.55; }
+.ah-menu-link:hover { background: rgba(20, 19, 15, 0.07); }
+.ah-menu-wrap.open .ah-menu-link,
+.ah-menu-wrap:hover .ah-menu-link,
+.ah-menu-wrap:focus-within .ah-menu-link {
+  max-width: 132px;
+  padding: 0 12px;
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .ah-menu-wrap { height: 46px; padding: 0 4px 0 2px; }
+  .ah-menu-wrap .ah-menu { height: 38px; padding: 0 12px 0 10px; }
+  .ah-menu-link { font-size: 11px; }
+  .ah-menu-wrap.open .ah-menu-link,
+  .ah-menu-wrap:hover .ah-menu-link { max-width: 104px; padding: 0 9px; }
+}
+
+/* ============================================================
+   m09722 · fig5: unify tool pages on the warm editorial dark
+   palette (legacy style.css still painted them blue-grey)
+   ============================================================ */
+html[data-theme="dark"] {
+  --bg: #0c0c0a;
+  --panel: #121210;
+  --surface-2: #171713;
+}
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] .app-header,
+html[data-theme="dark"] .tool-bar {
+  background: #0c0c0a;
+}
+html[data-theme="dark"] .app-header,
+html[data-theme="dark"] .tool-bar {
+  background: rgba(12, 12, 10, 0.86);
+  border-color: rgba(244, 243, 238, 0.1);
+}
+
+html[data-theme="dark"] .tool-left,
+html[data-theme="dark"] .tool-right {
+  background: rgba(20, 20, 17, 0.74) !important;
+  border-color: rgba(244, 243, 238, 0.1) !important;
+}
+
+html[data-theme="dark"] .tool-canvas .canvas {
+  background-color: #0c0b09;
+  background-image: radial-gradient(rgba(244, 243, 238, 0.16) 1.1px, transparent 1.1px);
+  background-size: 22px 22px;
+  border-color: rgba(244, 243, 238, 0.12);
+}
+
+html[data-theme="dark"] .er-entity {
+  background: #1c1b16 !important;
+  border-color: rgba(244, 243, 238, 0.24) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35), 0 16px 34px rgba(0, 0, 0, 0.4);
+}
+html[data-theme="dark"] .er-rel .er-diamond polygon {
+  fill: #141310 !important;
+  stroke: #ece8db !important;
+}
+html[data-theme="dark"] .er-entity-head,
+html[data-theme="dark"] .er-entity-name,
+html[data-theme="dark"] .er-rel-title { color: #f4f3ee; }
+
+html[data-theme="dark"] .noer-card,
+html[data-theme="dark"] .ra-card,
+html[data-theme="dark"] .store-item,
+html[data-theme="dark"] .node-menu,
+html[data-theme="dark"] .modal,
+html[data-theme="dark"] .toast {
+  background: #171713 !important;
+  border-color: rgba(244, 243, 238, 0.13) !important;
+}
+html[data-theme="dark"] .tool-left .panel-title,
+html[data-theme="dark"] .tool-right .insp-title,
+html[data-theme="dark"] .insp-title { color: #f4f3ee; }
+html[data-theme="dark"] .tab { color: #bdb9ab; }
+html[data-theme="dark"] .tab.active { color: #f4f3ee; }
+html[data-theme="dark"] .seg { background: rgba(244, 243, 238, 0.06); }
+html[data-theme="dark"] .seg button { color: #bdb9ab; }
+html[data-theme="dark"] .seg button.active { background: #f4f3ee; color: #14130f; }
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background: rgba(244, 243, 238, 0.06);
+  border-color: rgba(244, 243, 238, 0.16);
+  color: #f4f3ee;
+}
+html[data-theme="dark"] .canvas-legend,
+html[data-theme="dark"] .zoom-chip {
+  background: rgba(18, 18, 16, 0.82);
+  border-color: rgba(244, 243, 238, 0.14);
+}
+
+/* glass: more transparent, more refraction, less grey */
+.ah-pill,
+.ah-menu-wrap,
+.dd-nav-pill,
+.ah-round {
+  background-color: rgba(246, 244, 237, 0.6) !important;
+  background-image: linear-gradient(140deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.04) 52%, rgba(255, 255, 255, 0.22)) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.9) brightness(1.05) !important;
+  backdrop-filter: blur(28px) saturate(1.9) brightness(1.05) !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), inset 0 -1px 0 rgba(255, 255, 255, 0.22),
+    0 10px 30px rgba(24, 18, 8, 0.16) !important;
+}
+
+html[data-theme="dark"] .tool-left,
+html[data-theme="dark"] .tool-right {
+  background: rgba(24, 23, 19, 0.88) !important;
+  border-color: rgba(244, 243, 238, 0.12) !important;
+}
+html[data-theme="dark"] .er-entity-name { font-weight: 650; }
+
+/* glass v2: brighter, less grey pickup on dark sections */
+.ah-pill,
+.ah-menu-wrap,
+.dd-nav-pill,
+.ah-round {
+  background-color: rgba(248, 246, 240, 0.78) !important;
+  background-image: linear-gradient(140deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.34)) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(1.8) brightness(1.12) !important;
+  backdrop-filter: blur(26px) saturate(1.8) brightness(1.12) !important;
+}
+
+/* m09722: keep glass translucency on hover/open; tidy narrow-screen menu */
+.ah-menu-wrap:hover,
+.ah-menu-wrap.open,
+.ah-menu-wrap:focus-within {
+  background-color: rgba(248, 246, 240, 0.8) !important;
+  background-image: linear-gradient(140deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.34)) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(1.8) brightness(1.12) !important;
+  backdrop-filter: blur(26px) saturate(1.8) brightness(1.12) !important;
+}
+@media (max-width: 640px) {
+  .ah-menu-wrap.open .ah-menu-link,
+  .ah-menu-wrap:hover .ah-menu-link { max-width: 84px; padding: 0 8px; }
+  body:has(.ah-menu-wrap.open) .ah-nav-left .ah-pill,
+  body:has(.ah-menu-wrap.open) .ah-nav-left .ah-round,
+  body:has(.ah-menu-wrap.open) .ah-mark {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.88);
+    transition: opacity 0.28s ease, transform 0.28s ease;
+  }
+}
