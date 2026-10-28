@@ -274,21 +274,59 @@
     const art = view.querySelector('.hero-art');
     if (!home || !art) return;
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (homeMotionBound) return;
+    homeMotionBound = true;
+    const bg = home.querySelector('.home-bg');
+    const rows = Array.prototype.slice.call(home.querySelectorAll('.tool-row'));
+    const heroBtns = Array.prototype.slice.call(home.querySelectorAll('.hero-actions .btn'));
     let raf = 0;
+    let mx = 0, my = 0, cx = 0, cy = 0;
+    function flush() {
+      raf = 0;
+      art.style.setProperty('--px', (mx * 12).toFixed(2) + 'px');
+      art.style.setProperty('--py', (my * 10).toFixed(2) + 'px');
+      if (bg) bg.style.transform = 'translate3d(' + (mx * -18).toFixed(1) + 'px,' + (my * -14).toFixed(1) + 'px,0)';
+      heroBtns.forEach(function (b) {
+        b.style.setProperty('--bx', (mx * 7).toFixed(2) + 'px');
+        b.style.setProperty('--by', (my * 5).toFixed(2) + 'px');
+      });
+    }
     home.addEventListener('pointermove', function (e) {
       const r = home.getBoundingClientRect();
-      const tx = (e.clientX - r.left) / r.width - 0.5;
-      const ty = (e.clientY - r.top) / r.height - 0.5;
+      mx = (e.clientX - r.left) / r.width - 0.5;
+      my = (e.clientY - r.top) / r.height - 0.5;
       if (raf) return;
-      raf = requestAnimationFrame(function () {
-        raf = 0;
-        art.style.setProperty('--px', (tx * 12).toFixed(2) + 'px');
-        art.style.setProperty('--py', (ty * 10).toFixed(2) + 'px');
-      });
+      raf = requestAnimationFrame(flush);
     });
     home.addEventListener('pointerleave', function () {
-      art.style.setProperty('--px', '0px');
-      art.style.setProperty('--py', '0px');
+      mx = 0; my = 0;
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      flush();
+    });
+    /* 工具行：指针位置驱动 3D 倾斜 + 光斑 */
+    rows.forEach(function (row) {
+      let rowRaf = 0, nx = 0.5, ny = 0.5;
+      function apply() {
+        rowRaf = 0;
+        row.style.setProperty('--mx', (nx * 100).toFixed(1) + '%');
+        row.style.setProperty('--my', (ny * 100).toFixed(1) + '%');
+        row.style.setProperty('--ry', ((nx - 0.5) * 7).toFixed(2) + 'deg');
+        row.style.setProperty('--rx', ((0.5 - ny) * 5.5).toFixed(2) + 'deg');
+        row.style.setProperty('--tx', ((nx - 0.5) * 4).toFixed(2) + 'px');
+      }
+      row.addEventListener('pointermove', function (e) {
+        const r = row.getBoundingClientRect();
+        nx = (e.clientX - r.left) / r.width;
+        ny = (e.clientY - r.top) / r.height;
+        if (!rowRaf) rowRaf = requestAnimationFrame(apply);
+      });
+      row.addEventListener('pointerleave', function () {
+        if (rowRaf) cancelAnimationFrame(rowRaf);
+        rowRaf = 0;
+        nx = 0.5; ny = 0.5;
+        apply();
+      });
     });
   }
   function showHome() {

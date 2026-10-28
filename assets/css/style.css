@@ -3304,3 +3304,64 @@ html[data-theme="dark"] .tr-menu-item.danger:hover{background:#2a1512;color:#ffb
 
 /* patch-chip-menu-fixed */
 .tr-chip-menu { position: fixed; z-index: 240; }
+
+/* home-interactive-v2: 3D tilt, cursor glow, magnetic buttons */
+.home .tool-row {
+  --mx: 50%; --my: 50%; --rx: 0deg; --ry: 0deg; --tx: 0px;
+  --rowT: perspective(1100px) rotateX(var(--rx)) rotateY(var(--ry)) translate3d(var(--tx), 0, 0);
+  position: relative;
+  transform: var(--rowT);
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  transition: opacity .42s ease, transform .26s cubic-bezier(.2,.8,.2,1), background .2s ease, box-shadow .26s ease;
+  transition-delay: calc(var(--i, 0) * 70ms), 0s, 0s, 0s;
+}
+.home .tool-row::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  opacity: 0; transition: opacity .24s ease;
+  background: radial-gradient(320px circle at var(--mx) var(--my), rgba(51, 65, 224, .10), transparent 62%);
+}
+.home .tool-row:hover::after { opacity: 1; }
+.home .tool-row:hover,
+.home .home-section.is-visible .tool-row,
+.home .home-section.is-visible .tool-row:hover { transform: var(--rowT); }
+.home .home-section.is-visible .tool-row { opacity: 1; }
+.home .tool-row:hover { box-shadow: 0 14px 36px rgba(20, 30, 80, .10); }
+html[data-theme="dark"] .home .tool-row::after {
+  background: radial-gradient(340px circle at var(--mx) var(--my), rgba(139, 147, 255, .13), transparent 62%);
+}
+html[data-theme="dark"] .home .tool-row:hover { box-shadow: 0 16px 44px rgba(0, 0, 0, .52); }
+.home .tool-row:hover .tool-row-main { transform: none; }
+.home .tool-row .tool-fig { transform: translateZ(16px); transition: transform .26s cubic-bezier(.2,.8,.2,1); }
+.home .tool-row:hover .tool-fig {
+  transform: translateZ(34px) translate3d(0, calc(var(--ry) * -1.6), 0) rotate(-1.2deg);
+}
+.home .tool-row .tool-icon { transform: translateZ(24px) scale(1.03); }
+.home .tool-row:hover .tool-icon { transform: translateZ(32px) rotate(-8deg) scale(1.09); }
+.home .tool-row .btn { transform: translateZ(20px); }
+.home .tool-row:hover .btn { transform: translateZ(28px) translateY(-1px); box-shadow: 0 10px 24px rgba(51, 65, 224, .26); }
+.home .hero-actions .btn {
+  transform: translate3d(var(--bx, 0px), var(--by, 0px), 0);
+  transition: transform .22s ease, background .18s ease, color .18s ease, box-shadow .22s ease;
+}
+.home .hero-actions .btn:hover { box-shadow: 0 12px 28px rgba(30, 40, 120, .22); }
+.home .hero-badges .badge { transition: transform .22s ease, background .18s ease, color .18s ease; }
+.home .hero-badges .badge:hover { transform: translateY(-2px) scale(1.035); }
+.home .hero-art .art-card { will-change: transform; }
+.home .home-bg { transition: transform .32s ease-out; will-change: transform; }
+.home .step-list li .step-ic,
+.home .feature .feature-ic { transform: translateZ(0); }
+
+/* home-interactive-v2: entrance state keeps the slide, stronger cursor glow */
+.home .home-section:not(.is-visible) .tool-row { opacity: 0; transform: translateY(14px); }
+.home .tool-row::after { background: radial-gradient(340px circle at var(--mx) var(--my), rgba(51, 65, 224, .14), transparent 60%); }
+html[data-theme="dark"] .home .tool-row::after {
+  background: radial-gradient(360px circle at var(--mx) var(--my), rgba(139, 147, 255, .18), transparent 60%);
+}
+
+/* fix: mobile step list lost its icon-hide (later display rules) */
+@media (max-width: 860px) {
+  .step-list li { grid-template-columns: 32px minmax(0, 1fr); }
+  .step-list li .step-ic { display: none; }
+}

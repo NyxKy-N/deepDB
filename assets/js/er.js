@@ -127,7 +127,8 @@
       x: numOrNull(a.x),
       y: numOrNull(a.y),
       children: (a.children || []).map(function (c) {
-        return { id: c.id || uid('c'), name: c.name || 'child', type: c.type || 'AUTO', key: !!c.key, partial: !!c.partial, multi: !!c.multi, min: Number(c.min) === 1 ? 1 : 0, nocard: c.nocard !== false, x: numOrNull(c.x), y: numOrNull(c.y) };
+        return { id: c.id || uid('c'), name: c.name || 'child', type: c.type || 'AUTO', key: !!c.key, partial: !!c.partial, multi: !!c.multi, min: Number(c.min) === 1 ? 1 : 0, nocard: c.nocard !== false, x: numOrNull(c.x), y: numOrNull(c.y),
+          ox: numOrNull(c.ox), oy: numOrNull(c.oy) };
       })
     };
   }
@@ -755,6 +756,21 @@
     /* 属性小球排布：按槽位确定位置（同一结构永远得到同一位置，不会跳动），
        名字需要的空间不足时整体放大环半径 */
     let attrLayoutCache = {};
+    /* 属性小球手动拖拽时记录「所属元素的中心」作为锚点；元素移动时小球跟着平移 */
+    function ownerCentre(kind, id) {
+      const num = function (m, i) { return m ? parseFloat(m[i]) : 0; };
+      if (kind === 'attr') {
+        const el = attrNodesEl.querySelector('[data-attr-node][data-attr-id="' + id + '"]');
+        if (!el) return { x: 0, y: 0 };
+        const m = /translate\((-?[\d.]+)px,\s*(-?[\d.]+)px\)/.exec(el.style.transform || '');
+        const half = el.getAttribute('data-owner-kind') === 'attr' ? 13 : 17;
+        return { x: num(m, 1) + half, y: num(m, 2) + half };
+      }
+      const el = elFor(id);
+      if (!el) return { x: 0, y: 0 };
+      const m = /translate\((-?[\d.]+)px,\s*(-?[\d.]+)px\)/.exec(el.style.transform || '');
+      return { x: num(m, 1) + el.offsetWidth / 2, y: num(m, 2) + el.offsetHeight / 2 };
+    }
     function layoutAttrs() {
       const pos = {};
       const geo = computeGeo();
@@ -800,7 +816,12 @@
           const w = comp ? 34 : (isAttrOwner ? 12 : 18);
           let cx, cy, manual = false;
           if (a && a.x != null && a.y != null) {
-            cx = a.x; cy = a.y; manual = true;
+            /* 手动拖过的属性：坐标以「拖动时所属元素的中心」为锚点，元素移动时同步位移 */
+            const baseX = a.ox != null ? a.ox : owner.x;
+            const baseY = a.oy != null ? a.oy : owner.y;
+            cx = a.x + (owner.x - baseX);
+            cy = a.y + (owner.y - baseY);
+            manual = true;
           } else if (cache.map[attrId]) {
             cx = owner.x + cache.map[attrId].dx; cy = owner.y + cache.map[attrId].dy;
           } else if (isAttrOwner) {
@@ -2357,9 +2378,13 @@
         const half = attrEl.getAttribute('data-owner-kind') === 'attr' ? 13 : 17;
         const cx = m ? parseFloat(m[1]) + half : 0;
         const cy = m ? parseFloat(m[2]) + half : 0;
+        const ownKind = attrEl.getAttribute('data-owner-kind');
+        const ownId = attrEl.getAttribute('data-owner-id');
+        const anchor = ownerCentre(ownKind, ownId);
+        a.ox = anchor.x; a.oy = anchor.y;
         attrDrag = {
           el: attrEl, attrId: attrId, sx: e.clientX, sy: e.clientY,
-          ox: cx, oy: cy, moved: false,
+          ox: cx, oy: cy, ax: anchor.x, ay: anchor.y, moved: false,
           nk: attrEl.dataset.nk, nid: attrEl.dataset.nid
         };
         return;
@@ -2387,7 +2412,7 @@
         const a = findAttrModel(attrDrag.attrId);
         if (!a) return;
         const cx = Math.round(attrDrag.ox + dx), cy = Math.round(attrDrag.oy + dy);
-        a.x = cx; a.y = cy;
+        a.x = cx; a.y = cy; a.ox = attrDrag.ax; a.oy = attrDrag.ay;
         const half = attrDrag.el.getAttribute('data-owner-kind') === 'attr' ? 13 : 17;
         attrDrag.el.style.transform = 'translate(' + (cx - half) + 'px,' + (cy - half) + 'px)';
         drawEdges();
@@ -2404,7 +2429,7 @@
         drag.el.style.transform = 'translate(' + n.x + 'px,' + n.y + 'px)';
         if (!pendingFrame) {
           pendingFrame = true;
-          requestAnimationFrame(function () { pendingFrame = false; drawEdges(); });
+          requestAnimationFrame(function () { pendingFrame = false; layoutAttrs(); drawEdges(); });
         }
         return;
       }
