@@ -151,7 +151,7 @@
     ];
     const rows = tools.map(function (t, i) {
       return [
-        '<div class="tool-row" style="--i:' + i + '">',
+        '<div class="tool-row" style="--i:' + i + '" data-href="' + t.href + '" role="link" tabindex="0">',
         '  <div class="tool-row-head"><span class="tool-row-num">' + ('0' + (i + 1)) + '</span><span class="tool-row-tag">' + util.esc(t.tag) + '</span></div>',
         '  <div class="tool-row-main">',
         '    <div class="tool-row-title"><span class="tool-icon">' + ICONS[t.icon] + '</span><h3>' + util.esc(t.name) + '</h3></div>',
@@ -169,6 +169,94 @@
       { icon: 'ra', label: 'designQT' }
     ].map(function (b) {
       return '<span class="hero-badge">' + ICONS[b.icon] + '<b>' + b.label + '</b></span>';
+    }).join('');
+
+    /* ---- 一个模型，四种视图（可切换） ---- */
+    const erNode = function (name, rows) {
+      return '<div class="mini-er-node"><b>' + name + '</b>' + rows.map(function (r) {
+        return '<span>' + r + '</span>';
+      }).join('') + '</div>';
+    };
+    const views = [
+      { key: 'er', label: 'ER 图' },
+      { key: 'rel', label: '关系模式' },
+      { key: 'json', label: 'JSON Schema' },
+      { key: 'ra', label: '关系代数' }
+    ];
+    const viewTabs = views.map(function (v, i) {
+      return '<button type="button" role="tab" class="view-tab' + (i === 0 ? ' is-active' : '') + '"' +
+        ' data-view="' + v.key + '" aria-selected="' + (i === 0) + '">' + v.label + '</button>';
+    }).join('');
+    const viewPanels = [
+      '<div class="view-panel is-active" data-panel="er" aria-hidden="false">',
+      '  <div class="mini-er">',
+      '    <svg class="mini-er-links" viewBox="0 0 520 230" aria-hidden="true">',
+      '      <path d="M116 74 H206" class="ml"/><path d="M206 74 V150" class="ml"/>',
+      '      <path d="M318 74 H404" class="ml"/><path d="M404 74 V150" class="ml"/>',
+      '      <path d="M206 150 H318" class="ml"/>',
+      '    </svg>',
+      '    <div class="mini-er-node n1">' + '<b>STUDENT</b><span>sid · <i>PK</i></span><span>sname</span><span>dept</span></div>',
+      '    <div class="mini-er-diamond d1"><span>enrolls</span></div>',
+      '    <div class="mini-er-node n2"><b>COURSE</b><span>cid · <i>PK</i></span><span>title</span></div>',
+      '    <div class="mini-er-note">悬停节点 → 看它长什么样</div>',
+      '  </div>',
+      '</div>',
+      '<div class="view-panel" data-panel="rel" aria-hidden="true">',
+      '  <pre class="code-mini">CREATE TABLE student (\n  sid    INTEGER PRIMARY KEY,\n  sname  VARCHAR(64) UNIQUE,\n  dept   VARCHAR(32)\n);\n\nCREATE TABLE enrolls (\n  sid  INTEGER REFERENCES student(sid),\n  cid  INTEGER REFERENCES course(cid),\n  grade DECIMAL(5,2),\n  PRIMARY KEY (sid, cid)\n);</pre>',
+      '</div>',
+      '<div class="view-panel" data-panel="json" aria-hidden="true">',
+      '  <pre class="code-mini">{ "title": "student", "required": ["sid"], "properties": {\n  "sid":   { "type": "integer" },\n  "sname": { "type": "string", "maxLength": 64 },\n  "dept":  { "type": "string" }\n} }</pre>',
+      '</div>',
+      '<div class="view-panel" data-panel="ra" aria-hidden="true">',
+      '  <pre class="code-mini">π[title, grade] (\n  σ[grade > 90] (\n    student ⋈[sid] enrolls\n  )\n)</pre>',
+      '</div>'
+    ].join('\n');
+
+    /* ---- 界面片段（可筛选、可放大） ---- */
+    const gallery = [
+      { kind: 'er', title: '实体卡片', tag: 'designER', mock: 'ent' },
+      { kind: 'rel', title: '关系模式', tag: 'translatER', mock: 'rel' },
+      { kind: 'doc', title: '文档集合', tag: 'noER', mock: 'doc' },
+      { kind: 'ra', title: '表达式树', tag: 'designQT', mock: 'ra' },
+      { kind: 'er', title: '检查清单', tag: 'designER', mock: 'check' },
+      { kind: 'ui', title: '设置面板', tag: 'App', mock: 'set' }
+    ];
+    const mockHTML = {
+      ent: '<div class="mock-window"><div class="mock-bar"><i></i><i></i><i></i><span>designER</span></div><div class="mock-body"><div class="mock-entity"><b>ENTITY</b><code>Student( sid, sname, dept, score )</code></div><div class="mock-pills"><span class="mock-pill">PK · sid</span><span class="mock-pill">UNIQUE · sname</span></div></div></div>',
+      rel: '<div class="mock-window"><div class="mock-bar"><i></i><i></i><i></i><span>translatER</span></div><div class="mock-body mock-code">STUDENT (sid(PK), sname, dept)\nCOURSE  (cid(PK), title)\nENROLLS (sid(PK), cid(PK), grade)</div></div>',
+      doc: '<div class="mock-window"><div class="mock-bar"><i></i><i></i><i></i><span>noER</span></div><div class="mock-body"><div class="mock-collection"><b>users</b><span>_id · objectId</span><span>email · string</span><span>profile · object</span></div></div></div>',
+      ra: '<div class="mock-window"><div class="mock-bar"><i></i><i></i><i></i><span>designQT</span></div><div class="mock-body mock-ops"><span>σ select</span><span>π project</span><span>⋈ join</span></div></div>',
+      check: '<div class="mock-window"><div class="mock-bar"><i></i><i></i><i></i><span>model check</span></div><div class="mock-body"><div class="mock-check ok">✓ 检查通过</div><div class="mock-check warn">! 一个关系缺少主键</div></div></div>',
+      set: '<div class="mock-window"><div class="mock-bar"><i></i><i></i><i></i><span>settings</span></div><div class="mock-body"><div class="mock-seg"><b>中文</b><span>English</span><span>Italiano</span></div><div class="mock-seg"><span>Light</span><b>Dark</b><span>System</span></div></div></div>'
+    };
+    const galleryHTML = gallery.map(function (g) {
+      return '<button type="button" class="g-card" data-kind="' + g.kind + '" data-title="' + util.esc(g.title) + '" data-tag="' + util.esc(g.tag) + '">' +
+        '<div class="g-preview">' + mockHTML[g.mock] + '</div>' +
+        '<div class="g-meta"><b>' + util.esc(g.title) + '</b><span>' + util.esc(g.tag) + '</span></div>' +
+        '</button>';
+    }).join('\n');
+    const filters = [
+      { key: 'all', label: '全部' }, { key: 'er', label: 'ER' }, { key: 'rel', label: 'Schema' },
+      { key: 'doc', label: '文档' }, { key: 'ra', label: '代数' }
+    ].map(function (f, i) {
+      return '<button type="button" class="g-filter-btn' + (i === 0 ? ' is-active' : '') + '" data-filter="' + f.key + '">' + f.label + '</button>';
+    }).join('');
+
+    const steps = [
+      { n: '01', ic: 'pen', t: '画出概念模型', p: '添加实体、属性与关系。', more: '拖动画布、双击改名、点属性球改类型；模型自动保存。' },
+      { n: '02', ic: 'check', t: '检查并重构', p: '自动检查并重构为逻辑模式。', more: '每条问题都给出原因，点「定位」跳到对应元素。' },
+      { n: '03', ic: 'export', t: '导出结果', p: '复制或下载结果。', more: '逻辑模式、JSON Schema、关系代数表达式均可复制或下载。' }
+    ];
+    const stepsHTML = steps.map(function (s, i) {
+      return '<li class="hstep' + (i === 0 ? ' is-open' : '') + '" data-step="' + i + '">' +
+        '<span class="step-num">' + s.n + '</span><span class="step-ic">' + ICONS[s.ic] + '</span>' +
+        '<div class="step-main"><h4>' + s.t + '</h4><p>' + s.p + '</p>' +
+        '<div class="step-more">' + s.more + '</div></div></li>';
+    }).join('\n');
+
+    const marqueeItems = ['ER 建模', '逻辑模式', 'JSON Schema', 'σ σ 选择', '⋈ 连接', '检查通过', '一键翻译', '关系代数', '文档模型', '实时预览'];
+    const marqueeHTML = marqueeItems.concat(marqueeItems).map(function (m) {
+      return '<span class="marquee-item"><i></i>' + m + '</span>';
     }).join('');
 
     return [
@@ -213,13 +301,47 @@
       '  <div class="tool-rows">' + rows + '</div>',
       '</section>',
 
+      '<section class="section home-section views-sec">',
+      '  <div class="section-head"><h2>一个模型，四种视图</h2>',
+      '    <p>同一份设计，换一种角度看：点标签切换。</p></div>',
+      '  <div class="views-tabs" role="tablist">' + viewTabs + '</div>',
+      '  <div class="views-stage">' + viewPanels + '</div>',
+      '</section>',
+
+      '<section class="section home-section gallery-sec">',
+      '  <div class="section-head"><h2>界面片段</h2>',
+      '    <p>这些都是真实组件，筛一下或点开看细节。</p></div>',
+      '  <div class="g-filters">' + filters + '</div>',
+      '  <div class="g-grid">' + galleryHTML + '</div>',
+      '</section>',
+
+      '<div class="marquee-band" aria-hidden="true"><div class="marquee-track">' + marqueeHTML + '</div></div>',
+
       '<section class="section section--split home-section">',
-      '  <div class="section-head"><h2>三步把想法变成模式</h2></div>',
-      '  <ol class="step-list">',
-      '    <li><span class="step-num">01</span><span class="step-ic">' + ICONS.pen + '</span><div><h4>画出概念模型</h4><p>添加实体、属性与关系。</p></div></li>',
-      '    <li><span class="step-num">02</span><span class="step-ic">' + ICONS.check + '</span><div><h4>检查并重构</h4><p>自动检查并重构为逻辑模式。</p></div></li>',
-      '    <li><span class="step-num">03</span><span class="step-ic">' + ICONS.export + '</span><div><h4>导出结果</h4><p>复制或下载结果。</p></div></li>',
-      '  </ol>',
+      '  <div class="section-head"><h2>三步把想法变成模式</h2><p>点开每一步，看它具体做什么。</p></div>',
+      '  <ol class="step-list">' + stepsHTML + '</ol>',
+      '</section>',
+
+      '<section class="section home-section playsec">',
+      '  <div class="section-head"><h2>点一下试试</h2>',
+      '    <p>点属性切换主键，下面的 SQL 会实时更新。</p></div>',
+      '  <div class="play">',
+      '    <div class="play-card">',
+      '      <div class="play-head"><span class="play-dot"></span><b>Student</b><span class="play-tag">ENTITY</span></div>',
+      '      <div class="play-attrs">',
+      '        <button type="button" class="play-attr is-pk" data-play-attr="sid" data-pk="1">sid</button>',
+      '        <button type="button" class="play-attr" data-play-attr="sname">sname</button>',
+      '        <button type="button" class="play-attr" data-play-attr="dept">dept</button>',
+      '        <button type="button" class="play-attr" data-play-attr="score">score</button>',
+      '        <button type="button" class="play-attr" data-play-attr="birthDate">birthDate</button>',
+      '      </div>',
+      '      <div class="play-actions"><button type="button" class="mini-btn" data-play-reset>重置</button><span class="play-count" id="playCount" data-i18n-skip>1 PK</span></div>',
+      '    </div>',
+      '    <div class="play-out">',
+      '      <div class="play-out-head"><span>SQL</span><button type="button" class="mini-btn" data-play-copy>复制</button></div>',
+      '      <pre class="play-code" id="playCode"></pre>',
+      '    </div>',
+      '  </div>',
       '</section>',
 
       '<section class="section home-section">',
@@ -326,6 +448,121 @@
         rowRaf = 0;
         nx = 0.5; ny = 0.5;
         apply();
+      });
+    });
+    /* 工具行整行可点 */
+    home.addEventListener('click', function (e) {
+      const row = e.target.closest('.tool-row');
+      if (!row || e.target.closest('a, button')) return;
+      const href = row.getAttribute('data-href');
+      if (href) location.hash = href;
+    });
+    home.addEventListener('keydown', function (e) {
+      const row = e.target.closest('.tool-row');
+      if (!row || (e.key !== 'Enter' && e.key !== ' ')) return;
+      const href = row.getAttribute('data-href');
+      if (href) { e.preventDefault(); location.hash = href; }
+    });
+
+    /* 一个模型，四种视图 */
+    const tabs = Array.prototype.slice.call(home.querySelectorAll('.view-tab'));
+    const panels = Array.prototype.slice.call(home.querySelectorAll('.view-panel'));
+    function showView(key) {
+      tabs.forEach(function (b) {
+        const on = b.getAttribute('data-view') === key;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      panels.forEach(function (p) {
+        const on = p.getAttribute('data-panel') === key;
+        p.classList.toggle('is-active', on);
+        p.setAttribute('aria-hidden', on ? 'false' : 'true');
+      });
+    }
+    tabs.forEach(function (b) { b.addEventListener('click', function () { showView(b.getAttribute('data-view')); }); });
+
+    /* 界面片段：筛选 + 放大 */
+    const gcards = Array.prototype.slice.call(home.querySelectorAll('.g-card'));
+    const gbtns = Array.prototype.slice.call(home.querySelectorAll('.g-filter-btn'));
+    const toolHref = { er: '#/tools/er', rel: '#/tools/translater', doc: '#/tools/noer', ra: '#/tools/ra', ui: '#/lab' };
+    function applyFilter(key) {
+      gbtns.forEach(function (b) {
+        const on = b.getAttribute('data-filter') === key;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      gcards.forEach(function (c, i) {
+        const show = key === 'all' || c.getAttribute('data-kind') === key;
+        c.classList.toggle('is-hidden', !show);
+        c.style.transitionDelay = show ? Math.min(i, 6) * 40 + 'ms' : '0ms';
+      });
+    }
+    gbtns.forEach(function (b) { b.addEventListener('click', function () { applyFilter(b.getAttribute('data-filter')); }); });
+    gcards.forEach(function (card) {
+      card.addEventListener('click', function () {
+        const title = card.getAttribute('data-title');
+        const tag = card.getAttribute('data-tag');
+        const preview = card.querySelector('.g-preview');
+        const href = toolHref[card.getAttribute('data-kind')] || '#/';
+        ui.modal({
+          title: title, wide: true, origin: card,
+          body: '<div class="g-modal"><div class="g-modal-preview">' + (preview ? preview.innerHTML : '') +
+            '</div><p class="hint">' + util.esc(tag) + ' · deepDB</p></div>',
+          actions: [{ label: '打开对应页面 →', primary: true, onClick: function (close) { close(); location.hash = href; } }]
+        });
+      });
+    });
+
+    /* 点一下试试：属性主键编辑 + 实时 SQL */
+    const playCode = home.querySelector('#playCode');
+    const playCount = home.querySelector('#playCount');
+    const playAttrs = Array.prototype.slice.call(home.querySelectorAll('.play-attr'));
+    function playRender() {
+      if (!playCode) return;
+      const names = playAttrs.map(function (b) { return b.getAttribute('data-play-attr'); });
+      const pks = playAttrs.filter(function (b) { return b.getAttribute('data-pk') === '1'; })
+        .map(function (b) { return b.getAttribute('data-play-attr'); });
+      const left = names.filter(function (n) { return pks.indexOf(n) < 0; });
+      const lines = [];
+      pks.forEach(function (n) { lines.push('  ' + n + ' INTEGER PRIMARY KEY'); });
+      left.forEach(function (n) {
+        const type = n === 'score' ? 'DECIMAL(5,2)' : n === 'birthDate' ? 'DATE' : n === 'dept' ? 'VARCHAR(32)' : 'VARCHAR(64)';
+        lines.push('  ' + n + ' ' + type);
+      });
+      playCode.textContent = 'CREATE TABLE student (\n' + lines.join(',\n') + '\n);';
+      if (playCount) playCount.textContent = pks.length + ' PK';
+    }
+    playAttrs.forEach(function (b) {
+      b.addEventListener('click', function () {
+        b.setAttribute('data-pk', b.getAttribute('data-pk') === '1' ? '0' : '1');
+        b.classList.toggle('is-pk', b.getAttribute('data-pk') === '1');
+        playRender();
+      });
+    });
+    const playReset = home.querySelector('[data-play-reset]');
+    if (playReset) playReset.addEventListener('click', function () {
+      playAttrs.forEach(function (b) {
+        const on = b.getAttribute('data-play-attr') === 'sid';
+        b.setAttribute('data-pk', on ? '1' : '0');
+        b.classList.toggle('is-pk', on);
+      });
+      playRender();
+    });
+    const playCopy = home.querySelector('[data-play-copy]');
+    if (playCopy) playCopy.addEventListener('click', function () {
+      if (!playCode) return;
+      DDB.io.copy(playCode.textContent).then(function (ok) {
+        DDB.ui.toast(ok ? 'SQL 已复制' : '复制失败', ok ? 'ok' : 'err');
+      });
+    });
+    playRender();
+
+    /* 三步：点开看细节 */
+    Array.prototype.forEach.call(home.querySelectorAll('.step-list li'), function (li) {
+      li.addEventListener('click', function () {
+        const open = li.classList.contains('is-open');
+        Array.prototype.forEach.call(home.querySelectorAll('.step-list li'), function (x) { x.classList.remove('is-open'); });
+        if (!open) li.classList.add('is-open');
       });
     });
   }

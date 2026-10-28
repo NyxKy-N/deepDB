@@ -2525,3 +2525,21 @@ window.DDB_I18N_DICT = {
   };
   Object.keys(m).forEach(function (k) { D.en.texts[k] = m[k][0]; D.zh.texts[k] = k; D.it.texts[k] = m[k][1]; });
 })();
+
+/* patch-home-showcase */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D) return;
+  var m = {"一个模型，四种视图":["One model, four views","Un modello, quattro viste"],"同一份设计，换一种角度看：点标签切换。":["One design, four angles. Switch the tabs.","Un progetto, quattro punti di vista. Cambia scheda."],"ER 图":["ER diagram","Diagramma ER"],"关系模式":["Relational schema","Schema relazionale"],"关系代数":["Relational algebra","Algebra relazionale"],"界面片段":["UI fragments","Frammenti di interfaccia"],"这些都是真实组件，筛一下或点开看细节。":["Real components. Filter them, or tap for details.","Componenti reali. Filtra o tocca per i dettagli."],"全部":["All","Tutti"],"文档":["Documents","Documenti"],"代数":["Algebra","Algebra"],"实体卡片":["Entity card","Scheda entità"],"文档集合":["Collection","Collezione"],"表达式树":["Expression tree","Albero di espressione"],"检查清单":["Check list","Elenco controlli"],"设置面板":["Settings panel","Pannello impostazioni"],"点开每一步，看它具体做什么。":["Tap a step to see what it does.","Tocca un passo per vedere cosa fa."],"拖动画布、双击改名、点属性球改类型；模型自动保存。":["Drag the canvas, double-click to rename, click a ball to change its type; the model saves itself.","Trascina la tela, doppio clic per rinominare, clicca una pallina per cambiarne il tipo; il modello si salva da solo."],"每条问题都给出原因，点「定位」跳到对应元素。":["Every issue explains itself; hit Locate to jump to the element.","Ogni problema spiega il perché; premi Individua per saltare all'elemento."],"逻辑模式、JSON Schema、关系代数表达式均可复制或下载。":["Logical schema, JSON Schema and algebra expressions can be copied or downloaded.","Schema logico, JSON Schema ed espressioni di algebra: copia o download."],"点一下试试":["Try it","Provalo"],"点属性切换主键，下面的 SQL 会实时更新。":["Click an attribute to toggle its primary key; the SQL updates live.","Clicca un attributo per attivarne la chiave primaria; l'SQL si aggiorna in tempo reale."],"重置":["Reset","Reimposta"],"复制":["Copy","Copia"],"SQL 已复制":["SQL copied","SQL copiato"],"复制失败":["Copy failed","Copia non riuscita"],"打开对应页面 →":["Open the page →","Apri la pagina →"],"悬停节点 → 看它长什么样":["Hover a node → see it up close.","Passa sul nodo → guardalo da vicino."],"ER 建模":["ER modeling","Modellazione ER"],"逻辑模式":["Logical schema","Schema logico"],"σ σ 选择":["σ select","σ selezione"],"⋈ 连接":["⋈ join","⋈ join"],"检查通过":["Check passed","Controllo superato"],"一键翻译":["One-click translation","Traduzione in un clic"],"文档模型":["Document model","Modello documentale"],"实时预览":["Live preview","Anteprima live"]};
+  Object.keys(m).forEach(function (k) {
+    D.en.texts[k] = m[k][0];
+    D.zh.texts[k] = k;
+    D.it.texts[k] = m[k][1];
+  });
+})();
+
+/* patch-home-showcase-fix */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D) return;
+  var m = {"一个关系缺少主键":["A relationship is missing its primary key","Una relazione senza chiave primaria"],"拖动画布、双击改名、点属性球改类型；模型自动保存。":["Drag the canvas, double-click to rename, click a ball to change its type; the model saves itself.","Trascina la tela, doppio clic per rinominare, clicca una pallina per cambiarne il tipo; il modello si salva da solo."]};
+  Object.keys(m).forEach(function (k) { D.en.texts[k] = m[k][0]; D.zh.texts[k] = k; D.it.texts[k] = m[k][1]; });
+})();
