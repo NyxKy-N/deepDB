@@ -818,6 +818,10 @@ const ROUTES = {
     if (right.querySelector('[data-nav-pill]')) return;
     right.innerHTML =
       '<div class="dd-nav-pill" data-nav-pill>' +
+      '  <a class="ddq ddq-tool" href="#/tools/er"><span>designER</span><i>↗</i></a>' +
+      '  <a class="ddq ddq-tool" href="#/tools/translater"><span>translatER</span><i>↗</i></a>' +
+      '  <a class="ddq ddq-tool" href="#/tools/noer"><span>noER</span><i>↗</i></a>' +
+      '  <a class="ddq ddq-tool" href="#/tools/ra"><span>designQT</span><i>↗</i></a>' +
       '  <button type="button" class="ddq" data-hdr-settings><span>Settings</span><i>↗</i></button>' +
       '  <a class="ddq" href="#/about"><span>About</span><i>↗</i></a>' +
       '  <button type="button" class="dd-menu-btn" data-menu-trigger aria-expanded="false"><span>Menu</span><i class="dd-dots"><b></b><b></b></i></button>' +
@@ -836,6 +840,11 @@ const ROUTES = {
     mb.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
+      if (window.innerWidth <= 900) {
+        if (menuDrawer && menuDrawer.classList.contains('on')) { closeMenuDrawer(true); }
+        else { openMenuDrawer(mb); }
+        return;
+      }
       setOpen(!pill.classList.contains('open'));
     });
     Array.prototype.forEach.call(pill.querySelectorAll('a.ddq'), function (a) {

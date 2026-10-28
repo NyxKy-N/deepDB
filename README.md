@@ -33,7 +33,7 @@ The halftone statement reveals **word by word** as the section scrolls through t
 The Alt Shift–inspired language is applied to **every page**, not just the landing page (`assets/css/editorial-ui.css`, loaded after `style.css`):
 
 - **Navigation** — floating pill links, an active pill, a rounded Settings pill and a **Menu** pill; the header floats over the content with a frosted-glass bar.
-- **Menu drawer** — hovering the Menu pill slides a full-height panel out from the **left** edge; clicking it pins the panel open. It contains designER, translatER, noER, designQT, Motion lab, **Settings** and **About**, plus author/helper credits. Close with the ✕, the backdrop or `Esc`.
+- **Menu pill** — the header keeps only the brand and a single Menu pill. Hover or click it to unfold designER, translatER, noER, designQT, **Settings** and **About** inside the same pill; click Menu again (or press `Esc`) to fold it back. Phones open the same list as a full-height drawer.
 - **Buttons & controls** — every button is a pill with a translucent, backdrop-blurred surface; primary actions use the electric blue accent, destructive actions red; inputs, selects and segmented controls follow the same glass treatment.
 - **Panels, cards, tables, canvas** — translucent frosted panels with hairline borders and generous radii; the ER/RA/noER canvases sit inside an inset rounded frame.
 - **Menus, modals & toasts** — node menus, chip menus, the settings modal and toasts all use heavy gaussian blur (`backdrop-filter`) over the page.
@@ -57,10 +57,9 @@ All new interface strings are translated into Chinese and Italian; the English b
 | translatER | `index.html#/tools/translater` |
 | noER | `index.html#/tools/noer` |
 | designQT basic | `index.html#/tools/ra` |
-| Motion lab (animation showcase) | `index.html#/lab` |
 
-The language defaults to **English**; switch it in **Settings** (gear icon, top right) → Language.
-Theme: Light / Dark / Follow system.
+The language defaults to **English**; open the header **Menu** pill → **Settings** → Language.
+Theme: Light / Dark / Follow system, plus seven accent colours that retint buttons, links, canvas edges and highlights.
 
 ---
 
@@ -101,12 +100,6 @@ Theme: Light / Dark / Follow system.
 - Output fields are inferred live; the standard expression text can be copied or downloaded; checks report missing parameters.
 
 ---
-
-## Motion lab
-
-A standalone, animation-heavy preview page at `index.html#/lab` (also linked from the hero and the footer):
-floating model cards, self-drawing SVG connections, staggered entrances, pointer parallax, animated counters and a small
-"move an attribute into the schema" demo. All motion is CSS + requestAnimationFrame and respects `prefers-reduced-motion`.
 
 ## Interface details
 

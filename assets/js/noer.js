@@ -426,7 +426,7 @@
       return { x: cx + dx * t, y: cy + dy * t };
     }
     function renderEdges() {
-      const defs = '<defs><marker id="noerArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9aa8c9"/></marker></defs>';
+      const defs = '<defs><marker id="noerArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/></marker></defs>';
       const refs = allRefs();
       const groups = {};
       refs.forEach(function (r) {

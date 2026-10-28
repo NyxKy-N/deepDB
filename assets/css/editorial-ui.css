@@ -2119,3 +2119,622 @@ html[data-theme="light"] .toast {
   body[data-route="ra"] .canvas-legend { display: none !important; }
   body[data-route="ra"] .canvas-tools { bottom: 84px !important; }
 }
+
+
+/* ============================================================
+   m10339 · accent everywhere, warm neutrals, rounder shapes,
+   hidden inline nav, navbar File dropdown, dot + drag fixes
+   ============================================================ */
+
+/* 1) accent-tinted connection lines (ER + RA) */
+:root,
+html[data-theme] {
+  --edge: color-mix(in srgb, var(--accent) 52%, var(--ink-2) 48%);
+  --edge-soft: color-mix(in srgb, var(--accent) 30%, var(--ink-2) 70%);
+  --edge-strong: color-mix(in srgb, var(--accent) 72%, var(--ink) 28%);
+}
+.edges .e-line,
+.edges .e-line.total,
+.edges .e-line.thick,
+.e-line { stroke: var(--edge) !important; }
+.edges .e-line.attr,
+.e-line.attr,
+.attr.child { stroke: var(--edge-soft) !important; }
+.edges .keychain,
+.keychain { stroke: var(--edge-strong) !important; }
+.edges .e-line.active { stroke: var(--accent) !important; }
+.e-dot { fill: var(--panel-solid, #fffdf8) !important; stroke: var(--edge) !important; }
+.e-isa-tri { fill: var(--panel-solid, #fffdf8) !important; stroke: var(--edge) !important; }
+.ra-edge { stroke: var(--edge) !important; }
+html[data-theme="dark"] .e-dot,
+html[data-theme="dark"] .e-isa-tri { fill: #17150f !important; }
+
+/* 2) warm neutral chrome — no more cold blue-grey */
+.side-toggle,
+.canvas-tools,
+.edge-toggle {
+  border-color: color-mix(in srgb, var(--ink) 14%, transparent) !important;
+  background: color-mix(in srgb, var(--panel, #fbf8f1) 78%, transparent) !important;
+  color: var(--ink-2) !important;
+}
+html[data-theme="dark"] .side-toggle,
+html[data-theme="dark"] .canvas-tools,
+html[data-theme="dark"] .edge-toggle {
+  border-color: rgba(244, 240, 230, 0.15) !important;
+  background: rgba(28, 26, 21, 0.78) !important;
+  color: #e9e4d8 !important;
+}
+.tool-bar .btn:not(.btn--primary) {
+  background: color-mix(in srgb, var(--ink) 5%, transparent) !important;
+  border-color: color-mix(in srgb, var(--ink) 14%, transparent) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .tool-bar .btn:not(.btn--primary) {
+  background: rgba(38, 35, 29, 0.55) !important;
+  border-color: rgba(244, 240, 230, 0.14) !important;
+  color: #ece7db !important;
+}
+.tool-bar .btn:disabled {
+  color: color-mix(in srgb, var(--ink) 34%, transparent) !important;
+  border-color: color-mix(in srgb, var(--ink) 8%, transparent) !important;
+}
+html[data-theme="dark"] .tool-bar .btn:disabled {
+  color: rgba(236, 231, 219, 0.35) !important;
+  border-color: rgba(244, 240, 230, 0.08) !important;
+}
+html[data-theme="dark"] .icon-btn { color: #ece7db !important; }
+
+/* 3) attribute balls — warm instead of white/blue */
+.er-attr-node {
+  background: var(--panel-solid, #fffdf8) !important;
+  border-color: color-mix(in srgb, var(--ink) 42%, transparent) !important;
+  transition: border-color .12s ease, background-color .12s ease, box-shadow .12s ease !important;
+}
+.er-attr-node.is-key,
+.er-attr-node.is-partial {
+  background: var(--ink) !important;
+  border-color: var(--ink) !important;
+}
+.er-attr-node.is-key-white,
+.er-attr-node.is-multi { background: var(--panel-solid, #fff) !important; }
+.er-attr-node.selected {
+  background: var(--accent-soft) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 24%, transparent) !important;
+}
+html[data-theme="dark"] .er-attr-node { background: #1e1b15 !important; border-color: rgba(244, 240, 230, 0.52) !important; }
+html[data-theme="dark"] .er-attr-node.is-key,
+html[data-theme="dark"] .er-attr-node.is-partial { background: #f4f0e6 !important; border-color: #f4f0e6 !important; }
+html[data-theme="dark"] .er-attr-node.is-key-white,
+html[data-theme="dark"] .er-attr-node.is-multi { background: #17150f !important; }
+
+/* 4) rounder shapes */
+.btn { border-radius: 16px !important; }
+.er-add-btn { border-radius: 16px !important; }
+.er-entity, .er-rel { border-radius: 20px !important; }
+.er-attr-node { border-radius: 50% !important; }
+.er-attr-node.is-composite { border-radius: 999px !important; }
+.tool-row, .tool-card { border-radius: 24px !important; }
+.insp-card, .insp-section .card, .m-card { border-radius: 20px !important; }
+.dd-menu-panel { border-radius: 26px !important; }
+.toast, .modal, .modal-card { border-radius: 22px !important; }
+.er-entity, .er-rel, .tool-card, .dd-menu-panel, .modal-card { corner-shape: squircle; }
+
+/* 5) home Menu dots — one clean pair, no drift/duplicate sizing */
+.ah-menu .ah-dots,
+.dd-dots { display: inline-flex !important; gap: 4px !important; width: auto !important; }
+.ah-menu .ah-dots b,
+.dd-dots b {
+  width: 6px !important; height: 6px !important;
+  border-radius: 50% !important;
+  background: currentColor !important;
+  opacity: .5;
+  transform: none !important;
+  transition: opacity .2s ease !important;
+}
+.ah-menu .ah-dots b:first-child { opacity: .32; }
+.ah-menu:hover .ah-dots b,
+.ah-menu:focus-visible .ah-dots b { opacity: .9; }
+.dd-menu-btn:hover .dd-dots b { opacity: .9; }
+
+/* 6) dark header Menu pill: dark warm glass, not white */
+html[data-theme="dark"] .dd-nav-pill {
+  background-color: rgba(26, 24, 19, 0.86) !important;
+  background-image: linear-gradient(140deg, rgba(255,255,255,.10), rgba(255,255,255,.02) 55%, rgba(255,255,255,.06)) !important;
+  border: 1px solid rgba(244, 240, 230, 0.16) !important;
+}
+html[data-theme="dark"] .dd-nav-pill .dd-menu-btn,
+html[data-theme="dark"] .dd-nav-pill .dd-menu-btn span { color: #f2eee4 !important; }
+html[data-theme="dark"] .dd-nav-pill .ddq { color: #d8d2c4 !important; }
+html[data-theme="dark"] .dd-nav-pill .ddq:hover { color: #fffdf8 !important; }
+
+/* 7) tool links live inside the Menu pill; inline nav hidden */
+.app-nav { display: none !important; }
+.dd-nav-pill .ddq-tool { font-weight: 600; }
+.brand-text strong,
+.brand-text b { color: var(--accent) !important; }
+
+/* 8) drag must follow the pointer (kill transform transition) */
+:where(.er-entity, .er-rel) {
+  transition: box-shadow .12s ease, border-color .12s ease, background-color .12s ease !important;
+}
+:where(.er-entity, .er-rel).dragging { transition: none !important; }
+
+/* 9) navbar File dropdown (ER toolbar actions) */
+.dd-file-pill {
+  position: relative; display: inline-flex; align-items: center;
+  height: 38px; margin-right: 8px;
+  border-radius: 999px;
+}
+.dd-file-toggle {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 38px; padding: 0 15px;
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--panel, #fbf8f1) 82%, transparent);
+  color: var(--ink);
+  font: 600 12.5px/1 var(--sans, system-ui);
+  cursor: pointer;
+  transition: background-color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.dd-file-toggle:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--ink) 26%, transparent); }
+.dd-file-pill .df-caret { font-style: normal; font-size: 10px; opacity: .6; }
+.dd-file-pop {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  min-width: 190px; padding: 8px;
+  display: flex; flex-direction: column; gap: 2px;
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  background: color-mix(in srgb, var(--panel, #fbf8f1) 94%, transparent);
+  backdrop-filter: blur(30px) saturate(1.4);
+  box-shadow: 0 18px 42px rgba(20, 16, 8, 0.22);
+  opacity: 0; transform: translateY(-6px) scale(.985); pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+  z-index: 90;
+}
+.dd-file-pill.open .dd-file-pop { opacity: 1; transform: none; pointer-events: auto; }
+.dd-file-pop button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  height: 38px; padding: 0 12px; border-radius: 12px;
+  text-align: left; color: var(--ink);
+  font: 600 12.5px/1 var(--sans, system-ui);
+  transition: background-color .15s ease, padding-left .15s ease;
+}
+.dd-file-pop button:hover { background: color-mix(in srgb, var(--accent) 15%, transparent); padding-left: 16px; }
+html[data-theme="dark"] .dd-file-toggle,
+html[data-theme="dark"] .dd-file-pop {
+  background: rgba(26, 24, 19, 0.9);
+  border-color: rgba(244, 240, 230, 0.14);
+  color: #f2eee4;
+}
+html[data-theme="dark"] .dd-file-pop button { color: #ece7db; }
+
+/* 10) header pill hover/click expansion width for the new tool links */
+.dd-nav-pill .ddq-tool { white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .dd-nav-pill .ddq-tool { display: none !important; }
+  .dd-file-pill { display: none !important; }
+}
+
+
+/* ============================================================
+   m10339 · warm neutrals, accent-tinted edges, rounder corners,
+   header menu consolidation, file dropdown, misc fixes
+   ============================================================ */
+
+/* 1. warm neutral tokens (kill the blue-grey cast in dark mode) */
+html[data-theme="dark"] {
+  --ink: #f3f0e7;
+  --ink-2: #d6cfc0;
+  --muted: #a49d8d;
+  --border: #332f26;
+  --border-strong: #4a4436;
+  --surface: #12110d;
+  --surface-2: #1a1813;
+  --ed-fg: #f3f0e7;
+  --ed-fg-2: #d6cfc0;
+  --ed-line: rgba(240, 236, 226, 0.16);
+  --ed-panel-solid: #16140f;
+  --primary: var(--accent);
+  --primary-dark: var(--accent);
+  --primary-soft: var(--accent-soft);
+  --edge: color-mix(in srgb, var(--accent) 62%, #7a7260 38%);
+  --edge-soft: color-mix(in srgb, var(--accent) 40%, #6f6756 60%);
+  --edge-strong: color-mix(in srgb, var(--accent) 78%, #8a8170 22%);
+}
+:root, html[data-theme="light"] {
+  --edge: color-mix(in srgb, var(--accent) 58%, #6f6759 42%);
+  --edge-soft: color-mix(in srgb, var(--accent) 36%, #6b6253 64%);
+  --edge-strong: color-mix(in srgb, var(--accent) 76%, #59503f 24%);
+}
+
+/* 2. rounder corners */
+.tool-canvas, .tool-left, .tool-right { border-radius: 22px !important; }
+.tool-bar .btn, .tool-left .btn, .tool-right .btn, .dd-file-sum { border-radius: 16px !important; }
+.er-entity, .er-rel { border-radius: 22px !important; }
+.er-entity-head { border-radius: 22px 22px 0 0; }
+.er-attr-node { border-radius: 50% !important; }
+.dd-menu-panel, .modal, .settings-panel { border-radius: 26px !important; }
+.tool-row, .cap-row, .card, .dd-file-pop { border-radius: 24px !important; }
+
+/* 3. buttons: warm neutrals, accent hover (dark) */
+html[data-theme="dark"] .tool-bar .btn,
+html[data-theme="dark"] .tool-left .btn,
+html[data-theme="dark"] .tool-right .btn {
+  background: #17150f !important;
+  border-color: #332f26 !important;
+  color: #e9e3d4 !important;
+}
+html[data-theme="dark"] .tool-bar .btn:hover,
+html[data-theme="dark"] .tool-left .btn:hover,
+html[data-theme="dark"] .tool-right .btn:hover {
+  background: color-mix(in srgb, var(--accent) 16%, #17150f) !important;
+  border-color: var(--accent) !important;
+  color: #f6f2e8 !important;
+}
+html[data-theme="dark"] .icon-btn,
+html[data-theme="dark"] .icon-x {
+  border-color: #3a352a !important;
+  background: #17150f !important;
+  color: #e9e3d4 !important;
+}
+html[data-theme="dark"] .side-toggle,
+html[data-theme="dark"] .canvas-tools {
+  border-color: #3a352a !important;
+  background: #17150f !important;
+}
+html[data-theme="dark"] .side-toggle:hover { border-color: var(--accent) !important; color: var(--accent) !important; }
+
+/* 4. attribute balls: warm, key balls follow ink (not blue-white) */
+.er-attr-node { background: #fbf8f1 !important; }
+html[data-theme="dark"] .er-attr-node { background: #1d1b15 !important; border-color: #5a5342 !important; }
+.er-attr-node.is-key, .er-attr-node.is-partial {
+  background: var(--ed-fg, #12120e) !important;
+  border-color: var(--ed-fg, #12120e) !important;
+}
+html[data-theme="dark"] .er-attr-node.is-key,
+html[data-theme="dark"] .er-attr-node.is-partial {
+  background: #f3f0e7 !important;
+  border-color: #f3f0e7 !important;
+}
+html[data-theme="dark"] .er-attr-node.is-key .er-attr-name,
+html[data-theme="dark"] .er-attr-node.is-key .er-attr-type { color: #12120e !important; }
+.er-attr-node.selected { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 26%, transparent) !important; }
+
+/* 5. edges / relationship lines follow the accent */
+.edges .e-line, .e-line { stroke: var(--edge) !important; }
+.edges .e-line.thick { stroke: var(--edge-strong) !important; }
+.edges .e-line.total { stroke: var(--edge-soft) !important; }
+.edges .e-line.active, .e-line.active { stroke: var(--accent) !important; }
+.e-line.attr { stroke: var(--edge-soft) !important; }
+.e-line.attr.child, .e-line.child { stroke: var(--edge-soft) !important; }
+.keychain { stroke: var(--edge-strong) !important; }
+.e-dot { fill: var(--ed-panel-solid, #16140f) !important; stroke: var(--edge) !important; }
+.e-isa-tri { fill: var(--ed-panel-solid, #16140f) !important; stroke: var(--edge) !important; }
+.ra-edge { stroke: var(--edge) !important; }
+.ra-edge.thick { stroke: var(--edge-strong) !important; }
+
+/* 6. header: one Menu pill holding tool links + settings/about */
+.app-nav { display: none !important; }
+html[data-theme="dark"] .dd-nav-pill {
+  background: rgba(24, 22, 17, 0.88) !important;
+  background-image: linear-gradient(140deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.01) 52%, rgba(255, 255, 255, 0.04)) !important;
+  border: 1px solid rgba(240, 236, 226, 0.16) !important;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.32);
+}
+html[data-theme="dark"] .dd-nav-pill .dd-menu-btn,
+html[data-theme="dark"] .dd-nav-pill .ddq { color: #f3f0e7 !important; }
+html[data-theme="dark"] .dd-nav-pill .dd-dots b { background: #f3f0e7 !important; }
+.dd-nav-pill .ddq-tool { white-space: nowrap; }
+.dd-nav-pill .ddq-tool:hover { color: var(--accent) !important; }
+
+/* 7. brand DB follows accent in every theme */
+.brand-text strong,
+html[data-theme="dark"] .brand-text strong,
+html[data-theme="light"] .brand-text strong { color: var(--accent) !important; }
+
+/* 8. file dropdown in the workspace bar */
+.tool-bar { overflow: visible; }
+.dd-file-menu { position: relative; display: inline-flex; }
+.dd-file-sum { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.dd-file-sum::-webkit-details-marker { display: none; }
+.dd-file-sum .df-caret { font-style: normal; transition: transform .16s ease; opacity: .8; }
+.dd-file-menu[open] .dd-file-sum .df-caret { transform: rotate(180deg); }
+.dd-file-menu[open] .dd-file-sum { border-color: var(--accent) !important; color: var(--accent) !important; }
+.dd-file-pop {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 90;
+  min-width: 214px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--ed-panel-solid, #fffdf8);
+  border: 1px solid var(--ed-line, rgba(0,0,0,.12));
+  box-shadow: 0 22px 54px rgba(0, 0, 0, .28);
+  animation: ddFileIn .18s ease both;
+}
+@keyframes ddFileIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+html[data-theme="dark"] .dd-file-pop { background: #17140f; border-color: #3a352a; }
+.dd-file-pop .btn {
+  width: 100%;
+  justify-content: flex-start;
+  height: 38px;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--ed-fg, #17140f) !important;
+  font-weight: 500 !important;
+}
+.dd-file-pop .btn:hover {
+  background: color-mix(in srgb, var(--accent) 16%, transparent) !important;
+  color: var(--accent) !important;
+}
+html[data-theme="dark"] .dd-file-pop .btn { color: #f3f0e7 !important; }
+
+/* 9. home menu dots: one clean pair, hover shift */
+.ah-dots { display: inline-flex !important; align-items: center; gap: 5px !important; }
+.ah-dots b { width: 6px !important; height: 6px !important; margin: 0 !important; background: currentColor !important; opacity: .9 !important; transition: transform .2s ease, opacity .2s ease; }
+.ah-menu:hover .ah-dots b:first-child,
+.ah-menu-wrap.open .ah-dots b:first-child,
+.ah-menu-wrap:hover .ah-dots b:first-child { transform: translateX(-2px); opacity: .6 !important; }
+.ah-menu:hover .ah-dots b:last-child,
+.ah-menu-wrap.open .ah-dots b:last-child,
+.ah-menu-wrap:hover .ah-dots b:last-child { transform: translateX(2px); opacity: 1 !important; }
+
+/* 10. dragging must not fight a CSS transition */
+.er-entity, .er-rel {
+  transition-property: box-shadow, border-color, background-color !important;
+  transition-duration: .16s !important;
+}
+.er-entity .er-entity-head, .er-rel .er-rel-head { transition: none !important; }
+
+/* 11. mobile: keep header + file dropdown usable */
+@media (max-width: 700px) {
+  .dd-nav-pill .ddq-tool span { display: none; }
+  .dd-nav-pill .ddq-tool { width: 30px; padding: 0; justify-content: center; }
+  .dd-nav-pill .ddq-tool::after { content: "\2197"; }
+  .dd-file-pop { left: auto; right: 0; }
+  .tool-canvas, .tool-left, .tool-right { border-radius: 18px !important; }
+}
+
+/* mobile: expanded nav pill becomes a full-width dropdown instead of a long pill */
+@media (max-width: 900px) {
+  .dd-nav-pill.open {
+    position: fixed;
+    top: calc(var(--header-h, 68px) + 8px);
+    left: 12px;
+    right: 12px;
+    width: auto !important;
+    max-width: none !important;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px;
+    border-radius: 20px !important;
+    z-index: 130;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .32);
+  }
+  .dd-nav-pill.open .dd-menu-btn { order: -1; align-self: flex-end; margin-bottom: 4px; width: auto; }
+  .dd-nav-pill.open .ddq,
+  .dd-nav-pill.open .ddq-tool {
+    width: 100% !important;
+    max-width: 100% !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    justify-content: space-between;
+    height: 42px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .dd-nav-pill.open .ddq-tool span { display: inline !important; }
+  .dd-nav-pill.open .ddq-tool::after { content: none !important; }
+  body.dd-nav-open::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 8, 6, .28);
+    z-index: 125;
+  }
+}
+
+
+/* tool links must exist; they are only visually collapsed while the pill is closed */
+.dd-nav-pill .ddq-tool { display: inline-flex !important; }
+@media (max-width: 900px) {
+  .dd-nav-pill.open .ddq-tool { display: flex !important; }
+}
+
+@media (max-width: 900px) {
+  .dd-nav-pill .ddq { display: none !important; }
+  .dd-nav-pill.open { position: static !important; flex-direction: row; padding: 0; box-shadow: none; }
+}
+html[data-theme="dark"] .dd-menu-panel {
+  background: #17140f !important;
+  border-color: #3a352a !important;
+  color: #f3f0e7 !important;
+}
+html[data-theme="dark"] .dd-menu-panel .dd-link { color: #f3f0e7 !important; border-color: #3a352a !important; }
+html[data-theme="dark"] .dd-menu-panel .dd-link:hover { color: var(--accent) !important; background: color-mix(in srgb, var(--accent) 10%, transparent) !important; }
+html[data-theme="dark"] .dd-menu-bd { background: rgba(0, 0, 0, .55) !important; }
+
+/* dots must be blocks so width/height apply */
+.dd-dots b,
+.ah-dots b { display: block !important; }
+
+/* home Menu dots: transparent holder, one dim + one bright dot */
+.ah-menu .ah-dots {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  gap: 5px !important;
+  box-shadow: none !important;
+}
+.ah-menu .ah-dots b { background: currentColor !important; }
+.ah-menu .ah-dots b:first-child { opacity: .34 !important; }
+.ah-menu .ah-dots b:last-child { opacity: .95 !important; }
+.ah-menu:hover .ah-dots b,
+.ah-menu:focus-visible .ah-dots b { opacity: .92 !important; }
+
+.ah-menu .ah-dots {
+  background-color: #00000000 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+/* header Menu dots: same treatment as home (transparent holder, two ink dots) */
+.dd-dots {
+  background: transparent !important;
+  background-color: transparent !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  gap: 5px !important;
+}
+.dd-dots b {
+  display: block !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: currentColor !important;
+  opacity: .5 !important;
+}
+html[data-theme="dark"] .dd-dots b { opacity: .75 !important; }
+
+/* mobile menu scrim */
+.dd-menu-bd {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(10, 9, 7, .55) !important;
+  z-index: 0 !important;
+}
+.dd-menu-panel { position: relative; z-index: 1; }
+
+/* settings segmented control + swatches warm (no legacy navy) */
+.seg {
+  background: color-mix(in srgb, var(--ed-fg) 6%, transparent) !important;
+  border: 1px solid var(--ed-line) !important;
+  border-radius: 999px !important;
+}
+.seg button {
+  color: var(--ed-muted) !important;
+  background: transparent !important;
+  border-radius: 999px !important;
+}
+.seg button.active {
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+  font-weight: 700 !important;
+}
+.swatch { border-radius: 10px !important; }
+.swatch span { border-radius: 8px !important; }
+
+/* noER: accent-tinted fields, refs and markers (no legacy teal/blue) */
+.noer-head .dot { background: var(--accent) !important; }
+.noer-head .kind { color: var(--accent) !important; }
+.noer-field .ft {
+  color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+}
+.noer-field .fref {
+  color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+  font-weight: 700;
+}
+.noer-field .flag { background: var(--amber) !important; }
+.noer-field .flag.uniq { background: var(--accent) !important; }
+.noer-card.selected {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow) !important;
+}
+.noer-field-add:hover { color: var(--accent) !important; background: var(--accent-soft) !important; }
+html[data-theme="dark"] .noer-field .ft,
+html[data-theme="dark"] .noer-field .fref {
+  color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+}
+
+/* noER card headers follow accent too */
+.noer-head {
+  background: var(--accent-soft) !important;
+  border-bottom: 1px solid var(--ed-line) !important;
+}
+.noer-head .dot { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.noer-head .kind { opacity: .9; }
+html[data-theme="dark"] .noer-head { background: var(--accent-soft) !important; }
+
+@media (max-width: 760px) {
+  .dd-file-menu { position: relative; }
+  .dd-file-menu .dd-file-pop { left: auto !important; right: 0 !important; }
+}
+
+@media (max-width: 760px) {
+  .dd-file-pop {
+    position: fixed !important;
+    left: 12px !important;
+    right: 12px !important;
+    top: 116px !important;
+    width: auto !important;
+    max-height: 62vh;
+    overflow: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .dd-file-menu .dd-file-pop,
+  .tool-bar .dd-file-menu .dd-file-pop {
+    position: fixed !important;
+    left: 12px !important;
+    right: 12px !important;
+    top: 116px !important;
+    width: auto !important;
+  }
+}
+
+/* home/menu dots: distinct two-dot look + gentle pulse + hover nudge */
+@keyframes ahDotPulse {
+  0%, 100% { opacity: .3; }
+  50% { opacity: .7; }
+}
+.ah-menu .ah-dots b:first-child {
+  opacity: .34 !important;
+  animation: ahDotPulse 2.8s ease-in-out infinite;
+}
+.ah-menu .ah-dots b:last-child {
+  opacity: .95 !important;
+  animation: none !important;
+}
+.ah-menu:hover .ah-dots b:first-child,
+.ah-menu-wrap:hover .ah-dots b:first-child {
+  opacity: .6 !important;
+  transform: translateX(-1.5px);
+}
+.ah-menu:hover .ah-dots b:last-child,
+.ah-menu-wrap:hover .ah-dots b:last-child {
+  opacity: 1 !important;
+  transform: translateX(1.5px);
+}
+.dd-menu-btn .dd-dots b:first-child { opacity: .38 !important; }
+.dd-menu-btn .dd-dots b:last-child { opacity: .95 !important; }
+
+/* refine: no infinite dot pulse; keep distinct dots + hover nudge */
+.ah-menu .ah-dots b:first-child,
+.ah-menu .ah-dots b:last-child { animation: none !important; }
+.ah-menu .ah-dots b:first-child { opacity: .32 !important; }
+.ah-menu .ah-dots b:last-child { opacity: .95 !important; }
+.ah-menu:hover .ah-dots b:first-child,
+.ah-menu-wrap:hover .ah-dots b:first-child { opacity: .6 !important; transform: translateX(-1.5px); }
+.ah-menu:hover .ah-dots b:last-child,
+.ah-menu-wrap:hover .ah-dots b:last-child { opacity: 1 !important; transform: translateX(1.5px); }
+
+/* separator only useful with inline nav */
+.brand-sep { display: none !important; }
