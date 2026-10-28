@@ -2882,3 +2882,99 @@ html { color-scheme: light !important; }
   transform: translateY(-8px) scale(.97) !important;
   pointer-events: none !important;
 }
+
+/* ===== m11365: home menu dots (two dots, correct holder) ===== */
+.ah-menu-wrap .ah-menu .ah-dots {
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  gap: 5px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.ah-menu-wrap .ah-menu .ah-dots b {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: currentColor !important;
+  opacity: .34 !important;
+}
+.ah-menu-wrap .ah-menu .ah-dots b:last-child { opacity: .96 !important; }
+.ah-menu-wrap .ah-menu:hover .ah-dots b { opacity: .55 !important; }
+.ah-menu-wrap .ah-menu:hover .ah-dots b:last-child { opacity: 1 !important; }
+.ah-menu-wrap.open .ah-menu .ah-dots b { opacity: .55 !important; }
+.ah-menu-wrap.open .ah-menu .ah-dots b:last-child { opacity: 1 !important; }
+
+/* ===== m11365: mobile conflicts ===== */
+@media (max-width: 700px) {
+  body[data-route="er"] .canvas-legend,
+  body[data-route="noer"] .canvas-legend { display: none !important; }
+}
+@media (max-width: 640px) {
+  html .dd-menu .dd-menu-panel {
+    top: calc(var(--header-h) + 10px) !important;
+    bottom: auto !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-height: calc(100dvh - var(--header-h) - 26px) !important;
+    border-radius: 20px !important;
+    padding: 16px !important;
+  }
+  .tool .tool-bar {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 8px 10px !important;
+    row-gap: 6px !important;
+  }
+}
+
+/* ===== m11365: settings modal opaque + warm backdrop ===== */
+.modal-backdrop { background: color-mix(in srgb, #141310 42%, transparent) !important; }
+.modal { background: var(--ed-panel-solid, #fbf8f1) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+
+/* ===== m11365: translater mobile fills viewport, no blank tail ===== */
+@media (max-width: 640px) {
+  .tool.tr-tool {
+    height: calc(100dvh - var(--header-h)) !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - var(--header-h)) !important;
+    overflow: hidden !important;
+  }
+  .tool.tr-tool .tr-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: auto !important;
+    background: var(--panel) !important;
+  }
+  .tool.tr-tool .tr-pane {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+}
+
+/* ===== m11365: mobile quick bar scrolls instead of clipping ===== */
+@media (max-width: 640px) {
+  .m-quick {
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  .m-quick::-webkit-scrollbar { display: none !important; }
+  .m-quick .btn { flex: 0 0 auto !important; }
+}
+
+/* ===== m11365: header height must match real 68px on phones (beat :root,html[data-theme]) ===== */
+@media (max-width: 640px) {
+  :root, html[data-theme] { --header-h: 68px !important; }
+}
