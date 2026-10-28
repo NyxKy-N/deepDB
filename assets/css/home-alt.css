@@ -784,3 +784,17 @@ html[data-theme="light"] .althome { --ah-bg: #0c0c0a; }
 
 .ah-mark { box-shadow: 0 0 0 1px rgba(244, 243, 238, 0.28); }
 .ah-statement { height: 100vh; }
+
+/* word-by-word halftone reveal */
+.ah-hw {
+  display: inline-block;
+  font-style: normal;
+  opacity: 0.06;
+  will-change: opacity, transform;
+}
+.ah-halftone span { display: block; }
+.ah-statement .ah-halftone { pointer-events: none; }
+
+/* home menu pill behaves like a drawer trigger */
+.ah-menu { cursor: pointer; }
+body.dd-menu-open { overflow: hidden; }

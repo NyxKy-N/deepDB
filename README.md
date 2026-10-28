@@ -24,6 +24,24 @@ The landing page is an editorial, **Alt Shift–inspired** experience built from
 
 Interactions: scroll-scrubbed gradients, pinned sections, marquee bands, halftone reveals, pointer parallax, live clock and cursor coordinates. All copy stays in the three supported languages (tool names and code samples stay as-is), and every animation respects `prefers-reduced-motion`.
 
+The halftone statement reveals **word by word** as the section scrolls through the viewport, and the whole page shares the editorial type and colour system described below.
+
+---
+
+## Editorial interface
+
+The Alt Shift–inspired language is applied to **every page**, not just the landing page (`assets/css/editorial-ui.css`, loaded after `style.css`):
+
+- **Navigation** — floating pill links, an active pill, a rounded Settings pill and a **Menu** pill; the header floats over the content with a frosted-glass bar.
+- **Menu drawer** — hovering the Menu pill slides a full-height panel out from the **left** edge; clicking it pins the panel open. It contains designER, translatER, noER, designQT, Motion lab, **Settings** and **About**, plus author/helper credits. Close with the ✕, the backdrop or `Esc`.
+- **Buttons & controls** — every button is a pill with a translucent, backdrop-blurred surface; primary actions use the electric blue accent, destructive actions red; inputs, selects and segmented controls follow the same glass treatment.
+- **Panels, cards, tables, canvas** — translucent frosted panels with hairline borders and generous radii; the ER/RA/noER canvases sit inside an inset rounded frame.
+- **Menus, modals & toasts** — node menus, chip menus, the settings modal and toasts all use heavy gaussian blur (`backdrop-filter`) over the page.
+- **Typography** — Space Grotesk for UI, SF Mono for labels and counters (small uppercase, wide tracking), Anton reserved for display type. Same tokens drive light and dark themes: warm paper cream in light, near-black in dark.
+- **About page** (`index.html#/about`) — editorial hero with an `ABOUT` display title, cards for **the author (NyxKy)** and **the helper (Deepseek)** with avatars and links, followed by a project fact table (what it is, tools, stack, inspiration, source, licence).
+
+All new interface strings are translated into Chinese and Italian; the English build has no CJK leaks. Layouts are verified at 1440 / 1024 / 390 px with no horizontal overflow.
+
 ---
 
 ## Quick start

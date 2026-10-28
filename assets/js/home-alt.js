@@ -113,7 +113,7 @@
         '</div>' +
         '<a class="ah-mark" href="#/" aria-label="deepDB home"><span>DB</span></a>' +
         '<div class="ah-nav-right">' +
-          '<button class="ah-pill ah-menu" data-alt-settings><span>Menu</span><i class="ah-dots"><b></b><b></b></i></button>' +
+          '<button class="ah-pill ah-menu" data-menu-trigger aria-haspopup="dialog"><span>Menu</span><i class="ah-dots"><b></b><b></b></i></button>' +
         '</div>' +
       '</nav>' +
 
@@ -162,10 +162,10 @@
       '<section class="ah-statement" data-sec="statement">' +
         '<div class="ah-statement-sticky">' +
           '<div class="ah-halftone" aria-hidden="true">' +
-            '<span data-line="0">MODELS DRIFT.</span>' +
-            '<span data-line="1">SCHEMAS ALIGN.</span>' +
-            '<span data-line="2">DEEP.DB MAKES</span>' +
-            '<span data-line="3">THEM TALK.</span>' +
+            '<span data-line="0"><i class="ah-hw">MODELS</i> <i class="ah-hw">DRIFT.</i></span>' +
+            '<span data-line="1"><i class="ah-hw">SCHEMAS</i> <i class="ah-hw">ALIGN.</i></span>' +
+            '<span data-line="2"><i class="ah-hw">DEEP.DB</i> <i class="ah-hw">MAKES</i></span>' +
+            '<span data-line="3"><i class="ah-hw">THEM</i> <i class="ah-hw">TALK.</i></span>' +
           '</div>' +
           '<div class="ah-objs" aria-hidden="true">' +
             '<div class="ah-obj ah-obj-1"><span>ENTITY</span><b>Student( sid, sname, dept )</b><i>PK · sid</i></div>' +
@@ -204,7 +204,7 @@
         '<div class="ah-keys" aria-hidden="true">' + keys + '</div>' +
         '<div class="ah-fcols">' +
           '<div><h4>OUR LINKS</h4><a href="#/">HOME</a><a href="#/tools/er">DESIGNER</a><a href="#/tools/translater">TRANSLATER</a><a href="#/tools/noer">NOER</a><a href="#/tools/ra">DESIGNQT</a></div>' +
-          '<div><h4>MORE</h4><a href="#/lab">MOTION LAB</a><a href="https://github.com/NyxKy-N/deepDB" target="_blank" rel="noopener">GITHUB</a><a href="README.md" target="_blank" rel="noopener">README</a></div>' +
+          '<div><h4>MORE</h4><a href="#/lab">MOTION LAB</a><a href="#/about">ABOUT</a><a href="https://github.com/NyxKy-N/deepDB" target="_blank" rel="noopener">GITHUB</a><a href="README.md" target="_blank" rel="noopener">README</a></div>' +
           '<div><h4>CONTACT</h4><a href="https://github.com/NyxKy-N/deepDB" target="_blank" rel="noopener">GITHUB / NYXKY-N</a><a href="#/" data-alt-settings>SETTINGS</a><a href="https://www.deepseek.com" target="_blank" rel="noopener">HELPER · DEEPSEEK</a></div>' +
         '</div>' +
         '<div class="ah-copy"><span>© 2026 DEEPDB®</span><span class="ah-copy-r">MODELS DESIGNED DIFFERENTLY</span></div>' +
@@ -254,6 +254,7 @@
     var workBar = root.querySelector('#ahWorkBar');
     var statement = root.querySelector('.ah-statement');
     var lines = Array.prototype.slice.call(root.querySelectorAll('.ah-halftone span'));
+    var hwords = Array.prototype.slice.call(root.querySelectorAll('.ah-hw'));
     var objs = Array.prototype.slice.call(root.querySelectorAll('.ah-obj'));
     var services = root.querySelector('.ah-services');
     var serviceEls = Array.prototype.slice.call(root.querySelectorAll('.ah-service'));
@@ -313,10 +314,13 @@
       var sr = statement.getBoundingClientRect();
       var sp = clamp((vh - sr.top) / (vh + sr.height * 0.35));
       lines.forEach(function (ln, i) {
-        var t = clamp((sp - i * 0.09) * 2.3);
-        ln.style.opacity = String(0.08 + t * 0.92);
-        ln.style.transform = 'translate3d(0,' + (1 - t) * 26 + 'px,0)';
+        var t = clamp((sp - i * 0.09) * 2.6);
         ln.style.setProperty('--ha', String(0.35 + t * 0.65));
+      });
+      hwords.forEach(function (w, i) {
+        var t = clamp((sp - i * 0.075) * 3.4);
+        w.style.opacity = String(0.06 + t * 0.94);
+        w.style.transform = 'translate3d(0,' + (1 - t) * 34 + 'px,0)';
       });
       objs.forEach(function (o, i) {
         var t = clamp(sp * 1.2);

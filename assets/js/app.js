@@ -21,6 +21,7 @@
   };
 
   ROUTES['lab'] = { key: 'lab', nav: '', title: 'deepDB · Motion lab' };
+  ROUTES['about'] = { key: 'about', nav: '', title: 'About · deepDB' };
 
   /* ---------------- 主题 ---------------- */
   const THEME_KEY = 'designerdb:v1:theme';
@@ -583,6 +584,167 @@
     bindHomeMotion();
   }
 
+  /* ---------------- About page ---------------- */
+  function showAbout() {
+    if (altUnmount) { try { altUnmount(); } catch (e) {} altUnmount = null; }
+    view.classList.remove('view--tool', 'view--althome');
+    view.innerHTML = [
+      '<div class="aboutpage">',
+      '  <section class="about-hero">',
+      '    <a class="btn btn--sm about-back" href="#/"><span>← HOME</span></a>',
+      '    <div class="about-label">( ABOUT DEEPDB )</div>',
+      '    <h1 class="about-title">ABOUT</h1>',
+      '    <p class="about-lead">A tiny database-design studio in the browser. Four tools, three languages, two themes — drawn by one author and helped by one very patient whale.</p>',
+      '  </section>',
+      '  <div class="about-grid">',
+      '    <article class="about-card">',
+      '      <div class="about-card-head">',
+      '        <img class="about-avatar" src="assets/img/avatar.jpg" alt="NyxKy" loading="lazy">',
+      '        <div><div class="about-label">AUTHOR</div><h2>NyxKy</h2></div>',
+      '      </div>',
+      '      <p>Designs and codes deepDB. Draws ER models for fun, then argues with the foreign-key checker.</p>',
+      '      <div class="about-tags"><span>DESIGN</span><span>FRONT-END</span><span>ER MODELLING</span></div>',
+      '      <div class="about-links">',
+      '        <a href="https://github.com/NyxKy-N" target="_blank" rel="noopener"><span>GITHUB ↗</span></a>',
+      '        <a href="https://github.com/NyxKy-N/deepDB" target="_blank" rel="noopener"><span>REPO ↗</span></a>',
+      '      </div>',
+      '    </article>',
+      '    <article class="about-card">',
+      '      <div class="about-card-head">',
+      '        <img class="about-avatar dark" src="assets/img/deepseek.png" alt="Deepseek" loading="lazy">',
+      '        <div><div class="about-label">HELPER</div><h2>Deepseek</h2></div>',
+      '      </div>',
+      '      <p>Mascot, rubber duck and co-author of the long patches. Stays calm while the layout gets rebuilt for the ninth time.</p>',
+      '      <div class="about-tags"><span>CODE</span><span>COPY</span><span>DESIGN FEEDBACK</span></div>',
+      '      <div class="about-links">',
+      '        <a href="https://www.deepseek.com" target="_blank" rel="noopener"><span>DEEPSEEK ↗</span></a>',
+      '      </div>',
+      '    </article>',
+      '  </div>',
+      '  <div class="about-table">',
+      '    <div class="about-row"><b>WHAT IT IS</b><span>A pure-static teaching site for relational and document models — no build step, no server, no upload. Models stay in your browser.</span></div>',
+      '    <div class="about-row"><b>TOOLS</b><span><a href="#/tools/er">designER</a> · <a href="#/tools/translater">translatER</a> · <a href="#/tools/noer">noER</a> · <a href="#/tools/ra">designQT basic</a> — plus a <a href="#/lab">Motion lab</a> preview page.</span></div>',
+      '    <div class="about-row"><b>STACK</b><span>Vanilla HTML / CSS / JavaScript. Classic scripts, localStorage drafts, CSS-first motion. Fonts: Anton, Space Grotesk, Instrument Serif.</span></div>',
+      '    <div class="about-row"><b>INSPIRATION</b><span>Tool set modelled on <a href="https://designerdb.io/#tools" target="_blank" rel="noopener">designerdb.io</a>; the editorial home language nods to <a href="https://altshift.agency/" target="_blank" rel="noopener">altshift.agency</a>.</span></div>',
+      '    <div class="about-row"><b>SOURCE</b><span><a href="https://github.com/NyxKy-N/deepDB" target="_blank" rel="noopener">github.com/NyxKy-N/deepDB</a> · <a href="https://deepdbweb.vercel.app/#/" target="_blank" rel="noopener">deepdbweb.vercel.app</a></span></div>',
+      '    <div class="about-row"><b>LICENCE</b><span>© 2026 deepDB® — models designed differently. Content and code by the author; helper credits to Deepseek.</span></div>',
+      '  </div>',
+      '</div>',
+    ].join('\n');
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------------- Global menu drawer ---------------- */
+  let menuPinned = false;
+  let menuCloseTimer = 0;
+  let menuDrawer = null;
+  let menuBound = false;
+
+  function buildMenuDrawer() {
+    if (menuDrawer) return menuDrawer;
+    const el = document.createElement('div');
+    el.className = 'dd-menu';
+    el.id = 'ddMenu';
+    el.innerHTML = [
+      '<div class="dd-menu-bd" data-menu-close></div>',
+      '<nav class="dd-menu-panel" aria-label="Menu">',
+      '  <div class="dd-menu-top"><span class="dd-mono">( MENU )</span><button type="button" class="dd-menu-x" data-menu-close>CLOSE ✕</button></div>',
+      '  <div class="dd-menu-links">',
+      '    <a class="dd-link" href="#/tools/er" data-menu-nav><span class="dd-num">01</span><b>designER</b><i>↗</i></a>',
+      '    <a class="dd-link" href="#/tools/translater" data-menu-nav><span class="dd-num">02</span><b>translatER</b><i>↗</i></a>',
+      '    <a class="dd-link" href="#/tools/noer" data-menu-nav><span class="dd-num">03</span><b>noER</b><i>↗</i></a>',
+      '    <a class="dd-link" href="#/tools/ra" data-menu-nav><span class="dd-num">04</span><b>designQT</b><i>↗</i></a>',
+      '    <a class="dd-link" href="#/lab" data-menu-nav><span class="dd-num">05</span><b>Motion lab</b><i>↗</i></a>',
+      '  </div>',
+      '  <div class="dd-menu-foot">',
+      '    <button type="button" class="dd-link" data-menu-settings><span class="dd-num">06</span><b>Settings</b><i>↗</i></button>',
+      '    <a class="dd-link" href="#/about" data-menu-nav><span class="dd-num">07</span><b>About</b><i>↗</i></a>',
+      '    <div class="dd-mono dd-menu-meta"><span>AUTHOR · NYXKY</span><span>HELPER · DEEPSEEK</span></div>',
+      '  </div>',
+      '</nav>',
+    ].join('\n');
+    document.body.appendChild(el);
+    menuDrawer = el;
+    var panel = el.querySelector('.dd-menu-panel');
+    panel.addEventListener('pointerenter', function () {
+      window.clearTimeout(menuCloseTimer);
+    });
+    panel.addEventListener('pointerleave', function () {
+      if (menuPinned) return;
+      window.clearTimeout(menuCloseTimer);
+      menuCloseTimer = window.setTimeout(function () { if (!menuPinned) closeMenuDrawer(false); }, 240);
+    });
+    el.addEventListener('click', function (e) {
+      const close = e.target.closest('[data-menu-close]');
+      const nav = e.target.closest('[data-menu-nav]');
+      const set = e.target.closest('[data-menu-settings]');
+      if (close) { closeMenuDrawer(true); return; }
+      if (nav) { closeMenuDrawer(true); return; }
+      if (set) {
+        e.preventDefault();
+        closeMenuDrawer(true);
+        openSettings(set);
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && menuDrawer && menuDrawer.classList.contains('on')) closeMenuDrawer(true);
+    });
+    return el;
+  }
+
+  function openMenuDrawer() {
+    const el = buildMenuDrawer();
+    window.clearTimeout(menuCloseTimer);
+    el.classList.add('on');
+    el.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('dd-menu-open');
+  }
+
+  function closeMenuDrawer(force) {
+    const el = buildMenuDrawer();
+    if (!force && menuPinned) return;
+    menuPinned = false;
+    el.classList.remove('on');
+    el.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('dd-menu-open');
+  }
+
+  function bindMenuTriggers() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-menu-trigger]'), function (btn) {
+      if (btn.__ddMenuBound) return;
+      btn.__ddMenuBound = true;
+      btn.addEventListener('pointerenter', function () {
+        if (window.matchMedia && window.matchMedia('(hover: none)').matches) return;
+        openMenuDrawer();
+      });
+      btn.addEventListener('pointerleave', function () {
+        if (menuPinned) return;
+        window.clearTimeout(menuCloseTimer);
+        menuCloseTimer = window.setTimeout(function () { if (!menuPinned) closeMenuDrawer(false); }, 240);
+      });
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const open = menuDrawer && menuDrawer.classList.contains('on');
+        if (open && menuPinned) { closeMenuDrawer(true); return; }
+        menuPinned = true;
+        openMenuDrawer();
+      });
+    });
+  }
+
+  function ensureHeaderMenu() {
+    const right = document.querySelector('.app-header .header-right');
+    if (!right || right.querySelector('[data-menu-trigger]')) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'dd-menu-btn';
+    btn.setAttribute('data-menu-trigger', '');
+    btn.innerHTML = '<span>Menu</span><i class="dd-dots"><b></b><b></b></i>';
+    right.insertBefore(btn, right.firstChild);
+    bindMenuTriggers();
+  }
+
   /* 两侧面板：可折叠 / 展开，状态跨工具与刷新保留 */
   const PANEL_KEY = 'designerdb:v1:panels';
 
@@ -939,13 +1101,18 @@
     if (altUnmount) { try { altUnmount(); } catch (e) {} altUnmount = null; }
     view.classList.remove('view--althome');
     if (window.DDB_HOMEALT) document.body.setAttribute('data-route', route.key);
+    document.body.classList.add('dd-ed');
+    if (menuDrawer) closeMenuDrawer(true);
     document.title = route.title;
     setActiveNav(route);
     // 先把旧内容摘下（保留缓存，便于切换后继续编辑）
     while (view.firstChild) view.removeChild(view.firstChild);
     if (route.key === 'home') showHome();
     else if (route.key === 'lab') showLab();
+    else if (route.key === 'about') showAbout();
     else showTool(route);
+    ensureHeaderMenu();
+    bindMenuTriggers();
     // 页面切换动效
     view.classList.remove('is-entering');
     void view.offsetWidth;
