@@ -109,7 +109,6 @@
       '<nav class="ah-nav">' +
         '<div class="ah-nav-left">' +
           '<a class="ah-pill" href="#/tools/er"><span>Let\'s build</span><i class="ah-arrow">↗</i></a>' +
-          '<a class="ah-round" href="#/lab" aria-label="Motion lab">↻</a>' +
         '</div>' +
         '<a class="ah-mark" href="#/" aria-label="deepDB home"><span>DB</span></a>' +
         '<div class="ah-nav-right">' +
@@ -208,7 +207,7 @@
         '<div class="ah-keys" aria-hidden="true">' + keys + '</div>' +
         '<div class="ah-fcols">' +
           '<div><h4>OUR LINKS</h4><a href="#/">HOME</a><a href="#/tools/er">DESIGNER</a><a href="#/tools/translater">TRANSLATER</a><a href="#/tools/noer">NOER</a><a href="#/tools/ra">DESIGNQT</a></div>' +
-          '<div><h4>MORE</h4><a href="#/lab">MOTION LAB</a><a href="#/about">ABOUT</a><a href="https://github.com/NyxKy-N/deepDB" target="_blank" rel="noopener">GITHUB</a><a href="README.md" target="_blank" rel="noopener">README</a></div>' +
+          '<div><h4>MORE</h4><a href="#/about">ABOUT</a><a href="https://github.com/NyxKy-N/deepDB" target="_blank" rel="noopener">GITHUB</a><a href="README.md" target="_blank" rel="noopener">README</a></div>' +
           '<div><h4>CONTACT</h4><a href="https://github.com/NyxKy-N/deepDB" target="_blank" rel="noopener">GITHUB / NYXKY-N</a><a href="#/" data-alt-settings>SETTINGS</a><a href="https://www.deepseek.com" target="_blank" rel="noopener">HELPER · DEEPSEEK</a></div>' +
         '</div>' +
         '<div class="ah-copy"><span>© 2026 DEEPDB®</span><span class="ah-copy-r">MODELS DESIGNED DIFFERENTLY</span></div>' +

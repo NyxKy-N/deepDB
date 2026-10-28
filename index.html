@@ -13,6 +13,12 @@
     var t = localStorage.getItem('designerdb:v1:theme') || 'system';
     var dark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    var accents = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple'];
+    var accent = localStorage.getItem('designerdb:v1:accent');
+    if (accents.indexOf(accent) < 0) accent = 'blue';
+    document.documentElement.setAttribute('data-accent', accent);
+    var map = { red: '#d93b35', orange: '#e06a24', yellow: '#d5a01d', green: '#2f8f57', cyan: '#1d8b9b', blue: '#1b18ff', purple: '#7a3edb' };
+    document.documentElement.style.setProperty('--accent', map[accent]);
   } catch (e) {}
 </script>
 <link rel="stylesheet" href="assets/css/style.css">
@@ -47,7 +53,6 @@
 <script src="assets/js/noer.js"></script>
 <script src="assets/js/ra.js"></script>
 <script src="assets/js/translater.js"></script>
-  <script src="assets/js/lab.js"></script>
 <script src="assets/js/home-alt.js"></script>
   <script src="assets/js/app.js"></script>
 </body>

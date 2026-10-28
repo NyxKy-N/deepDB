@@ -12,7 +12,20 @@
   const view = document.getElementById('view');
   const nav = document.getElementById('appNav');
 
-  const ROUTES = {
+  (function () {
+  var D = window.DDB_I18N_DICT;
+  if (!D) return;
+  if (D.en && D.en.texts) {
+    D.en.texts['强调色'] = 'Accent color';
+    D.en.texts['只改变按钮、链接与高亮等强调色，不影响界面底色。'] = 'Changes buttons, links, focus rings and highlights only — not the page background.';
+  }
+  if (D.it && D.it.texts) {
+    D.it.texts['强调色'] = 'Colore accento';
+    D.it.texts['只改变按钮、链接与高亮等强调色，不影响界面底色。'] = 'Cambia solo pulsanti, link, focus ed evidenziazioni, non lo sfondo della pagina.';
+  }
+})();
+
+const ROUTES = {
     '': { key: 'home', nav: 'home', title: 'deepDB · Database design teaching tools' },
     'tools/er': { key: 'er', nav: 'er', title: 'designER · Relational design' },
     'tools/noer': { key: 'noer', nav: 'noer', title: 'noER · Document database design' },
@@ -20,7 +33,6 @@
     'tools/translater': { key: 'translater', nav: 'translater', title: 'translatER · ER → relational schema' }
   };
 
-  ROUTES['lab'] = { key: 'lab', nav: '', title: 'deepDB · Motion lab' };
   ROUTES['about'] = { key: 'about', nav: '', title: 'About · deepDB' };
 
   /* ---------------- 主题 ---------------- */
@@ -58,6 +70,41 @@
       );
     }).catch(function () { });
   }
+  /* ---------------- 强调色 ---------------- */
+  const ACCENT_KEY = 'designerdb:v1:accent';
+  const ACCENTS = [
+    { id: 'red', hex: '#d93b35', ink: '#ffffff' },
+    { id: 'orange', hex: '#e06a24', ink: '#ffffff' },
+    { id: 'yellow', hex: '#d5a01d', ink: '#1b1505' },
+    { id: 'green', hex: '#2f8f57', ink: '#ffffff' },
+    { id: 'cyan', hex: '#1d8b9b', ink: '#ffffff' },
+    { id: 'blue', hex: '#1b18ff', ink: '#ffffff' },
+    { id: 'purple', hex: '#7a3edb', ink: '#ffffff' }
+  ];
+  const accentOf = function (id) {
+    for (let i = 0; i < ACCENTS.length; i++) if (ACCENTS[i].id === id) return ACCENTS[i];
+    return ACCENTS[5];
+  };
+  function readAccent() {
+    try { return accentOf(localStorage.getItem(ACCENT_KEY)).id; } catch (err) { return 'blue'; }
+  }
+  function faviconFor(hex) {
+    const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='18' fill='" + hex + "'/><text x='32' y='45' font-family='Helvetica,Arial' font-size='34' font-weight='700' fill='%23ffffff' text-anchor='middle'>d</text></svg>";
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+  }
+  function applyAccent(id, originEvent) {
+    const a = accentOf(id);
+    const el = document.documentElement;
+    el.setAttribute('data-accent', a.id);
+    el.style.setProperty('--accent', a.hex);
+    el.style.setProperty('--accent-ink', a.ink);
+    try { localStorage.setItem(ACCENT_KEY, a.id); } catch (err) { }
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', a.hex);
+    const icon = document.querySelector('link[rel="icon"]');
+    if (icon) icon.setAttribute('href', faviconFor(a.hex));
+  }
+
   if (mq) {
     const onScheme = function () { if (readTheme() === 'system') applyTheme('system'); };
     if (mq.addEventListener) mq.addEventListener('change', onScheme);
@@ -89,7 +136,13 @@
       body: [
         '<div class="set-block"><div class="set-label">语言</div>' + seg('lang', langs, lang) + '</div>',
         '<div class="set-block"><div class="set-label">主题</div>' + seg('theme', themes, theme) +
-        '<div class="hint">跟随系统时自动切换深浅色。</div></div>'
+        '<div class="hint">跟随系统时自动切换深浅色。</div></div>' +
+        '<div class="set-block"><div class="set-label">强调色</div><div class="swatches" role="group" aria-label="accent">' +
+        ACCENTS.map(function (a) {
+          const on = a.id === readAccent();
+          return '<button type="button" class="swatch' + (on ? ' active' : '') + '" data-set-accent="' + a.id + '" style="--sw:' + a.hex + '" aria-label="' + a.id + '" aria-pressed="' + (on ? 'true' : 'false') + '"><span></span></button>';
+        }).join('') +
+        '</div><div class="hint">只改变按钮、链接与高亮等强调色，不影响界面底色。</div></div>'
       ].join(''),
       actions: [{ label: '完成', primary: true, onClick: function (close) { close(); } }]
     });
@@ -100,6 +153,17 @@
         if (window.DDB_I18N) window.DDB_I18N.setLang(next);
         m.querySelectorAll('[data-set-lang]').forEach(function (b) {
           const on = b.getAttribute('data-set-lang') === next;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        return;
+      }
+      const ab = e.target.closest('[data-set-accent]');
+      if (ab) {
+        const nextAccent = ab.getAttribute('data-set-accent');
+        applyAccent(nextAccent, e);
+        m.querySelectorAll('[data-set-accent]').forEach(function (b) {
+          const on = b.getAttribute('data-set-accent') === nextAccent;
           b.classList.toggle('active', on);
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
@@ -270,8 +334,7 @@
       '    <p class="lede">四个工具：画 ER、翻译成关系模式、设计文档模型、搭关系代数。全部在浏览器里完成。</p>',
       '    <div class="hero-actions">',
       '      <a class="btn btn--primary" href="#/tools/er">打开 designER</a>',
-      '      <a class="btn btn--ghost" href="#/tools/translater">translatER →</a>',
-      '      <a class="btn btn--ghost" href="#/lab">Motion lab →</a>',
+      '      <a class="btn btn--ghost" href="#/tools/translater">translatER →</a>',,
       '    </div>',
       '    <div class="hero-badges">' + heroBadges + '</div>',
       '  </div>',
@@ -370,8 +433,7 @@
       '      <p class="hint footer-author footer-author--deepseek"><img class="author-avatar" src="assets/img/deepseek.png" alt="" width="30" height="30">助手 · Deepseek</p>',
       '      <p class="hint footer-repo"><a href="https://github.com/NyxKy-N/deepDB.git" target="_blank" rel="noopener">github.com/NyxKy-N/deepDB</a></p>',
       '    </div>',
-      '    <div class="footer-cols">',
-      '      <div class="footer-col"><h5>工具</h5><a href="#/tools/er">designER</a><a href="#/tools/translater">translatER</a><a href="#/tools/noer">noER</a><a href="#/tools/ra">designQT basic</a><a href="#/lab">Motion lab</a></div>',
+      '    <div class="footer-cols">',,
       '      <div class="footer-col"><h5>页面</h5><a href="#/">首页</a><a href="#/">建模工作流</a></div>',
       '      <div class="footer-col"><h5>说明</h5><p class="hint">模型自动保留在浏览器中</p><p class="hint">快捷键：Ctrl+Z / Ctrl+Y / Delete / Esc</p></div>',
       '    </div>',
@@ -487,7 +549,7 @@
     /* 界面片段：筛选 + 放大 */
     const gcards = Array.prototype.slice.call(home.querySelectorAll('.g-card'));
     const gbtns = Array.prototype.slice.call(home.querySelectorAll('.g-filter-btn'));
-    const toolHref = { er: '#/tools/er', rel: '#/tools/translater', doc: '#/tools/noer', ra: '#/tools/ra', ui: '#/lab' };
+    const toolHref = { er: '#/tools/er', rel: '#/tools/translater', doc: '#/tools/noer', ra: '#/tools/ra' };
     function applyFilter(key) {
       gbtns.forEach(function (b) {
         const on = b.getAttribute('data-filter') === key;
@@ -622,8 +684,7 @@
       '    </article>',
       '  </div>',
       '  <div class="about-table">',
-      '    <div class="about-row"><b>WHAT IT IS</b><span>A pure-static teaching site for relational and document models — no build step, no server, no upload. Models stay in your browser.</span></div>',
-      '    <div class="about-row"><b>TOOLS</b><span><a href="#/tools/er">designER</a> · <a href="#/tools/translater">translatER</a> · <a href="#/tools/noer">noER</a> · <a href="#/tools/ra">designQT basic</a> — plus a <a href="#/lab">Motion lab</a> preview page.</span></div>',
+      '    <div class="about-row"><b>WHAT IT IS</b><span>A pure-static teaching site for relational and document models — no build step, no server, no upload. Models stay in your browser.</span></div>',,
       '    <div class="about-row"><b>STACK</b><span>Vanilla HTML / CSS / JavaScript. Classic scripts, localStorage drafts, CSS-first motion. Fonts: Anton, Space Grotesk, Instrument Serif.</span></div>',
       '    <div class="about-row"><b>INSPIRATION</b><span>Tool set modelled on <a href="https://designerdb.io/#tools" target="_blank" rel="noopener">designerdb.io</a>; the editorial home language nods to <a href="https://altshift.agency/" target="_blank" rel="noopener">altshift.agency</a>.</span></div>',
       '    <div class="about-row"><b>SOURCE</b><span><a href="https://github.com/NyxKy-N/deepDB" target="_blank" rel="noopener">github.com/NyxKy-N/deepDB</a> · <a href="https://deepdbweb.vercel.app/#/" target="_blank" rel="noopener">deepdbweb.vercel.app</a></span></div>',
@@ -654,8 +715,7 @@
       '    <a class="dd-link" href="#/tools/er" data-menu-nav><span class="dd-num">01</span><b>designER</b><i>↗</i></a>',
       '    <a class="dd-link" href="#/tools/translater" data-menu-nav><span class="dd-num">02</span><b>translatER</b><i>↗</i></a>',
       '    <a class="dd-link" href="#/tools/noer" data-menu-nav><span class="dd-num">03</span><b>noER</b><i>↗</i></a>',
-      '    <a class="dd-link" href="#/tools/ra" data-menu-nav><span class="dd-num">04</span><b>designQT</b><i>↗</i></a>',
-      '    <a class="dd-link" href="#/lab" data-menu-nav><span class="dd-num">05</span><b>Motion lab</b><i>↗</i></a>',
+      '    <a class="dd-link" href="#/tools/ra" data-menu-nav><span class="dd-num">04</span><b>designQT</b><i>↗</i></a>',,
       '  </div>',
       '  <div class="dd-menu-foot">',
       '    <button type="button" class="dd-link" data-menu-settings><span class="dd-num">06</span><b>Settings</b><i>↗</i></button>',
@@ -758,7 +818,6 @@
     if (right.querySelector('[data-nav-pill]')) return;
     right.innerHTML =
       '<div class="dd-nav-pill" data-nav-pill>' +
-      '  <a class="ddq ddq-lab" href="#/lab"><span>Motion lab</span><i>↗</i></a>' +
       '  <button type="button" class="ddq" data-hdr-settings><span>Settings</span><i>↗</i></button>' +
       '  <a class="ddq" href="#/about"><span>About</span><i>↗</i></a>' +
       '  <button type="button" class="dd-menu-btn" data-menu-trigger aria-expanded="false"><span>Menu</span><i class="dd-dots"><b></b><b></b></i></button>' +
@@ -1135,15 +1194,6 @@
     home.querySelectorAll('.home-section').forEach(function (el) { el.classList.add('is-visible'); });
     updateReveal();
   }
-  let labUnmount = null;
-  function showLab() {
-    if (labUnmount) { try { labUnmount(); } catch (e) {} labUnmount = null; }
-    view.classList.remove('view--tool');
-    view.innerHTML = window.DDB_LAB ? window.DDB_LAB.html() : '<div class="home"><div class="err-note">Motion lab not loaded.</div></div>';
-    if (window.DDB_LAB) labUnmount = window.DDB_LAB.mount(view);
-    window.scrollTo(0, 0);
-  }
-
   function render() {
     const route = parseRoute();
     if (altUnmount) { try { altUnmount(); } catch (e) {} altUnmount = null; }
@@ -1156,7 +1206,6 @@
     // 先把旧内容摘下（保留缓存，便于切换后继续编辑）
     while (view.firstChild) view.removeChild(view.firstChild);
     if (route.key === 'home') showHome();
-    else if (route.key === 'lab') showLab();
     else if (route.key === 'about') showAbout();
     else showTool(route);
     ensureHeaderMenu();
@@ -1206,6 +1255,7 @@
   });
 
   applyTheme(readTheme());
+  applyAccent(readAccent());
   window.addEventListener('hashchange', render);
   if (!location.hash) location.replace('#/');
   render();

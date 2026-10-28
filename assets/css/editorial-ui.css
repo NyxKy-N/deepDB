@@ -1889,3 +1889,233 @@ html[data-theme="dark"] .er-entity-name { font-weight: 650; }
     transition: opacity 0.28s ease, transform 0.28s ease;
   }
 }
+
+
+/* ============================================================
+   m09968 · v1.5.3 accents, radii, icons, spacing, hover, dock
+   ============================================================ */
+
+/* 1. seven accent palettes — only accents change, UI base stays */
+:root {
+  --accent: #1b18ff;
+  --accent-ink: #ffffff;
+  --accent-hover: color-mix(in srgb, var(--accent) 84%, #000);
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+html[data-theme="dark"] {
+  --accent-hover: color-mix(in srgb, var(--accent) 82%, #fff);
+}
+html,
+html[data-theme="light"],
+html[data-theme="dark"] {
+  --primary: var(--accent) !important;
+  --primary-dark: var(--accent-hover) !important;
+  --primary-soft: var(--accent-soft) !important;
+  --ed-accent: var(--accent) !important;
+  --ah-blue: var(--accent) !important;
+  --accent-ink: var(--accent-ink);
+}
+html[data-accent="red"] { --accent: #d93b35; }
+html[data-accent="orange"] { --accent: #e06a24; }
+html[data-accent="yellow"] { --accent: #d5a01d; }
+html[data-accent="green"] { --accent: #2f8f57; }
+html[data-accent="cyan"] { --accent: #1d8b9b; }
+html[data-accent="blue"] { --accent: #1b18ff; }
+html[data-accent="purple"] { --accent: #7a3edb; }
+
+.btn--primary,
+.btn--primary:hover,
+.ah-pill-primary,
+.tab.active,
+.seg .active,
+.swatch.active {
+  background-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent-ink) !important;
+}
+.btn--primary:hover { background-color: var(--accent-hover) !important; border-color: var(--accent-hover) !important; }
+.seg .active { background-color: var(--accent-soft) !important; color: var(--accent) !important; border-color: color-mix(in srgb, var(--accent) 34%, transparent) !important; }
+.tab.active { color: var(--accent-ink) !important; }
+a, .ah-menu-link i, .ddq i { }
+.ah-word-dot { color: var(--accent) !important; background: none !important; }
+.wo-dot, .hero-art .hb-dot { background: var(--accent) !important; }
+.menu-drawer .dd-link:hover b { color: var(--accent) !important; }
+.er-node.is-selected, .er-entity.is-selected, .noer-card.is-selected, .a-node.is-selected { border-color: var(--accent) !important; }
+.er-attr-node.is-selected { border-color: var(--accent) !important; box-shadow: 0 0 0 4px var(--accent-soft); }
+.er-edge-label .card { border-color: color-mix(in srgb, var(--accent) 40%, transparent) !important; }
+.er-rel-kind, .er-entity-kind { color: var(--accent) !important; }
+
+/* accent swatches in settings */
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 2px; }
+.swatch {
+  width: 32px; height: 32px; padding: 0; border: 0; border-radius: 999px;
+  background: var(--sw); cursor: pointer; position: relative;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.12), 0 4px 10px rgba(0,0,0,.16);
+  corner-shape: squircle;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.swatch span { position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(120% 90% at 28% 18%, rgba(255,255,255,.45), transparent 60%); }
+.swatch:hover { transform: translateY(-2px) scale(1.05); box-shadow: inset 0 0 0 1px rgba(0,0,0,.14), 0 8px 18px rgba(0,0,0,.22); }
+.swatch.active { box-shadow: inset 0 0 0 1px rgba(0,0,0,.14), 0 0 0 3px var(--panel, #fff), 0 0 0 5px var(--sw); }
+
+/* 2. slightly larger corners */
+.btn, .tool-bar .btn, .zoom-chip, .seg, .seg button, .tab, .search input, .dbms-select, .fmt-select { border-radius: 14px; }
+.tool-row, .step, .feature, .start-card, .about-card, .contatt-card, .rel-card, .mode-card, .settings-panel { border-radius: 22px; }
+.er-entity, .er-rel, .noer-card, .a-node, .ra-node, .modal-card, .modal-box { border-radius: 16px; }
+.er-entity-head { border-radius: 14px 14px 0 0; }
+.insp-section .btn, .insp-section select, .insp-section input { border-radius: 12px; }
+.dd-menu-btn, .ah-menu, .ah-pill, .dd-nav-pill, .ah-menu-wrap { border-radius: 999px; }
+.swing-card, .ah-obj, .postcard { border-radius: 18px; }
+
+/* 3. home menu button matches the workspace capsule */
+.ah-menu-wrap {
+  height: 52px;
+  padding: 0 8px;
+  gap: 2px;
+}
+.ah-menu-wrap .ah-menu {
+  height: 38px;
+  padding: 0 6px 0 12px;
+  font: 600 13px/1 var(--sans, system-ui);
+  gap: 10px;
+}
+.ah-menu-wrap .ah-menu .ah-dots {
+  width: 34px; height: 34px; gap: 4px;
+  background: #14130f !important;
+  border-radius: 999px;
+  corner-shape: squircle;
+}
+.ah-menu-wrap .ah-menu .ah-dots b { width: 4px; height: 4px; border-radius: 999px; background: #f7f5ef; }
+.ah-menu-wrap.open .ah-menu .ah-dots { transform: rotate(180deg); }
+.ah-menu-wrap .ah-menu:hover { background: rgba(20, 19, 15, 0.07) !important; }
+.ah-menu-link { font: 500 12.5px/1 var(--sans, system-ui); }
+.ah-menu-link:hover i { transform: translate(2px, -2px); }
+.ah-menu-wrap .ah-menu, .ah-menu-link i { transition: background .2s ease, transform .22s ease; }
+
+/* 4. ER left panel buttons: icon + trilingual label, roomier */
+.er-add-btn {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px !important;
+  font-weight: 600;
+  letter-spacing: .01em;
+  border-radius: 14px;
+}
+.er-add-btn + .er-add-btn { margin-top: 12px; }
+.er-add-btn .er-ico { display: inline-flex; width: 17px; height: 17px; color: var(--accent); flex: 0 0 17px; }
+.er-add-btn .er-ico svg { width: 17px; height: 17px; display: block; }
+.er-add-btn .cn { font-size: 13.5px; }
+.er-add-btn .en { font-size: 11.5px; opacity: .55; letter-spacing: .06em; text-transform: uppercase; }
+.er-add-btn .it { font-size: 11.5px; opacity: .55; letter-spacing: .04em; text-transform: uppercase; }
+.er-add-btn .cn + .en, .er-add-btn .cn + .it { margin-left: 2px; }
+html[lang^="zh"] .er-add-btn .en,
+html[lang^="zh"] .er-add-btn .it { display: none; }
+html[lang="en"] .er-add-btn .cn,
+html[lang="en"] .er-add-btn .it { display: none; }
+html[lang="it"] .er-add-btn .cn,
+html[lang="it"] .er-add-btn .en { display: none; }
+
+/* legend icons */
+.canvas-legend { display: flex; align-items: center; gap: 14px; }
+.canvas-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.canvas-legend .lg-ico { display: inline-flex; width: 14px; height: 14px; border: 0 !important; background: none !important; padding: 0 !important; }
+.canvas-legend .lg-ico svg { width: 14px; height: 14px; display: block; color: var(--accent); }
+.canvas-legend .lg-ico .er-ico-primary { color: var(--accent); }
+
+/* 5. workspace bottom bar flush to the edge */
+.tool-canvas .canvas-legend { right: 16px !important; bottom: 14px !important; }
+@media (min-width: 641px) {
+  .tool-canvas .zoom-chip { left: 16px !important; bottom: 14px !important; }
+}
+.tool-canvas .canvas-tools { pointer-events: none; }
+.tool-canvas .canvas-tools .zoom-chip { pointer-events: auto; }
+
+/* 6. page-wide hover polish */
+:where(.btn, .tab, .seg button, .swatch, .tool-row, .dd-link, .ddq, .ah-menu-link, .ah-pill, .zoom-chip button, .noer-card, .er-entity, .er-rel, .a-node, .ra-node, .tool-fig, .insp-section .btn, .menu-drawer .dd-link, .canvas-legend > span) {
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .22s ease, transform .2s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0) scale(.985); }
+.tool-bar .btn:hover { box-shadow: 0 6px 16px rgba(20,18,10,.10); }
+.tool-row:hover .tool-fig { transform: translateY(-4px) rotate(-.6deg); }
+.tool-row .tool-fig { transition: transform .35s cubic-bezier(.22,1,.36,1); }
+.tool-row:hover .tool-name { color: var(--accent); }
+.dd-link:hover { background: rgba(20,19,15,.06); }
+.dd-link:hover i { transform: translate(2px, -2px); }
+.dd-link i { transition: transform .2s ease; }
+.noer-card:hover, .er-entity:hover, .a-node:hover, .ra-node:hover { box-shadow: 0 10px 24px rgba(20,18,10,.14); }
+.tab:hover { color: var(--accent); }
+.zoom-chip button:hover { background: rgba(20,19,15,.08); }
+.insp-section .btn:hover { border-color: var(--accent); color: var(--accent); }
+.settings-panel .seg button:hover, .modal-box .seg button:hover { background: rgba(27,24,255,.07); }
+.about-card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(20,18,10,.14); }
+.hero-actions .btn--primary:hover { filter: brightness(1.04); }
+.hero-actions .btn--ghost:hover { border-color: var(--accent); color: var(--accent); }
+.menu-close:hover { transform: rotate(90deg); }
+.menu-close { transition: transform .25s ease; }
+
+/* icons in toolbar get a little more breathing room */
+.tool-bar .btn svg, .tool-bar .btn .ic { width: 15px; height: 15px; }
+.tool-bar .btn { gap: 7px; }
+
+
+/* ===== v1.5.3 · dock + button height + header height vars ===== */
+:root, html[data-theme] { --header-h: 76px; }
+@media (max-width: 1024px) { :root, html[data-theme] { --header-h: 68px; } }
+@media (max-width: 640px)  { :root, html[data-theme] { --header-h: 64px; } }
+.tool-left .er-add-btn {
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 16px !important;
+  border-radius: 14px !important;
+}
+.tool-left .er-add-btn + .er-add-btn { margin-top: 10px; }
+.er-add-btn .er-ico svg { width: 17px; height: 17px; }
+.er-add-btn .cn, .er-add-btn .en, .er-add-btn .it { font-weight: 600; }
+.tool-canvas .canvas-tools { bottom: 8px !important; }
+.tool-canvas .canvas-legend { bottom: 8px !important; }
+html[data-theme="dark"] .tool-canvas .zoom-chip,
+html[data-theme="dark"] .tool-canvas .canvas-legend { background: rgba(20,20,17,.88) !important; }
+
+
+/* ===== v1.5.3 polish: light theme warm workspace, toast, mobile menu label, er labels ===== */
+html[data-theme="light"] .tool-canvas .canvas,
+html[data-theme="light"] .canvas {
+  background-color: #f7f3ea !important;
+  background-image: radial-gradient(rgba(74, 62, 40, 0.16) 1px, transparent 1.25px) !important;
+  background-size: 22px 22px !important;
+}
+html[data-theme="light"] .tool-left,
+html[data-theme="light"] .tool-right {
+  background: #fbf8f1 !important;
+}
+html[data-theme="light"] .tool-bar { background: #faf6ee !important; }
+html[data-theme="light"] .er-entity {
+  background: #fffdf8 !important;
+  border-color: rgba(48, 40, 26, 0.18) !important;
+}
+html[data-theme="light"] .toast {
+  background: #1b1712 !important;
+  color: #f4f0e6 !important;
+  border-color: rgba(0, 0, 0, 0.18) !important;
+  box-shadow: 0 10px 26px rgba(30, 24, 14, 0.22) !important;
+}
+.er-add-btn .cn, .er-add-btn .en, .er-add-btn .it {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+@media (max-width: 700px) {
+  .dd-menu-btn span { display: inline !important; }
+  .dd-menu-btn { padding: 0 12px !important; gap: 8px !important; }
+  .dd-dots { width: 26px !important; height: 26px !important; }
+  .er-add-btn { height: 42px !important; min-height: 42px !important; }
+}
+
+/* m09968 · RA mobile bottom dock clearance */
+@media (max-width: 640px) {
+  body[data-route="ra"] .canvas-legend { display: none !important; }
+  body[data-route="ra"] .canvas-tools { bottom: 84px !important; }
+}

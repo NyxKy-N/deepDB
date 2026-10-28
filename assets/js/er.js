@@ -9,6 +9,13 @@
 
   const TYPES = ['AUTO', 'INT', 'BIGINT', 'VARCHAR(64)', 'VARCHAR(255)', 'TEXT', 'DATE', 'TIMESTAMP', 'DECIMAL(10,2)', 'REAL', 'BOOLEAN'];
   const STORE_KIND = 'er';
+  const ER_ICONS = {
+    entity: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.3" y="4.5" width="11.4" height="7" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>',
+    rel: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4 13.6 8 8 13.6 2.4 8Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
+    attr: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="4.2" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg>',
+    pk: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="4.6" cy="8" r="2.1" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.8 8h6.6M11.4 8v2M13.4 8v1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>'
+  };
+
 
   /* ---------------- 模型 ---------------- */
   function uid(p) { return util.uid(p); }
@@ -281,9 +288,9 @@
       '    <aside class="tool-left">',
       '      <div class="panel-body">',
       '        <div class="panel-title">添加元素</div>',
-      '        <button class="btn btn--sm btn--block" data-act="add-entity">▭ 实体 Entity</button>',
-      '        <button class="btn btn--sm btn--block" data-act="add-rel">◇ 关系 Relationship</button>',
-      '        <button class="btn btn--sm btn--block" data-act="add-attr-sel" title="给选中的实体 / 关系添加属性">⭕ 属性 Attribute</button>',
+      '        <button class="btn btn--sm btn--block er-add-btn" data-act="add-entity"><i class="er-ico">' + ER_ICONS.entity + '</i><span class="cn">实体</span><span class="en">Entity</span><span class="it">Entità</span></button>',
+      '        <button class="btn btn--sm btn--block er-add-btn" data-act="add-rel"><i class="er-ico">' + ER_ICONS.rel + '</i><span class="cn">关系</span><span class="en">Relationship</span><span class="it">Associazione</span></button>',
+      '        <button class="btn btn--sm btn--block er-add-btn" data-act="add-attr-sel" title="给选中的实体 / 关系添加属性"><i class="er-ico">' + ER_ICONS.attr + '</i><span class="cn">属性</span><span class="en">Attribute</span><span class="it">Attributo</span></button>',
       '        <div class="hint">属性以小球围绕实体；点击编辑，拖动移动。</div>',
       '      </div>',
       '      <div class="panel-body">',
@@ -319,7 +326,7 @@
       '        </div>',
       '      </div>',
       '      <div class="canvas-legend">',
-      '        <span>▭ 实体</span><span>◇ 关系</span><span>⭕ 属性</span><span>⌐ 主键</span><span>(min,max) 参与基数</span>',
+      '        <span><i class="lg-ico">' + ER_ICONS.entity + '</i><span>实体</span></span><span><i class="lg-ico">' + ER_ICONS.rel + '</i><span>关系</span></span><span><i class="lg-ico">' + ER_ICONS.attr + '</i><span>属性</span></span><span><i class="lg-ico">' + ER_ICONS.pk + '</i><span>主键</span></span><span>(min,max) 参与基数</span>',
       '      </div>',
       '    </div>',
       '    <aside class="tool-right">',
