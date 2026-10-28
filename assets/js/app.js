@@ -1270,3 +1270,18 @@ const ROUTES = {
   render();
   if (DDB) DDB.version = DDB.version || '1.0.0';
 })();
+
+/* file dropdown: close after choosing an item or clicking outside */
+(() => {
+  document.addEventListener('click', (e) => {
+    const item = e.target.closest('.dd-file-pop button, .dd-file-pop a');
+    const inside = e.target.closest('.dd-file-menu');
+    if (item) {
+      const d = item.closest('.dd-file-menu');
+      if (d) d.open = false;
+    } else if (!inside) {
+      document.querySelectorAll('.dd-file-menu[open]').forEach((d) => { d.open = false; });
+    }
+  });
+})();
+

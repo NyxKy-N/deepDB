@@ -2738,3 +2738,74 @@ html[data-theme="dark"] .noer-head { background: var(--accent-soft) !important; 
 
 /* separator only useful with inline nav */
 .brand-sep { display: none !important; }
+
+/* header pill right-aligned */
+.app-header { display: flex !important; align-items: center !important; }
+.app-header .header-right,
+.header-right {
+  margin-left: auto !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+}
+
+/* tabs: warm surfaces, no legacy navy */
+.tabbar,
+.tool-right .tabbar {
+  background: transparent !important;
+  border-bottom-color: var(--ed-line) !important;
+}
+.tabbar .tab,
+.tool-right .tabbar .tab,
+html[data-theme="dark"] .tabbar .tab {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--ed-muted) !important;
+}
+.tabbar .tab:hover,
+.tool-right .tabbar .tab:hover {
+  background: color-mix(in srgb, var(--ed-fg) 8%, transparent) !important;
+  color: var(--ed-fg) !important;
+}
+.tabbar .tab.active,
+.tool-right .tabbar .tab.active,
+html[data-theme="dark"] .tabbar .tab.active {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent-ink, #fff) !important;
+}
+
+/* keep toolbar popovers above the canvas */
+.tool-bar { position: relative !important; z-index: 50 !important; }
+.dd-file-menu { position: relative !important; z-index: 60 !important; }
+.dd-file-menu .dd-file-pop { z-index: 80 !important; }
+
+/* details-based file menu must receive pointer events (old pill CSS set none) */
+.dd-file-menu .dd-file-pop,
+.tool-bar .dd-file-menu .dd-file-pop {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+}
+
+/* translatER attribute chips follow the selected accent */
+.tr-src-attr {
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+  border-color: color-mix(in srgb, var(--accent) 38%, transparent) !important;
+}
+.tr-src-attr:hover { background: color-mix(in srgb, var(--accent) 24%, transparent) !important; }
+.tr-badge {
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+}
+
+/* primary buttons keep light text in dark */
+html[data-theme="dark"] .btn--primary,
+html[data-theme="dark"] .btn--primary:hover,
+html[data-theme="dark"] .canvas-hint .btn--primary,
+html[data-theme="dark"] .tool-bar .btn--primary,
+html[data-theme="dark"] .btn--primary span,
+html[data-theme="dark"] .btn--primary i {
+  color: var(--accent-ink, #fff) !important;
+}
