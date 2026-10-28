@@ -140,7 +140,15 @@
         return {
           id: e.id || uid('ent'), type: 'entity', name: e.name || 'Entity',
           x: Number(e.x) || 0, y: Number(e.y) || 0, weak: !!e.weak,
-          attributes: (e.attributes || []).map(normalizeAttr)
+          attributes: (e.attributes || []).map(normalizeAttr),
+          fks: (e.fks || []).map(function (f) {
+            return {
+              id: f.id || uid('fk'),
+              refEntityId: f.refEntityId || '',
+              refAttrId: f.refAttrId || '',
+              relId: f.relId || ''
+            };
+          })
         };
       }),
       relationships: (model.relationships || []).map(function (r) {
@@ -536,6 +544,106 @@
       return '<div class="er-cpk" title="复合键：' + esc(names.join(' + ')) + '">' +
         '<span class="er-cpk-k">复合键</span><span class="er-cpk-v">' + esc(names.join(' + ')) + '</span></div>';
     }
+    /* ---------- 外键（引用的另一端实体的主键） ---------- */
+    function findAttrById(owner, attrId) {
+      if (!owner) return null;
+      let found = null;
+      (owner.attributes || []).forEach(function (a) {
+        if (a.id === attrId) found = a;
+        (a.children || []).forEach(function (c) { if (c.id === attrId) found = c; });
+      });
+      return found;
+    }
+    function keyAttrList(entity) {
+      const out = [];
+      (entity.attributes || []).forEach(function (a) {
+        if (a.key) out.push(a);
+        (a.children || []).forEach(function (c) { if (c.key) out.push(c); });
+      });
+      return out;
+    }
+    function fkEntries(ent) {
+      const out = [];
+      (ent.fks || []).forEach(function (f) {
+        const target = getEntity(f.refEntityId);
+        const ref = findAttrById(target, f.refAttrId);
+        const rel = f.relId ? getRel(f.relId) : null;
+        if (!target || !ref || !ref.key) return;
+        out.push({ fk: f, target: target, ref: ref, rel: rel });
+      });
+      return out;
+    }
+    function fkLabel(e) {
+      return e.target.name + '.' + e.ref.name;
+    }
+    function foreignKeyHTML(ent) {
+      const list = fkEntries(ent);
+      if (!list.length) return '';
+      const text = list.map(fkLabel).join(' · ');
+      return '<div class="er-fk" title="外键：' + esc(text) + '">' +
+        '<span class="er-fk-k">外键</span><span class="er-fk-v">' + esc(clipLabel(text, 26)) + '</span></div>';
+    }
+    /* 某个实体可选的外键来源：它能参与的每个关系里，另一端实体的主键属性 */
+    function fkCandidates(ent) {
+      const seen = {};
+      const out = [];
+      state.model.relationships.forEach(function (r) {
+        if (!r.participants.some(function (p) { return p.entityId === ent.id; })) return;
+        r.participants.forEach(function (p) {
+          if (p.entityId === ent.id) return;
+          const other = getEntity(p.entityId);
+          if (!other) return;
+          keyAttrList(other).forEach(function (a) {
+            const key = other.id + '|' + a.id;
+            if (seen[key]) return;
+            seen[key] = 1;
+            out.push({ relId: r.id, relName: r.name, entity: other, attr: a });
+          });
+        });
+      });
+      return out;
+    }
+    function fkInspHTML(ent) {
+      const list = fkEntries(ent);
+      const cands = fkCandidates(ent);
+      let body = '';
+      if (list.length) {
+        body += '<div class="fk-list">' + list.map(function (e) {
+          return '<div class="fk-row">' +
+            '<span class="fk-name" title="外键 ' + esc(fkLabel(e)) + '">' + esc(e.ref.name) + ' → ' + esc(fkLabel(e)) + '</span>' +
+            '<button class="icon-x" title="删除外键" data-act="del-fk" data-entity-id="' + ent.id + '" data-fk-id="' + e.fk.id + '">✕</button>' +
+            '</div>';
+        }).join('') + '</div>';
+      } else {
+        body += '<div class="hint">还没有外键。外键会显示在实体框里。</div>';
+      }
+      if (cands.length) {
+        body += '<div class="fk-add">' +
+          '<select data-act="fk-pick" data-entity-id="' + ent.id + '">' +
+          cands.map(function (c) {
+            return '<option value="' + esc(c.entity.id + '|' + c.attr.id + '|' + c.relId) + '">' +
+              esc(c.entity.name + '.' + c.attr.name + '（经 ' + c.relName + '）') + '</option>';
+          }).join('') +
+          '</select>' +
+          '<button class="btn btn--sm" data-act="add-fk" data-entity-id="' + ent.id + '">＋ 添加外键</button>' +
+          '</div>';
+      } else {
+        body += '<div class="hint">先让该实体参与关系，另一端实体的主键才能作为外键。</div>';
+      }
+      return '<div class="insp-section"><div class="insp-title">外键 Foreign key <span class="hint">' + list.length + '</span></div>' +
+        body + '</div>';
+    }
+    function pruneFks() {
+      state.model.entities.forEach(function (ent) {
+        if (!Array.isArray(ent.fks)) { ent.fks = []; return; }
+        ent.fks = ent.fks.filter(function (f) {
+          const target = getEntity(f.refEntityId);
+          const ref = findAttrById(target, f.refAttrId);
+          const rel = f.relId ? getRel(f.relId) : null;
+          return !!(target && ref && ref.key && rel);
+        });
+      });
+    }
     function clipLabel(name, max) {
       var chars = Array.from(String(name == null ? '' : name));
       if (chars.length <= (max || 14)) return String(name == null ? '' : name);
@@ -547,6 +655,7 @@
         '<div class="er-entity-head">' +
         '<span class="er-entity-name" data-edit-name title="' + esc(ent.name) + '">' + esc(clipLabel(ent.name, 14)) + '</span></div>' +
         compoundKeyHTML(ent) +
+        foreignKeyHTML(ent) +
         '</div>';
     }
 
@@ -1262,6 +1371,7 @@
             '</div>';
         }
         if (focusAttr) { html += '</div>'; box.innerHTML = html; box.scrollTop = 0; return; }
+        html += fkInspHTML(ent);
         const asParent = state.model.isas.find(function (i) { return i.parentId === ent.id; });
         const asChild = state.model.isas.find(function (i) { return i.childIds.indexOf(ent.id) >= 0; });
         const sup = asChild ? getEntity(asChild.parentId) : null;
@@ -1483,6 +1593,7 @@
     function refresh(opts) {
       opts = opts || {};
       normalizeSelection();
+      pruneFks();
       renderNodes();
       drawEdges();
       renderOutline();
@@ -2578,6 +2689,33 @@
         case 'del-node': select(d.ntype, d.id); delNode(d.ntype, d.id); break;
         case 'add-attr': addAttribute(d.kind === 'rel' ? 'rel' : 'entity', d.id); break;
         case 'add-attr-sel': addAttributeFromSelection(); break;
+        case 'add-fk': {
+          const ent = getEntity(d.entityId);
+          if (!ent) break;
+          const pick = root.querySelector('[data-act="fk-pick"][data-entity-id="' + ent.id + '"]');
+          if (!pick || !pick.value) { ui.toast('没有可用的外键来源（另一端实体需要主键）', 'warn'); break; }
+          const parts = pick.value.split('|');
+          const refEntityId = parts[0], refAttrId = parts[1], relId = parts[2];
+          const target = getEntity(refEntityId);
+          const ref = findAttrById(target, refAttrId);
+          if (!target || !ref) break;
+          if (!Array.isArray(ent.fks)) ent.fks = [];
+          if (ent.fks.some(function (f) { return f.refEntityId === refEntityId && f.refAttrId === refAttrId && f.relId === relId; })) {
+            ui.toast('这个外键已经存在', 'warn'); break;
+          }
+          ent.fks.push({ id: uid('fk'), refEntityId: refEntityId, refAttrId: refAttrId, relId: relId });
+          pushNow(); refresh();
+          ui.toast('已添加外键 ' + ref.name + ' → ' + target.name, 'ok');
+          break;
+        }
+        case 'del-fk': {
+          const ent = getEntity(d.entityId);
+          if (!ent) break;
+          ent.fks = (ent.fks || []).filter(function (f) { return f.id !== d.fkId; });
+          pushNow(); refresh();
+          ui.toast('已删除外键', 'ok');
+          break;
+        }
         case 'menu-rename': {
           hideNodeMenu();
           const ntype = d.ntype, nid = d.id;

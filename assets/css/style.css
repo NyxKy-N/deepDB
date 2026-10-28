@@ -1790,6 +1790,51 @@ html[data-theme="dark"] .btn--danger:hover { background: #d4564a; border-color: 
 }
 html[data-theme="dark"] .er-cpk { background: rgba(255, 255, 255, .07); border-color: var(--border-strong); }
 
+/* 实体框内的外键说明（与复合键同款，换一种强调色） */
+.er-fk {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 10px 8px;
+  padding: 4px 7px;
+  border-radius: 7px;
+  border: 1px dashed var(--border-strong);
+  background: rgba(255, 214, 143, .28);
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--ink-2);
+  max-width: 210px;
+}
+.er-fk-k { flex: 0 0 auto; font-weight: 700; color: var(--ink); }
+.er-fk-v {
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+html[data-theme="dark"] .er-fk { background: rgba(255, 196, 92, .14); border-color: var(--border-strong); }
+.er-fk { max-width: none; flex-wrap: wrap; }
+.er-fk-v { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+
+/* 属性面板里的外键编辑 */
+.fk-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.fk-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 12px;
+}
+.fk-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); font-size: 11.5px; }
+.fk-add { display: flex; gap: 8px; align-items: center; }
+.fk-add select { flex: 1; min-width: 0; height: 30px; }
+.fk-add .btn { flex: 0 0 auto; }
+
 /* 首页排版：更大的呼吸感与更清晰的层级（仅桌面，避免覆盖窄屏规则） */
 @media (min-width: 861px) {
   .home { padding-bottom: 88px; }

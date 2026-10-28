@@ -37,6 +37,7 @@ Theme: Light / Dark / Follow system.
 
 - Infinite canvas: draw **entities**, **attributes** (small circles attached around the entity), **relationships** (flat wide diamonds) and **ISA generalizations**;
 - Attributes: single / multi-valued (`(0,N)`), composite (pill shape with sub-attributes fanned around it), primary keys (black circle; **white circles + a chain line with a dot = composite key**), plus a "plain attribute" option with no cardinality badge;
+- **Foreign keys**: in the entity's *Foreign key* section choose the primary key of the entity on the other end of a relationship (`+ Add foreign key`); it is stored on the entity and shown inside the entity box as a `FK Entity.attribute` chip next to the composite-key chip, and removed automatically when the referenced key, entity or relationship disappears;
 - Every element is editable: double-click to rename, click to open its menu (Rename / Link / Delete), drag to move, click a cardinality `(0,1)` chip to change it, click a `(t,e)` ISA label to pick one of the four generalization kinds (Total/Partial × Exclusive/Overlapping);
 - **Automatic checks** (errors / warnings / notes, each points at the element), then refactor into a **logical schema** (keys, foreign keys, unique constraints) shown in *Logical schema*;
 - **Auto layout** arranges entities by ISA hierarchy, keeps relationships near their participants, avoids overlaps and routes connection lines around other elements;

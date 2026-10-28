@@ -2505,3 +2505,23 @@ window.DDB_I18N_DICT = {
   put("Rename attribute", "Rename attribute", "重命名属性", "Rinomina attributo");
   put("Name", "Name", "名称", "Nome");
 })();
+
+/* patch-fk */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D) return;
+  var m = {
+    "外键 Foreign key": ["Foreign key", "Chiave esterna"],
+    "外键": ["FK", "FK"],
+    "还没有外键。外键会显示在实体框里。": ["No foreign keys yet. Foreign keys show inside the entity box.", "Nessuna chiave esterna. Le chiavi esterne compaiono nel riquadro dell'entità."],
+    "先让该实体参与关系，另一端实体的主键才能作为外键。": ["Let the entity join a relationship first; the primary key on the other end can then become a foreign key.", "Prima collega l'entità a una relazione: la chiave primaria dall'altro lato può diventare chiave esterna."],
+    "＋ 添加外键": ["+ Add foreign key", "+ Aggiungi chiave esterna"],
+    "没有可用的外键来源（另一端实体需要主键）": ["No foreign-key source available (the entity on the other end needs a primary key).", "Nessuna origine disponibile (l'entità dall'altro lato deve avere una chiave primaria)."],
+    "这个外键已经存在": ["This foreign key already exists.", "Questa chiave esterna esiste già."],
+    "已添加外键 ": ["Foreign key added: ", "Chiave esterna aggiunta: "],
+    "已删除外键": ["Foreign key deleted.", "Chiave esterna eliminata."],
+    "删除外键": ["Delete foreign key", "Elimina chiave esterna"],
+    "（经 ": [" (via ", " (via "],
+    "）": [")", ")"]
+  };
+  Object.keys(m).forEach(function (k) { D.en.texts[k] = m[k][0]; D.zh.texts[k] = k; D.it.texts[k] = m[k][1]; });
+})();
