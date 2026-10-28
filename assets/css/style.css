@@ -1831,9 +1831,9 @@ html[data-theme="dark"] .er-fk { background: rgba(255, 196, 92, .14); border-col
   font-size: 12px;
 }
 .fk-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); font-size: 11.5px; }
-.fk-add { display: flex; gap: 8px; align-items: center; }
-.fk-add select { flex: 1; min-width: 0; height: 30px; }
-.fk-add .btn { flex: 0 0 auto; }
+.fk-add { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+.fk-add select { width: 100%; min-width: 0; height: 32px; text-overflow: ellipsis; }
+.fk-add .btn { align-self: flex-end; }
 
 /* 首页排版：更大的呼吸感与更清晰的层级（仅桌面，避免覆盖窄屏规则） */
 @media (min-width: 861px) {
