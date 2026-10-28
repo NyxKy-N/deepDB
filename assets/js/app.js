@@ -670,10 +670,12 @@ const ROUTES = {
     menuDrawer = el;
     var panel = el.querySelector('.dd-menu-panel');
     panel.addEventListener('pointerenter', function () {
+      if (isTouchLike()) return;
       window.clearTimeout(menuCloseTimer);
     });
     panel.addEventListener('pointerleave', function () {
       if (menuPinned) return;
+      if (isTouchLike()) return;
       window.clearTimeout(menuCloseTimer);
       menuCloseTimer = window.setTimeout(function () { if (!menuPinned) closeMenuDrawer(false); }, 240);
     });
@@ -729,17 +731,22 @@ const ROUTES = {
     document.body.classList.remove('dd-menu-open');
   }
 
+  function isTouchLike() {
+    return (window.matchMedia && window.matchMedia("(hover: none), (pointer: coarse)").matches) || window.innerWidth <= 900;
+  }
+
   function bindMenuTriggers() {
     Array.prototype.forEach.call(document.querySelectorAll('[data-menu-trigger]'), function (btn) {
       if (btn.closest('[data-nav-pill]') || btn.closest('[data-ahmenu]')) return;
       if (btn.__ddMenuBound) return;
       btn.__ddMenuBound = true;
       btn.addEventListener('pointerenter', function () {
-        if (window.matchMedia && window.matchMedia('(hover: none)').matches) return;
+        if (isTouchLike()) return;
         openMenuDrawer(btn);
       });
       btn.addEventListener('pointerleave', function () {
         if (menuPinned) return;
+        if (isTouchLike()) return;
         window.clearTimeout(menuCloseTimer);
         menuCloseTimer = window.setTimeout(function () { if (!menuPinned) closeMenuDrawer(false); }, 240);
       });
@@ -777,8 +784,8 @@ const ROUTES = {
       mb.setAttribute('aria-expanded', v ? 'true' : 'false');
     };
     if (setBtn) setBtn.addEventListener('click', function () { openSettings(setBtn); });
-    pill.addEventListener('pointerenter', function () { if (!hdrPinned) pill.classList.add('open'); });
-    pill.addEventListener('pointerleave', function () { if (!hdrPinned) pill.classList.remove('open'); });
+    pill.addEventListener('pointerenter', function () { if (isTouchLike()) return; if (!hdrPinned) pill.classList.add('open'); });
+    pill.addEventListener('pointerleave', function () { if (isTouchLike()) return; if (!hdrPinned) pill.classList.remove('open'); });
     mb.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -1241,6 +1248,7 @@ const ROUTES = {
     document.querySelectorAll(".dd-file-menu.is-open").forEach(function (d) { closeFileMenu(d); });
   });
   document.addEventListener("pointerenter", function (e) {
+    if ((window.matchMedia && window.matchMedia("(hover: none), (pointer: coarse)").matches) || window.innerWidth <= 900) return;
     const sum = e.target.closest(".dd-file-sum");
     if (sum) openFileMenu(sum.parentElement);
   }, true);
@@ -1248,4 +1256,14 @@ const ROUTES = {
     if (e.key !== "Escape") return;
     document.querySelectorAll(".dd-file-menu.is-open").forEach(function (d) { closeFileMenu(d); });
   });
+})();
+
+/* m11934 touch: no long-press menus/selection on controls */
+(() => {
+  const isTouch = () => (window.matchMedia && window.matchMedia("(hover: none), (pointer: coarse)").matches) || window.innerWidth <= 900;
+  document.addEventListener("contextmenu", (e) => {
+    if (!isTouch()) return;
+    const t = e.target.closest(".dd-menu-btn,.dd-file-sum,.dd-file-pop button,.dd-file-pop a,.dd-link,.ddq,.tab,.side-toggle,.m-quick .btn,.btn");
+    if (t) e.preventDefault();
+  }, true);
 })();

@@ -2988,3 +2988,445 @@ html body .app-header .dd-nav-pill .dd-menu-btn {
 html body .tool-right .insp-section + .insp-section {
   border-top: 0 !important;
 }
+
+
+/* ============================================================
+   m11934 — brand-new mobile workspace for small screens (<=700px)
+   single scrolling toolbar, floating dock, sheet panels, tap-only UI
+   ============================================================ */
+@media (max-width: 700px) {
+  html { --header-h: 56px !important; }
+
+  /* ---- header ---- */
+  .app-header {
+    height: 56px !important;
+    padding: 0 12px !important;
+    gap: 8px !important;
+  }
+  .app-header .brand-sep { display: none !important; }
+  .app-header .brand-text { font-size: 15px !important; }
+  .app-header .header-right { margin-left: auto !important; }
+  .dd-nav-pill {
+    height: 44px !important;
+    padding: 2px !important;
+    gap: 2px !important;
+    border-radius: 999px !important;
+  }
+  .dd-nav-pill .ddq,
+  .dd-nav-pill .dd-menu-btn {
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 14px !important;
+    border-radius: 999px !important;
+    font-size: 13px !important;
+  }
+  .dd-nav-pill .ddq-tool,
+  .dd-nav-pill .dd-file-pill { display: none !important; }
+
+  /* ---- tool shell ---- */
+  .tool { height: calc(100dvh - var(--header-h)) !important; }
+  .tool-bar,
+  .tr-toolbar {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    height: auto !important;
+    min-height: 52px !important;
+    margin: 0 !important;
+    padding: 7px 10px !important;
+    column-gap: 8px !important;
+    row-gap: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    border-bottom: 1px solid var(--ed-line) !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tool-bar::-webkit-scrollbar,
+  .tr-toolbar::-webkit-scrollbar { display: none; }
+  .tool-bar .btn,
+  .tr-toolbar .btn {
+    flex: 0 0 auto !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 13px !important;
+    border-radius: 999px !important;
+    font-size: 13px !important;
+    white-space: nowrap !important;
+  }
+  .tool-bar .sep { display: none !important; }
+  .tool-bar .tool-title { flex: 0 0 auto !important; margin-right: 0 !important; }
+
+  .tool-body {
+    display: block !important;
+    position: relative !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: hidden !important;
+    border-radius: 0 !important;
+  }
+  .tool-canvas {
+    position: absolute !important;
+    inset: 8px 8px 0 8px !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+  }
+  .canvas-legend { display: none !important; }
+
+  /* ---- floating dock ---- */
+  .side-toggles {
+    position: fixed !important;
+    left: 8px !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    z-index: 90 !important;
+    pointer-events: none !important;
+  }
+  .side-toggle {
+    pointer-events: auto !important;
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 17px !important;
+    background: var(--ed-panel-solid, #fbf8f1) !important;
+    border: 1px solid var(--ed-line) !important;
+    box-shadow: 0 8px 22px rgba(24, 17, 8, .16) !important;
+  }
+  .tool-body:not(.lb-collapsed) .side-toggles .st-left,
+  .tool-body:not(.rb-collapsed) .side-toggles .st-right {
+    background: var(--accent) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+  }
+  .m-quick {
+    position: fixed !important;
+    left: 62px !important;
+    right: 62px !important;
+    bottom: 8px !important;
+    height: 46px !important;
+    width: auto !important;
+    padding: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    border-radius: 999px !important;
+    border: 1px solid var(--ed-line) !important;
+    background: var(--ed-panel-solid, #fbf8f1) !important;
+    box-shadow: 0 10px 26px rgba(24, 17, 8, .16) !important;
+    z-index: 90 !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .m-quick::-webkit-scrollbar { display: none; }
+  .m-quick .btn {
+    flex: 0 0 auto !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 14px !important;
+    border-radius: 999px !important;
+    font-size: 13px !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    white-space: nowrap !important;
+  }
+  .m-quick .btn--primary {
+    background: var(--accent) !important;
+    color: #fff !important;
+  }
+  .tool-body:not(.lb-collapsed) .m-quick,
+  .tool-body:not(.rb-collapsed) .m-quick { display: flex !important; }
+  .canvas-tools {
+    position: fixed !important;
+    left: 12px !important;
+    bottom: 64px !important;
+    z-index: 80 !important;
+  }
+
+  /* ---- side panels -> floating cards above dock ---- */
+  .tool-left,
+  .tool-right {
+    position: fixed !important;
+    left: 8px !important;
+    right: 8px !important;
+    top: auto !important;
+    bottom: 64px !important;
+    width: auto !important;
+    max-width: none !important;
+    height: min(60dvh, 540px) !important;
+    max-height: 60dvh !important;
+    padding: 16px 16px 20px !important;
+    border: 1px solid var(--ed-line) !important;
+    border-radius: 24px !important;
+    background: var(--ed-panel-solid, #fbf8f1) !important;
+    box-shadow: 0 20px 60px rgba(20, 14, 6, .28) !important;
+    overflow: auto !important;
+    visibility: visible !important;
+    z-index: 85 !important;
+    transition: transform .28s cubic-bezier(.22, 1, .36, 1), opacity .18s ease !important;
+  }
+  .tool-body.lb-collapsed > .tool-left,
+  .tool-body.rb-collapsed > .tool-right {
+    transform: translateY(calc(100% + 90px)) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+  .tool-body:not(.lb-collapsed) > .tool-left,
+  .tool-body:not(.rb-collapsed) > .tool-right {
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+  .sheet-grip { display: none !important; }
+
+  /* ---- menu drawer + single separators ---- */
+  .dd-menu .dd-menu-panel {
+    top: calc(var(--header-h) + 10px) !important;
+    left: 10px !important;
+    right: 10px !important;
+    bottom: auto !important;
+    width: auto !important;
+    max-height: calc(100dvh - var(--header-h) - 24px) !important;
+    padding: 14px 16px 16px !important;
+    border-radius: 22px !important;
+    overflow: auto !important;
+  }
+  .dd-menu .dd-menu-bd { position: fixed !important; inset: 0 !important; }
+  .dd-menu-links .dd-link:last-child { border-bottom: 0 !important; }
+  .dd-menu-foot { padding-top: 6px !important; }
+  .dd-menu-foot .dd-link:first-child { border-top: 0 !important; }
+
+  /* ---- File dropdown: keep on screen ---- */
+  .dd-file-pop {
+    position: fixed !important;
+    left: 10px !important;
+    right: 10px !important;
+    top: calc(var(--header-h) + 56px) !important;
+    width: auto !important;
+    max-height: 60dvh !important;
+    overflow: auto !important;
+  }
+
+  /* ---- translater ---- */
+  .tool.tr-tool { height: calc(100dvh - var(--header-h)) !important; overflow: hidden !important; }
+  .tool.tr-tool .tr-body {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: auto !important;
+    border-radius: 0 !important;
+  }
+  .tool.tr-tool .tr-pane { height: auto !important; min-height: 0 !important; overflow: visible !important; }
+  .tool.tr-tool .tr-pane + .tr-pane { border-left: 0 !important; border-top: 1px solid var(--ed-line) !important; }
+
+  /* ---- touch affordances ---- */
+  .btn, .dd-menu-btn, .dd-file-sum, .dd-link, .ddq, .tab,
+  .side-toggle, .m-quick .btn, .dd-file-pop button, .dd-file-pop a {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+  }
+}
+
+
+/* m11934 fixes v2 — enforce in-viewport menu sheet + non-overlapping dock */
+@media (max-width: 700px) {
+  html body .dd-menu .dd-menu-panel,
+  html body .dd-menu.on .dd-menu-panel {
+    left: 12px !important;
+    right: auto !important;
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+  html body .tool-canvas .m-quick {
+    left: 62px !important;
+    right: 62px !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+  html body .canvas-tools {
+    left: 12px !important;
+    bottom: 64px !important;
+  }
+}
+
+
+/* m11934 fixes v3 — zoom above dock, clearer menu dots, dock fade */
+@media (max-width: 700px) {
+  html body .tool-canvas .canvas-tools,
+  html body .canvas-tools {
+    left: 12px !important;
+    bottom: 62px !important;
+    top: auto !important;
+    right: auto !important;
+  }
+  html body .tool-canvas .canvas-legend {
+    display: none !important;
+  }
+  html body .dd-menu-btn .dd-dots {
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    width: auto !important;
+    height: 16px !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+  }
+  html body .dd-menu-btn .dd-dots b {
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 999px !important;
+    background: var(--ed-fg, #14130f) !important;
+  }
+  html body .dd-menu-btn .dd-dots b:first-child { opacity: .45 !important; }
+  html body .dd-menu-btn .dd-dots b:last-child { opacity: 1 !important; }
+  html body .m-quick {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%) !important;
+    mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%) !important;
+    scrollbar-width: none !important;
+  }
+}
+
+
+/* m11934 fixes v4 — zoom to canvas corner, touch long-press off */
+@media (max-width: 700px) {
+  html body .tool-canvas .canvas-tools,
+  html body .canvas-tools {
+    top: 12px !important;
+    left: 12px !important;
+    right: auto !important;
+    bottom: auto !important;
+  }
+  html {
+    -webkit-touch-callout: none !important;
+  }
+  body {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  input, textarea, [contenteditable="true"] {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+  }
+}
+
+
+/* m11934 fixes v5 — zoom docked above the quick bar, never over header */
+@media (max-width: 700px) {
+  html body .tool-canvas .canvas-tools,
+  html body .canvas-tools {
+    left: 62px !important;
+    right: auto !important;
+    bottom: 70px !important;
+    top: auto !important;
+  }
+}
+
+
+/* m11934 fixes v6 — toast anchored above the dock, scrollable side cards */
+@media (max-width: 700px) {
+  html body #toastHost.toast-host {
+    position: fixed !important;
+    left: auto !important;
+    right: 12px !important;
+    top: auto !important;
+    bottom: 66px !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+    justify-items: end !important;
+    z-index: 220 !important;
+  }
+  html body #toastHost .toast {
+    max-width: calc(100vw - 48px) !important;
+    white-space: normal !important;
+    text-align: left !important;
+  }
+  html body .tool-body .tool-left,
+  html body .tool-body .tool-right {
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 18px !important;
+  }
+}
+
+
+/* m11934 fixes v7 — full-width toast rail above the dock */
+@media (max-width: 700px) {
+  html body #toastHost.toast-host {
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+  }
+  html body #toastHost .toast {
+    max-width: 100% !important;
+  }
+}
+
+
+/* m11934 fixes v8 — kill the centred transform on the toast rail */
+@media (max-width: 700px) {
+  html body #toastHost.toast-host {
+    transform: none !important;
+  }
+}
+
+
+/* m11934 fixes v9 — on touch screens the home Menu only expands via tap (.open) */
+@media (hover: none) {
+  html body .ah-menu-wrap:not(.open) .ah-menu-link {
+    max-width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
+
+/* m11934 fixes v10 — side cards size to content and never clip */
+@media (max-width: 700px) {
+  html body .tool-body .tool-left,
+  html body .tool-body .tool-right {
+    height: auto !important;
+    max-height: calc(100dvh - 156px) !important;
+    overflow: hidden !important;
+  }
+  html body .tool-body .tool-left > *,
+  html body .tool-body .tool-right > * {
+    flex: 0 0 auto;
+  }
+  html body .tool-body .tool-left .tool-panel-body,
+  html body .tool-body .tool-right .tool-panel-body,
+  html body .tool-body .tool-left .insp,
+  html body .tool-body .tool-right .insp {
+    overflow-y: auto !important;
+    min-height: 0;
+  }
+}
