@@ -722,6 +722,15 @@
         e.preventDefault(); e.stopPropagation();
         setAhMenu(!ahWrap.classList.contains('open'));
       });
+      var ahMark = root.querySelector('.ah-mark');
+      if (ahMark) ahMark.addEventListener('click', function (e) {
+        var h = location.hash;
+        if (h && h !== '#' && h !== '#/') return;
+        e.preventDefault();
+        if (ahWrap && ahWrap.classList.contains('open')) setAhMenu(false);
+        if (window.scrollY > 1) window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
       ahWrap.addEventListener('click', function (e) {
         var trg = e.target.closest('[data-ah-scroll]');
         if (trg) {
