@@ -41,6 +41,35 @@
     }).join('\n');
   }
 
+  function ddlType(a) {
+    if (a._type) return String(a._type).toUpperCase();
+    if (window.ERSCHEMA && ERSCHEMA.inferType) return ERSCHEMA.inferType(a.name);
+    return 'VARCHAR(255)';
+  }
+
+  function sqlName(name) { return String(name || '').replace(/[^A-Za-z0-9_]+/g, '_').toUpperCase(); }
+
+  /* Real CREATE TABLE DDL: types and FK targets travel with the translated schema. */
+  function ddlOf(tables) {
+    var stmts = tables.filter(function (t) { return t.name && t.attrs.length; }).map(function (t) {
+      var name = sqlName(t.name), pkCount = t.attrs.filter(function (a) { return a.pk; }).length, lines = [], fks = [];
+      t.attrs.forEach(function (a) {
+        var col = '  ' + a.name + ' ' + ddlType(a);
+        if (a.pk && pkCount === 1) col += ' PRIMARY KEY';
+        if (a._nn) col += ' NOT NULL';
+        lines.push(col);
+        if (a._fk && a._fk.table && a._fk.column) {
+          fks.push('  CONSTRAINT fk_' + String(t.name).toLowerCase() + '_' + String(a.name).toLowerCase() +
+            ' FOREIGN KEY (' + a.name + ') REFERENCES ' + sqlName(a._fk.table) + ' (' + a._fk.column + ')');
+        }
+      });
+      if (pkCount > 1) lines.push('  PRIMARY KEY (' + t.attrs.filter(function (a) { return a.pk; }).map(function (a) { return a.name; }).join(', ') + ')');
+      if (fks.length) lines = lines.concat(fks);
+      return 'CREATE TABLE ' + name + ' (\n' + lines.join(',\n') + '\n);';
+    });
+    return stmts.join('\n\n');
+  }
+
   function mount(root) {
     var state = { model: null, tables: [], issues: [], checked: false };
     root.innerHTML = [
@@ -62,6 +91,7 @@
       '<button class="btn btn--sm" data-tr="add-table">+ Table</button>',
       '<button class="btn btn--sm" data-tr="copy">Copy</button>',
       '<button class="btn btn--sm" data-tr="download">Download</button>',
+      '<button class="btn btn--sm" data-tr="download-sql" title="Download SQL DDL">SQL</button>',
       '</div></div>',
       '<div class="tr-table-list" id="trTables"></div>',
       '<div class="tr-done" id="trDone"></div>',
@@ -306,6 +336,9 @@
             name: c.name,
             pk: !!c.pk,
             fk: !!c.fk,
+            _type: c.type || '',
+            _nn: !!c.nn,
+            _fk: (c.fk && typeof c.fk === 'object') ? { table: c.fk.table || '', column: c.fk.column || '' } : null,
             _ord: tb.attrs.length
           });
         });
@@ -439,6 +472,12 @@
         var txt = textOf(state.tables);
         if (!txt) { ui.toast('Nothing to export yet', 'warn'); return; }
         DDB.io.download('schema.txt', txt + '\n', 'text/plain');
+      }
+      else if (act === 'download-sql') {
+        var ddl = ddlOf(state.tables);
+        if (!ddl) { ui.toast('Nothing to export yet', 'warn'); return; }
+        DDB.io.download('schema.sql', ddl + '\n', 'application/sql');
+        ui.toast('SQL DDL exported', 'ok');
       }
     });
 

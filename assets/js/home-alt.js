@@ -38,14 +38,21 @@
     ['ER MODELING', 'CANVAS', 'Entities, attributes, relationships and generalisations on an infinite canvas.'],
     ['AUTO CHECKS', 'VALIDATION', 'Every problem explains why it matters and jumps to the element.'],
     ['LOGICAL SCHEMA', 'REFACTOR', 'Weak entities, ISA and multi-valued attributes become clean tables.'],
-    ['DOCUMENT MODELS', 'NOER', 'Collections, nested objects, arrays and references with JSON Schema export.'],
+    ['DOCUMENT MODELS', 'NOER', 'Collections, nested objects, arrays and references with JSON export.'],
     ['RELATIONAL ALGEBRA', 'DESIGNQT', 'σ π ρ ⋈ × ∪ ∩ − γ ÷ in a visual expression tree.'],
-    ['ONE-CLICK TRANSLATION', 'TRANSLATER', 'Turn the finished ER model into relational schema text.'],
+    ['ONE-CLICK TRANSLATION', 'TRANSLATER', 'Turn the finished ER model into relational schema text and SQL DDL.'],
     ['THREE LANGUAGES', 'I18N', 'Chinese, English and Italiano — switch without losing the model.'],
     ['ONE-PAGE TOOLS', 'OFFLINE', 'Four tools in one static page — no build step, no upload.']
   ];
 
-  var TECHS = ['PostgreSQL', 'MySQL', 'SQLite', 'JSON Schema', 'MongoDB', 'Mongoose', 'Prisma', 'Supabase', 'Figma', 'Git'];
+  var TECHS = ['SQL DDL', 'MODEL JSON', 'NOER JSON', 'RA JSON', 'PLAIN TEXT'];
+
+  var SHOTS = {
+    er: 'assets/img/shots/designer.png',
+    tr: 'assets/img/shots/translater.png',
+    noer: 'assets/img/shots/noer.png',
+    ra: 'assets/img/shots/designqt.png'
+  };
 
   var REEL = [
     { k: 'er', label: 'ENTITY', html: '<div class="ah-mini er"><span class="ahm-tag">ENTITY</span><b>Student( sid, sname, dept )</b><span class="ahm-row"><i class="ahm-pk">PK</i> sid</span><span class="ahm-row"><i class="ahm-b">U</i> sname</span></div>' },
@@ -53,6 +60,13 @@
     { k: 'noer', label: 'COLLECTION', html: '<div class="ah-mini no"><span class="ahm-tag">COLLECTION · users</span><span class="ahm-row">id · objectId</span><span class="ahm-row">email · string</span><span class="ahm-row">profile · object</span></div>' },
     { k: 'ra', label: 'ALGEBRA', html: '<div class="ah-mini ra"><span class="ahm-tag">RELATIONAL ALGEBRA</span><b>π sname, dept (σ score &gt; 90 (Student ⋈ Enrolls))</b><span class="ahm-row">output: sname, dept</span></div>' }
   ];
+
+  var LANG_CHIPS =
+    '<div class="dd-lang" role="group" aria-label="Language · 语言 · Lingua">' +
+      '<button type="button" data-set-lang="en">EN</button>' +
+      '<button type="button" data-set-lang="zh">中</button>' +
+      '<button type="button" data-set-lang="it">IT</button>' +
+    '</div>';
 
   var mq = function (items, cls) {
     var line = items.map(function (t, i) {
@@ -74,7 +88,7 @@
           '</div>' +
           '<div class="ah-slide-visual"><div class="ah-slide-window">' +
             '<div class="ah-winbar"><i></i><i></i><i></i><span>' + t.name + ' · preview</span></div>' +
-            '<div class="ah-winbody">' + REEL[i].html.replace(/class="ah-mini [a-z]+"/, 'class="ah-mini ' + t.key + '"') + '</div>' +
+            '<div class="ah-winbody"><img class="ah-shot" src="' + SHOTS[t.key] + '" alt="" loading="lazy" width="1200" height="760"></div>' +
           '</div></div>' +
         '</a>';
     }).join('');
@@ -108,14 +122,14 @@
     '<div class="althome" id="althome">' +
       '<nav class="ah-nav">' +
         '<div class="ah-nav-left">' +
-          '<a class="ah-pill" href="#/tools/er"><span>Let\'s build</span><i class="ah-arrow">↗</i></a>' +
+          '<a class="ah-pill" href="#/tools/er"><span>Open designER</span><i class="ah-arrow">↗</i></a>' +
         '</div>' +
         '<a class="ah-mark" href="#/" aria-label="deepDB home"><span>DB</span></a>' +
         '<div class="ah-nav-right">' +
-          '<div class="ah-menu-wrap" data-ahmenu>' +
-            '<a class="ah-menu-link" href="#works" data-ah-scroll="works"><span>Works</span><i>↗</i></a>' +
-            '<a class="ah-menu-link" href="#/about"><span>Contact</span><i>↗</i></a>' +
-            '<button class="ah-pill ah-menu" data-ahmenu-toggle aria-expanded="false" aria-haspopup="menu"><span>Menu</span><i class="ah-dots"><b></b><b></b></i></button>' +
+          '<div class="ah-menu-wrap">' +
+            '<a class="ah-menu-link" href="#/about"><span>About</span><i>↗</i></a>' +
+            LANG_CHIPS +
+            '<button type="button" class="ah-pill ah-menu" data-ahmenu-toggle aria-expanded="false" aria-haspopup="true"><span>Menu</span><i class="ah-dots"><b></b><b></b></i></button>' +
           '</div>' +
         '</div>' +
       '</nav>' +
@@ -135,9 +149,22 @@
             }).join('') +
             '<div class="ah-reel-label"><span id="ahReelLabel">' + REEL[0].label + '</span><i>0</i></div>' +
           '</div>' +
+          '<a class="ah-prod" href="#/tools/er" aria-label="designER live canvas">' +
+            '<figure class="ah-prod-frame">' +
+              '<img class="ah-prod-shot" src="assets/img/shots/designer.png" alt="" width="1200" height="760">' +
+              '<figcaption class="ah-prod-cap"><span>LIVE CANVAS</span><span>CHECK · INSPECT · EXPORT</span></figcaption>' +
+            '</figure>' +
+            '<span class="ah-prod-note"><b>WHY IT MATTERS</b>A failed check explains the rule and jumps to the element.</span>' +
+          '</a>' +
           '<div class="ah-tagline">' +
-            '<strong>Database design studio</strong>' +
-            '<em>for models ready to ship</em>' +
+            '<strong>Design the database before the code.</strong>' +
+            '<em>Four tools, made for students.</em>' +
+            '<span class="ah-proof">FREE · NO ACCOUNT · OFFLINE</span>' +
+          '</div>' +
+          '<div class="ah-dock" role="list" aria-label="Tools">' +
+            TOOLS.map(function (t, i) {
+              return '<a class="ah-dock-link" role="listitem" href="' + t.route + '"><i>0' + (i + 1) + '</i><b>' + t.name + '</b><span>↗</span></a>';
+            }).join('') +
           '</div>' +
           '<div class="ah-scroll"><span>SCROLL</span><i></i></div>' +
         '</div>' +
@@ -156,7 +183,6 @@
 
       '<section class="ah-works" id="works" data-sec="works">' +
         '<div class="ah-works-sticky">' +
-          '<a class="ah-pill ah-pill-ghost ah-see" href="#/tools/er"><span>SEE ALL TOOLS</span><i>↗</i></a>' +
           '<div class="ah-slides">' + slides + '</div>' +
           '<div class="ah-work-foot"><span id="ahWorkIdx">01</span><i>/</i><span>04</span><b class="ah-work-bar"><i id="ahWorkBar"></i></b></div>' +
         '</div>' +
@@ -186,7 +212,7 @@
       '</section>' +
 
       '<section class="ah-clients" data-sec="clients">' +
-        '<span class="ah-sec-label">( BUILT ON / EXPORTS TO )</span>' +
+        '<span class="ah-sec-label">( EXPORTS TO )</span>' +
         '<div class="ah-tech"><div class="ah-tech-in">' + tech + tech + '</div></div>' +
       '</section>' +
 
@@ -201,8 +227,8 @@
         '<div class="ah-cross" aria-hidden="true"></div>' +
         '<div class="ah-coords">X : <span id="ahX">000</span> Y : <span id="ahY">000</span></div>' +
         '<div class="ah-hello">' +
-          '<div class="ah-hello-mail" data-i18n-skip>HELLO@<br>DEEPDB.APP</div>' +
-          '<em class="ah-hello-sub">Let\'s build the next model</em>' +
+          '<a class="ah-hello-mail" data-i18n-skip href="https://github.com/NyxKy-N/deepDB/issues" target="_blank" rel="noopener">HELLO@<br>GITHUB</a>' +
+          '<em class="ah-hello-sub">Report a bug or ask on <a href="https://github.com/NyxKy-N/deepDB/issues" target="_blank" rel="noopener" data-i18n-skip>GitHub Issues ↗</a></em>' +
         '</div>' +
         '<div class="ah-keys" aria-hidden="true">' + keys + '</div>' +
         '<div class="ah-fcols">' +
@@ -268,6 +294,11 @@
     var keys = Array.prototype.slice.call(root.querySelectorAll('.ah-key'));
     var reel = root.querySelector('.ah-reel');
     var copyEl = root.querySelector('.ah-copy');
+    var mark = root.querySelector('.ah-mark');
+    var navLeft = root.querySelector('.ah-nav-left');
+    var navRight = root.querySelector('.ah-nav-right');
+    var away = [mark, navLeft, navRight];
+    var lastY = null, markIdle = 0;
 
     function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
 
@@ -293,6 +324,15 @@
         word.style.opacity = String(1 - hp * 0.25);
       }
       if (reel) frame(clamp(y / Math.max(1, heroH * 0.9)));
+      /* the three floating controls shrink away while scrolling, pop back when it stops */
+      if (lastY !== null && lastY !== y) {
+        away.forEach(function (el) { if (el) el.classList.add('off'); });
+        clearTimeout(markIdle);
+        markIdle = setTimeout(function () {
+          away.forEach(function (el) { if (el) el.classList.remove('off'); });
+        }, 420);
+      }
+      lastY = y;
 
       /* works */
       var wr = works.getBoundingClientRect();
@@ -332,7 +372,7 @@
       var svp = clamp((vh - svr.top) / (vh + svr.height * 0.4));
       var si = Math.min(serviceEls.length - 1, Math.floor(svp * serviceEls.length + 0.0001));
       serviceEls.forEach(function (el, i) {
-        el.style.setProperty('--o', i === si ? '1' : '0.24');
+        el.style.setProperty('--o', i === si ? '1' : '0.55');
       });
 
       /* footer keys parallax handled by pointer */
@@ -345,6 +385,7 @@
 
     function pad(n) { return ('00' + n).slice(-3); }
     function onMove(e) {
+      if (document.documentElement.getAttribute('data-motion') === 'off') return;
       var x = e.clientX, y = e.clientY;
       if (xEl) xEl.textContent = pad(x);
       if (yEl) yEl.textContent = pad(y);
@@ -357,7 +398,8 @@
     /* m12924 — keycap physics: gravity, drag, collisions */
     function setupKeyPhysics() {
       if (!keys.length || !footer || !copyEl) return null;
-      var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ||
+        document.documentElement.getAttribute('data-motion') === 'off';
       var bodies = [];
       var byEl = [];
       var raf2 = 0, last = 0, loopOn = false, started = false;
@@ -702,47 +744,41 @@
       Array.prototype.forEach.call(root.querySelectorAll('.ah-reveal'), function (el) { el.classList.add('in'); });
     }
 
-    /* in-pill home menu: Works / Contact unfold inside the same capsule */
-    var ahWrap = root.querySelector('[data-ahmenu]');
-    var ahBtn = ahWrap && ahWrap.querySelector('[data-ahmenu-toggle]');
-    function setAhMenu(open) {
-      if (!ahWrap) return;
-      ahWrap.classList.toggle('open', open);
-      if (ahBtn) ahBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    /* home logo: back to the top when the home route is already active */
+    var ahMark = root.querySelector('.ah-mark');
+    function onMarkClick(e) {
+      var h = location.hash;
+      if (h && h !== '#' && h !== '#/') return;
+      e.preventDefault();
+      if (window.scrollY > 1) window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    function onAhDocClick(e) {
-      if (!ahWrap || !ahWrap.classList.contains('open')) return;
-      if (!e.target.closest('[data-ahmenu]')) setAhMenu(false);
-    }
-    function onAhKey(e) { if (e.key === 'Escape') setAhMenu(false); }
-    if (ahWrap) {
-      ahWrap.addEventListener('pointerenter', function (e) { if (e.pointerType !== 'touch') setAhMenu(true); });
-      ahWrap.addEventListener('pointerleave', function (e) { if (e.pointerType !== 'touch') setAhMenu(false); });
-      if (ahBtn) ahBtn.addEventListener('click', function (e) {
-        e.preventDefault(); e.stopPropagation();
-        setAhMenu(!ahWrap.classList.contains('open'));
-      });
-      var ahMark = root.querySelector('.ah-mark');
-      if (ahMark) ahMark.addEventListener('click', function (e) {
-        var h = location.hash;
-        if (h && h !== '#' && h !== '#/') return;
-        e.preventDefault();
-        if (ahWrap && ahWrap.classList.contains('open')) setAhMenu(false);
-        if (window.scrollY > 1) window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
+    if (ahMark) ahMark.addEventListener('click', onMarkClick);
 
-      ahWrap.addEventListener('click', function (e) {
-        var trg = e.target.closest('[data-ah-scroll]');
-        if (trg) {
-          e.preventDefault();
-          var sec = document.getElementById(trg.getAttribute('data-ah-scroll'));
-          if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          setAhMenu(false);
-        }
-      });
-      document.addEventListener('click', onAhDocClick);
-      document.addEventListener('keydown', onAhKey);
+    /* home menu: collapsed = language + Menu; expanded = one inline About link */
+    var menuWrap = root.querySelector('.ah-menu-wrap');
+    var menuBtn = root.querySelector('[data-ahmenu-toggle]');
+    var menuAbout = root.querySelector('.ah-menu-wrap .ah-menu-link');
+    function setMenuOpen(v) {
+      if (!menuWrap || !menuBtn) return;
+      menuWrap.classList.toggle('open', v);
+      menuBtn.setAttribute('aria-expanded', v ? 'true' : 'false');
     }
+    function onMenuBtnClick(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      setMenuOpen(!menuWrap.classList.contains('open'));
+    }
+    function onMenuDocClick(e) {
+      if (!menuWrap || menuWrap.contains(e.target)) return;
+      if (menuWrap.classList.contains('open')) setMenuOpen(false);
+    }
+    function onMenuKey(e) { if (e.key === 'Escape') setMenuOpen(false); }
+    if (menuBtn) {
+      menuBtn.addEventListener('click', onMenuBtnClick);
+      document.addEventListener('click', onMenuDocClick);
+      document.addEventListener('keydown', onMenuKey);
+    }
+    if (menuAbout) menuAbout.addEventListener('click', function () { setMenuOpen(false); });
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
@@ -754,14 +790,16 @@
     var keyPhys = setupKeyPhysics();
 
     return function unmount() {
-      if (ahWrap) {
-        document.removeEventListener('click', onAhDocClick);
-        document.removeEventListener('keydown', onAhKey);
-        setAhMenu(false);
+      if (ahMark) ahMark.removeEventListener('click', onMarkClick);
+      if (menuBtn) {
+        menuBtn.removeEventListener('click', onMenuBtnClick);
+        document.removeEventListener('click', onMenuDocClick);
+        document.removeEventListener('keydown', onMenuKey);
       }
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
       window.removeEventListener('pointermove', onMove);
+      clearTimeout(markIdle);
       clearInterval(clockTimer);
       if (keyPhys) keyPhys();
       if (raf) cancelAnimationFrame(raf);

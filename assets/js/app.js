@@ -28,6 +28,7 @@ const ROUTES = {
   /* ---------------- 强调色（实现见 boot.js） ---------------- */
   const BOOT = window.DDB_BOOT || {};
   const ACCENT_KEY = BOOT.ACCENT_KEY || 'designerdb:v1:accent';
+  const MOTION_KEY = 'designerdb:v1:motion';
   const ACCENTS = BOOT.ACCENTS || [];
   const accentOf = BOOT.accentOf || function (id) { return ACCENTS[0] || { id: 'blue', hex: '#1b18ff', ink: '#ffffff' }; };
   const readAccent = BOOT.readAccent || function () { return 'blue'; };
@@ -35,12 +36,7 @@ const ROUTES = {
 
   /* ---------------- 设置弹窗 ---------------- */
   function openSettings(invoker) {
-    const lang = (window.DDB_I18N && window.DDB_I18N.lang) || 'zh';
-    const langs = [
-      { id: 'zh', label: '中文' },
-      { id: 'en', label: 'English' },
-      { id: 'it', label: 'Italiano' }
-    ];
+    const motion = document.documentElement.getAttribute('data-motion') === 'off' ? 'off' : 'on';
     const seg = function (name, items, cur) {
       return '<div class="seg seg--wide" role="group" aria-label="' + name + '">' + items.map(function (it) {
         return '<button type="button" data-set-' + name + '="' + it.id + '" class="' + (it.id === cur ? 'active' : '') + '" aria-pressed="' + (it.id === cur ? 'true' : 'false') + '">' + it.label + '</button>';
@@ -50,7 +46,7 @@ const ROUTES = {
       title: '设置',
       origin: invoker || (document.getElementById('settingsBtn') || null),
       body: [
-        '<div class="set-block"><div class="set-label">语言</div>' + seg('lang', langs, lang) + '</div>',
+        '<div class="set-block"><div class="set-label">动画</div>' + seg('motion', [{ id: 'on', label: 'ON' }, { id: 'off', label: 'OFF' }], motion) + '<div class="hint">关闭后页面的过渡与动效停用。</div></div>',
         '<div class="set-block"><div class="set-label">强调色</div><div class="swatches" role="group" aria-label="accent">' +
         ACCENTS.map(function (a) {
           const on = a.id === readAccent();
@@ -61,12 +57,13 @@ const ROUTES = {
       actions: [{ label: '完成', primary: true, onClick: function (close) { close(); } }]
     });
     m.addEventListener('click', function (e) {
-      const lb = e.target.closest('[data-set-lang]');
-      if (lb) {
-        const next = lb.getAttribute('data-set-lang');
-        if (window.DDB_I18N) window.DDB_I18N.setLang(next);
-        m.querySelectorAll('[data-set-lang]').forEach(function (b) {
-          const on = b.getAttribute('data-set-lang') === next;
+      const mb2 = e.target.closest('[data-set-motion]');
+      if (mb2) {
+        const next = mb2.getAttribute('data-set-motion');
+        document.documentElement.setAttribute('data-motion', next);
+        try { localStorage.setItem(MOTION_KEY, next); } catch (err) { }
+        m.querySelectorAll('[data-set-motion]').forEach(function (b) {
+          const on = b.getAttribute('data-set-motion') === next;
           b.classList.toggle('active', on);
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
@@ -93,11 +90,22 @@ const ROUTES = {
     return ROUTES[raw] || ROUTES[''];
   }
 
+  function syncPillActive(route) {
+    const pill = document.querySelector('.app-header .header-right [data-nav-pill]');
+    if (!pill) return;
+    const navKey = route && route.nav;
+    Array.prototype.forEach.call(pill.querySelectorAll('a.ddq-tool'), function (a) {
+      const m = /#\/tools\/([a-z]+)/.exec(a.getAttribute('href') || '');
+      a.classList.toggle('is-active', !!(m && navKey && m[1] === navKey));
+    });
+  }
+
   function setActiveNav(route) {
     if (!nav) return;
     nav.querySelectorAll('a[data-nav]').forEach(function (a) {
       a.classList.toggle('active', a.getAttribute('data-nav') === route.nav);
     });
+    syncPillActive(route);
   }
   let altUnmount = null;
 
@@ -213,8 +221,8 @@ const ROUTES = {
       '    <a class="dd-link" href="#/tools/ra" data-menu-nav><span class="dd-num">04</span><b>designQT</b><i>↗</i></a>',,
       '  </div>',
       '  <div class="dd-menu-foot">',
-      '    <button type="button" class="dd-link" data-menu-settings><span class="dd-num">06</span><b>Settings</b><i>↗</i></button>',
-      '    <a class="dd-link" href="#/about" data-menu-nav><span class="dd-num">07</span><b>About</b><i>↗</i></a>',
+      '    <button type="button" class="dd-link" data-menu-settings><span class="dd-num">05</span><b>Settings</b><i>↗</i></button>',
+      '    <a class="dd-link" href="#/about" data-menu-nav><span class="dd-num">06</span><b>About</b><i>↗</i></a>',
       '    <div class="dd-mono dd-menu-meta"><span>AUTHOR · NYXKY</span><span>HELPER · DEEPSEEK</span></div>',
       '  </div>',
       '</nav>',
@@ -240,12 +248,16 @@ const ROUTES = {
       if (nav) { closeMenuDrawer(true); return; }
       if (set) {
         e.preventDefault();
-        closeMenuDrawer(true);
         openSettings(set);
+        /* keep the drawer until the settings modal has shrunk back to this row */
+        const h = function () { document.removeEventListener("ddb:modal-close", h); closeMenuDrawer(true); };
+        document.addEventListener("ddb:modal-close", h);
       }
     });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && menuDrawer && menuDrawer.classList.contains('on')) closeMenuDrawer(true);
+      if (e.key !== 'Escape') return;
+      if (document.querySelector('#modalHost .modal-backdrop')) return; /* let the modal close first */
+      if (menuDrawer && menuDrawer.classList.contains('on')) closeMenuDrawer(true);
     });
     return el;
   }
@@ -267,6 +279,8 @@ const ROUTES = {
     }
     el.classList.add('on');
     el.setAttribute('aria-hidden', 'false');
+    el._trigger = trigger || null;
+    if (trigger && trigger.setAttribute) trigger.setAttribute('aria-expanded', 'true');
     const ph = panel.offsetHeight || 460;
     let top = r ? r.top : margin;
     top = Math.min(Math.max(margin, top), Math.max(margin, window.innerHeight - ph - margin));
@@ -289,6 +303,8 @@ const ROUTES = {
     menuPinned = false;
     el.classList.remove('on');
     el.setAttribute('aria-hidden', 'true');
+    if (el._trigger && el._trigger.setAttribute) el._trigger.setAttribute('aria-expanded', 'false');
+    el._trigger = null;
     document.body.classList.remove('dd-menu-open');
   }
 
@@ -301,16 +317,7 @@ const ROUTES = {
       if (btn.closest('[data-nav-pill]') || btn.closest('[data-ahmenu]')) return;
       if (btn.__ddMenuBound) return;
       btn.__ddMenuBound = true;
-      btn.addEventListener('pointerenter', function () {
-        if (isTouchLike()) return;
-        openMenuDrawer(btn);
-      });
-      btn.addEventListener('pointerleave', function () {
-        if (menuPinned) return;
-        if (isTouchLike()) return;
-        window.clearTimeout(menuCloseTimer);
-        menuCloseTimer = window.setTimeout(function () { if (!menuPinned) closeMenuDrawer(false); }, 240);
-      });
+      /* Click-only: hovering a trigger must not pop the second-level drawer open. */
       btn.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -334,6 +341,11 @@ const ROUTES = {
       '  <a class="ddq ddq-tool" href="#/tools/ra"><span>designQT</span><i>↗</i></a>' +
       '  <button type="button" class="ddq" data-hdr-settings><span>Settings</span><i>↗</i></button>' +
       '  <a class="ddq" href="#/about"><span>About</span><i>↗</i></a>' +
+      '  <div class="dd-lang" role="group" aria-label="Language · 语言 · Lingua">' +
+      '    <button type="button" data-set-lang="en">EN</button>' +
+      '    <button type="button" data-set-lang="zh">中</button>' +
+      '    <button type="button" data-set-lang="it">IT</button>' +
+      '  </div>' +
       '  <button type="button" class="dd-menu-btn" data-menu-trigger aria-expanded="false"><span>Menu</span><i class="dd-dots"><b></b><b></b></i></button>' +
       '</div>';
     const pill = right.querySelector('[data-nav-pill]');
@@ -344,12 +356,24 @@ const ROUTES = {
       pill.classList.toggle('open', v);
       mb.setAttribute('aria-expanded', v ? 'true' : 'false');
     };
-    if (setBtn) setBtn.addEventListener('click', function () { openSettings(setBtn); });
+    if (setBtn) setBtn.addEventListener('click', function () {
+      /* keep the capsule unfolded until the Settings modal has shrunk back */
+      hdrPinned = true;
+      pill.classList.add('open');
+      const h = function () {
+        document.removeEventListener('ddb:modal-close', h);
+        hdrPinned = false;
+        pill.classList.remove('open');
+      };
+      document.addEventListener('ddb:modal-close', h);
+      openSettings(setBtn);
+    });
     pill.addEventListener('pointerenter', function () { if (isTouchLike()) return; if (!hdrPinned) pill.classList.add('open'); });
     pill.addEventListener('pointerleave', function () { if (isTouchLike()) return; if (!hdrPinned) pill.classList.remove('open'); });
     mb.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
+      /* desktop: unfold the pill in place; phones/tablets: the same drawer as before */
       if (window.innerWidth <= 900) {
         if (menuDrawer && menuDrawer.classList.contains('on')) { closeMenuDrawer(true); }
         else { openMenuDrawer(mb); }
@@ -363,12 +387,17 @@ const ROUTES = {
     document.addEventListener('click', function (e) {
       if (!pill.classList.contains('open') || hdrPinned !== true) return;
       if (pill.contains(e.target)) return;
+      /* a modal opened from the capsule owns the screen: keep it unfolded until it shrank back */
+      if (document.querySelector('#modalHost .modal-backdrop')) return;
       setOpen(false);
     });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && pill.classList.contains('open')) setOpen(false);
+      if (e.key !== 'Escape' || !pill.classList.contains('open')) return;
+      if (document.querySelector('#modalHost .modal-backdrop')) return; /* let the modal close first */
+      setOpen(false);
     });
     if (window.DDB_I18N && window.DDB_I18N.retranslate) window.DDB_I18N.retranslate(pill);
+    syncPillActive(parseRoute());
   }
 
   /* 两侧面板：可折叠 / 展开，状态跨工具与刷新保留 */
@@ -712,6 +741,7 @@ const ROUTES = {
     else showTool(route);
     ensureHeaderMenu();
     bindMenuTriggers();
+    syncLangChips();
     view.classList.remove('is-entering');
     void view.offsetWidth;
     view.classList.add('is-entering');
@@ -731,6 +761,23 @@ const ROUTES = {
     e.preventDefault();
     openSettings(t);
   });
+
+  /* language switch (home capsule + workspace header): one shared control */
+  function syncLangChips() {
+    const cur = (window.DDB_I18N && window.DDB_I18N.lang) || 'en';
+    Array.prototype.forEach.call(document.querySelectorAll('.dd-lang [data-set-lang]'), function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-set-lang') === cur ? 'true' : 'false');
+    });
+  }
+  document.addEventListener('click', function (e) {
+    const t = e.target && e.target.closest ? e.target.closest('[data-set-lang]') : null;
+    if (!t) return;
+    if (t.closest('.modal-card, .settings-panel')) return; /* settings panel owns its own buttons */
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.DDB_I18N) window.DDB_I18N.setLang(t.getAttribute('data-set-lang'));
+  });
+  window.addEventListener('ddb:lang', syncLangChips);
 
   let lastCompact = window.innerWidth <= 1024;
   window.addEventListener('resize', function () {
@@ -828,7 +875,20 @@ const ROUTES = {
       return;
     }
     const item = e.target.closest(".dd-file-pop button, .dd-file-pop a");
-    if (item) { closeFileMenu(item.closest(".dd-file-menu")); return; }
+    if (item) {
+      const d = item.closest(".dd-file-menu");
+      /* the tool's own handler may open a modal after this listener: decide on the next tick */
+      setTimeout(function () {
+        if (document.querySelector("#modalHost .modal-backdrop")) {
+          /* an item that opened a modal: retract the File menu only after that modal shrank back */
+          const h = function () { document.removeEventListener("ddb:modal-close", h); closeFileMenu(d); };
+          document.addEventListener("ddb:modal-close", h);
+        } else closeFileMenu(d);
+      }, 0);
+      return;
+    }
+    /* a modal owns the screen: leave the File menu where it is */
+    if (document.querySelector("#modalHost .modal-backdrop")) return;
     document.querySelectorAll(".dd-file-menu.is-open").forEach(function (d) { closeFileMenu(d); });
   });
 
@@ -849,7 +909,14 @@ const ROUTES = {
     if (to === menu) return;
     clearTimeout(menu._leaveT);
     menu._leaveT = setTimeout(function () {
-      if (!menu.matches(":hover")) closeFileMenu(menu);
+      if (menu.matches(":hover")) return;
+      /* a modal opened from this menu owns the screen: retract the menu when it shrank back */
+      if (document.querySelector("#modalHost .modal-backdrop")) {
+        const h = function () { document.removeEventListener("ddb:modal-close", h); closeFileMenu(menu); };
+        document.addEventListener("ddb:modal-close", h);
+        return;
+      }
+      closeFileMenu(menu);
     }, 160);
   }, false);
   document.addEventListener("pointerover", function (e) {
@@ -859,6 +926,7 @@ const ROUTES = {
   }, false);
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
+    if (document.querySelector("#modalHost .modal-backdrop")) return; /* let the modal close first */
     document.querySelectorAll(".dd-file-menu.is-open").forEach(function (d) { closeFileMenu(d); });
   });
 })();

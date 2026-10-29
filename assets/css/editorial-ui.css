@@ -2340,3 +2340,64 @@ html body .app-header .dd-nav-pill .dd-menu-btn{
   html body .tool-canvas .canvas-tools,
   html body .canvas-tools{ left: 10px !important; bottom: 80px !important; }
 }
+
+/* ============================================================
+   m16xxx · shared language switch (home capsule + workspace header)
+   ============================================================ */
+.dd-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  height: 30px;
+  padding: 2px;
+  border-radius: 999px;
+  background: rgba(20, 19, 15, 0.07);
+  flex: 0 0 auto;
+}
+.dd-lang button {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: none;
+  margin: 0;
+  height: 26px;
+  min-width: 26px;
+  padding: 0 6px;
+  border-radius: 999px;
+  cursor: pointer;
+  font: 600 11px/1 var(--ah-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+  letter-spacing: 0.04em;
+  color: rgba(20, 19, 15, 0.62);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.dd-lang button:hover { color: #14130f; background: rgba(20, 19, 15, 0.08); }
+.dd-lang button[aria-pressed="true"] { background: #14130f; color: #f7f5ef; }
+.dd-lang button:focus-visible { outline: 2px solid #14130f; outline-offset: 2px; }
+.ah-menu-wrap .dd-lang { margin: 0 4px 0 2px; }
+@media (max-width: 640px) {
+  .dd-lang { height: 28px; }
+  .dd-lang button { height: 24px; min-width: 24px; padding: 0 5px; font-size: 10.5px; }
+}
+@media (max-width: 520px) {
+  .dd-lang button { min-width: 20px; padding: 0 4px; }
+}
+
+/* restore anchored positioning of the menu panel above the 700px drawer breakpoint
+   (a later override forces position:relative, which drops the panel out of the
+   viewport when the drawer is opened from a right-edge trigger on desktop) */
+@media (min-width: 701px) {
+  html body .dd-menu .dd-menu-panel { position: absolute; }
+}
+
+
+/* ============================================================
+   m17xxx · shared brand element + persistent tool navigation
+   ============================================================ */
+
+/* settings: page animation can be switched off from the settings dialog */
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after {
+  animation: none !important;
+  transition: none !important;
+}

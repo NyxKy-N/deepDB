@@ -2578,3 +2578,44 @@ window.DDB_I18N_DICT = {
     D.it.texts['只改变按钮、链接与高亮等强调色，不影响界面底色。'] = 'Cambia solo pulsanti, link, focus ed evidenziazioni, non lo sfondo della pagina.';
   }
 })();
+
+/* patch-home-p0p1 — first-screen product statement, tool dock, honest exports, shared language switch */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D || !D.en) return;
+  var m = {
+    "Open designER": ["打开 designER", "Apri designER"],
+    "Design the database before the code.": ["先设计数据库，再写代码。", "Progetta il database prima del codice."],
+    "Four tools, made for students.": ["四个工具，为学习者而做。", "Quattro strumenti, pensati per chi studia."],
+    "FREE · NO ACCOUNT · OFFLINE": ["免费 · 免注册 · 离线可用", "GRATIS · NESSUN ACCOUNT · OFFLINE"],
+    "OPEN DESIGNER": ["打开 DESIGNER", "APRI DESIGNER"],
+    "( EXPORTS TO )": ["（导出格式）", "( FORMATI DI ESPORTAZIONE )"],
+    "Report a bug or ask on": ["报告问题或提问：", "Segnala un bug o chiedi su"]
+  };
+  Object.keys(m).forEach(function (k) { D.en.texts[k] = k; D.zh.texts[k] = m[k][0]; D.it.texts[k] = m[k][1]; });
+})();
+
+
+/* patch-home-product-surface — real product preview, honest exports, SQL DDL */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D || !D.en) return;
+  var m = {
+    "Collections, nested objects, arrays and references with JSON export.": ["集合、嵌套对象、数组与引用，并支持 JSON 导出。", "Collection, oggetti annidati, array e riferimenti con esportazione JSON."],
+    "Turn the finished ER model into relational schema text and SQL DDL.": ["把完成的 ER 模型转成关系模式文本与 SQL DDL。", "Trasforma il modello ER completato in schema relazionale e SQL DDL."],
+    "LIVE CANVAS": ["实时画布", "CANVAS LIVE"],
+    "CHECK · INSPECT · EXPORT": ["检查 · 查看 · 导出", "CONTROLLA · ISPEZIONA · ESPORTA"],
+    "WHY IT MATTERS": ["为什么重要", "PERCHÉ CONTA"],
+    "A failed check explains the rule and jumps to the element.": ["检查失败时会解释规则，并跳到对应元素。", "Un controllo fallito spiega la regola e salta all'elemento."],
+    "SQL DDL": ["SQL DDL", "SQL DDL"],
+    "SQL DDL exported": ["SQL DDL 已导出", "SQL DDL esportato"]
+  };
+  Object.keys(m).forEach(function (k) { D.en.texts[k] = k; D.zh.texts[k] = m[k][0]; D.it.texts[k] = m[k][1]; });
+})();
+/* patch-settings-motion — settings animation toggle copy */
+(function () {
+  var D = window.DDB_I18N_DICT; if (!D || !D.en) return;
+  var m = {
+    "动画": ["Motion", "Animazione"],
+    "关闭后页面的过渡与动效停用。": ["Turns page transitions and animations off.", "Disattiva transizioni e animazioni della pagina."]
+  };
+  Object.keys(m).forEach(function (k) { D.en.texts[k] = m[k][0]; D.it.texts[k] = m[k][1]; });
+})();

@@ -165,6 +165,7 @@ window.DDB = (function () {
       const host = document.getElementById('modalHost');
       host.innerHTML = '';
       const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const noMotion = document.documentElement.getAttribute('data-motion') === 'off';
       const back = document.createElement('div');
       back.className = 'modal-backdrop';
       const actions = (o.actions || []).map(function (a, i) {
@@ -220,6 +221,7 @@ window.DDB = (function () {
       }
       function animateIn() {
         if (!panel) return;
+        if (noMotion) return;
         const v = motionVectors();
         if (reduceMotion) {
           panel.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 140, easing: 'ease-out', fill: 'both' });
@@ -238,8 +240,10 @@ window.DDB = (function () {
           finished = true;
           host.innerHTML = '';
           if (o.onDismiss) o.onDismiss();
+          document.dispatchEvent(new CustomEvent('ddb:modal-close'));
         };
         if (!panel) { finish(); return; }
+        if (noMotion) { finish(); return; }
         if (reduceMotion) {
           panel.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease-in', fill: 'both' });
           setTimeout(finish, 160);
@@ -282,6 +286,11 @@ window.DDB = (function () {
     if (!el) { if (done) done(); return; }
     var o = opts || {};
     if (el._popAnim) { try { el._popAnim.cancel(); } catch (e) {} el._popAnim = null; }
+    if (document.documentElement.getAttribute('data-motion') === 'off') {
+      el.style.transformOrigin = ''; el.style.transform = ''; el.style.opacity = '';
+      if (done) done();
+      return;
+    }
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var rect = el.getBoundingClientRect();
     var ax = rect.left + rect.width / 2;

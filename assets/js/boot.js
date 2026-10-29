@@ -45,6 +45,9 @@
 
   function init() {
     applyAccent(readAccent());
+    let motion = 'on';
+    try { motion = localStorage.getItem('designerdb:v1:motion') === 'off' ? 'off' : 'on'; } catch (err) { }
+    document.documentElement.setAttribute('data-motion', motion);
   }
 
   window.DDB_BOOT = {
