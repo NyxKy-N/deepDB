@@ -940,6 +940,8 @@
       const geo = computeGeo();
       edgesEl.innerHTML = '';
       overlayEl.innerHTML = '';
+      // m14252: remember drawn line segments so later links can avoid crossing them.
+      const routeSegs = [];
       function attrLink(parentShape, attrId, cls) {
         const ap = pos[attrId];
         if (!ap || !parentShape) return;
@@ -1060,42 +1062,49 @@
         }
         return n;
       }
+      function segmentCrossRaw(ax, ay, bx, by, cx, cy, dx, dy) {
+        const rx = bx - ax, ry = by - ay, sx = dx - cx, sy = dy - cy;
+        const den = rx * sy - ry * sx;
+        if (Math.abs(den) < 1e-9) return false;
+        const t = ((cx - ax) * sy - (cy - ay) * sx) / den;
+        const u = ((cx - ax) * ry - (cy - ay) * rx) / den;
+        return t > 0.03 && t < 0.97 && u > 0.03 && u < 0.97;
+      }
+      function crossSegScore(x1, y1, x2, y2, relId, entId) {
+        let n = 0;
+        for (let i = 0; i < routeSegs.length; i++) {
+          const seg = routeSegs[i];
+          if (relId && seg.rel === relId) continue;
+          if (entId && seg.eid === entId) continue;
+          if (segmentCrossRaw(x1, y1, x2, y2, seg.a.x, seg.a.y, seg.b.x, seg.b.y)) n++;
+        }
+        return n;
+      }
+      function rememberSegs(pts, relId, entId) {
+        for (let i = 0; i < pts.length - 1; i++) routeSegs.push({ a: pts[i], b: pts[i + 1], rel: relId || null, eid: entId || null });
+      }
+      function scoreSeg(x1, y1, x2, y2, skip, relId, entId) {
+        return segHitScore(x1, y1, x2, y2, skip) * 100 + crossSegScore(x1, y1, x2, y2, relId, entId) * 100;
+      }
+      function quadPoints(pa, pb, c) {
+        const pts = [];
+        for (let i = 0; i <= 10; i++) {
+          const t = i / 10, mt = 1 - t;
+          pts.push({ x: mt * mt * pa.x + 2 * mt * t * c.x + t * t * pb.x, y: mt * mt * pa.y + 2 * mt * t * c.y + t * t * pb.y });
+        }
+        return pts;
+      }
+      function drawPolyline(pts, cls) {
+        if (pts.length <= 2) { edgesEl.appendChild(svgLine(pts[0].x, pts[0].y, pts[1].x, pts[1].y, cls)); return; }
+        const d = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        d.setAttribute('d', 'M' + pts[0].x + ',' + pts[0].y + pts.slice(1).map(function (pt) { return ' L' + pt.x + ',' + pt.y; }).join(''));
+        d.setAttribute('class', 'e-line route ' + cls);
+        d.setAttribute('fill', 'none');
+        edgesEl.appendChild(d);
+      }
       function drawRelationLink(pa, pb, relId, entId, double) {
-        const blocked = segHitsBoxes(pa.x, pa.y, pb.x, pb.y, [relId, entId]);
-        if (!blocked) {
-          edgesEl.appendChild(svgLine(pa.x, pa.y, pb.x, pb.y, double ? 'total' : ''));
-          if (double) {
-            const ox = -pa.uy * 3, oy = pa.ux * 3;
-            edgesEl.appendChild(svgLine(pa.x + ox, pa.y + oy, pb.x + ox, pb.y + oy, 'total'));
-          }
-          return;
-        }
-        const mx = (pa.x + pb.x) / 2, my = (pa.y + pb.y) / 2;
-        let ctrl = null;
-        let best = null;
-        const straightScore = segHitScore(pa.x, pa.y, pb.x, pb.y, [relId, entId]);
-        [90, 140, 190, 250, 320, 400, 480, 560].forEach(function (bow) {
-          for (let k = 0; k < 16; k++) {
-            const ang = (Math.PI * 2 * k) / 16;
-            const cx = mx + Math.cos(ang) * bow, cy = my + Math.sin(ang) * bow;
-            const sc = segHitScore(pa.x, pa.y, cx, cy, [relId, entId]) + segHitScore(cx, cy, pb.x, pb.y, [relId, entId]);
-            if (!best || sc < best.sc) best = { sc: sc, x: cx, y: cy };
-          }
-        });
-        if (best && best.sc < straightScore) ctrl = { x: best.x, y: best.y };
-        if (!ctrl) {
-          edgesEl.appendChild(svgLine(pa.x, pa.y, pb.x, pb.y, double ? 'total' : ''));
-          return;
-        }
-        const mk = function (off) {
-          const d = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          d.setAttribute('d', 'M' + (pa.x + off) + ',' + (pa.y + off) + ' Q' + ctrl.x + ',' + ctrl.y + ' ' + (pb.x + off) + ',' + (pb.y + off));
-          d.setAttribute('class', 'e-line route' + (double ? ' total' : ''));
-          d.setAttribute('fill', 'none');
-          return d;
-        };
-        edgesEl.appendChild(mk(0));
-        if (double) edgesEl.appendChild(mk(3));
+        // m14441: every participation is a single straight line, min=1 included.
+        edgesEl.appendChild(svgLine(pa.x, pa.y, pb.x, pb.y, ''));
       }
       state.model.relationships.forEach(function (rel) {
         const a = geo[rel.id];
@@ -1126,10 +1135,8 @@
         const sign = (vertical ? vy : vx) >= 0 ? 1 : -1;
         const ux = vertical ? 0 : sign, uy = vertical ? sign : 0;
         const px = -uy, py = ux;
-        // 接点：父实体边界的中心轴
         const ax = par.x + (vertical ? 0 : sign * (par.w / 2 + 1));
         const ay = par.y + (vertical ? sign * (par.h / 2 + 1) : 0);
-        // 空心三角形（IS-A 符号），贴在父实体边界上
         const TW = 9, TD = 16;
         const tri = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
         tri.setAttribute('points', [
@@ -1139,44 +1146,12 @@
         ].join(' '));
         tri.setAttribute('class', 'e-isa-tri');
         edgesEl.appendChild(tri);
-        // 各子实体在主方向上的投影，决定总线位置与长度
-        const projs = kids.map(function (k) {
-          return {
-            k: k,
-            along: (k.x - ax) * ux + (k.y - ay) * uy,
-            off: (k.x - ax) * px + (k.y - ay) * py
-          };
+        kids.forEach(function (k) {
+          const startP = edgePoint(par, k, par);
+          const endP = edgePoint(k, par, k);
+          edgesEl.appendChild(svgLine(startP.x, startP.y, endP.x, endP.y, 'thick'));
         });
-        let busDist = 58;
-        if (projs.length) {
-          const minAlong = Math.min.apply(null, projs.map(function (o) { return o.along; }));
-          busDist = util.clamp(Math.min(minAlong - 26, 170), TD + 16, 170);
-        }
-        const bx = ax + ux * busDist, by = ay + uy * busDist;
-        edgesEl.appendChild(svgLine(ax + ux * TD, ay + uy * TD, bx, by, 'thick'));
-        // 每个子实体的落点：沿总线方向平移 30px 再垂直 / 水平落到实体边界，
-        // 全部是直线段（不画斜线），同时避开边界正中的属性小球
-        const drops = projs.map(function (o) {
-          const t = o.off;
-          const k = o.k;
-          const hw = (k.w || 160) / 2, hh = (k.h || 92) / 2;
-          let tx, ty;
-          if (vertical) {
-            tx = k.x;
-            ty = sign > 0 ? k.y - hh : k.y + hh;
-          } else {
-            ty = k.y;
-            tx = sign > 0 ? k.x - hw : k.x + hw;
-          }
-          return { t: t, x: tx, y: ty };
-        });
-        const span = [0].concat(drops.map(function (d) { return d.t; }));
-        const tMin = Math.min.apply(null, span), tMax = Math.max.apply(null, span);
-        edgesEl.appendChild(svgLine(bx + px * tMin, by + py * tMin, bx + px * tMax, by + py * tMax, 'thick'));
-        drops.forEach(function (d) {
-          edgesEl.appendChild(svgLine(bx + px * d.t, by + py * d.t, d.x, d.y, 'thick'));
-        });
-        // 约束标签 (t,e)：可点选 ISA，改全参与/排他
+        // Constraint label (t,e): stays selectable, anchored near the triangle.
         const selected = state.selected && state.selected.ntype === 'isa' && state.selected.id === isa.id;
         const lab = document.createElement('button');
         lab.type = 'button';
@@ -1185,13 +1160,9 @@
         lab.setAttribute('data-ntype', 'isa');
         lab.setAttribute('aria-label', '选择泛化约束 ' + isaConstraint(isa));
         lab.textContent = '(' + isaConstraint(isa) + ')';
-        const lm = TD + (busDist - TD) * 0.55;
-        lab.style.left = Math.round(ax + ux * lm + px * 16) + 'px';
-        lab.style.top = Math.round(ay + uy * lm + py * 16) + 'px';
+        lab.style.left = Math.round(ax + ux * 26 + px * 16) + 'px';
+        lab.style.top = Math.round(ay + uy * 26 + py * 16) + 'px';
         overlayEl.appendChild(lab);
-        if (!kids.length) {
-          edgesEl.appendChild(svgLine(bx, by, bx + px * 26, by + py * 26, 'thick'));
-        }
       });
     }
     function isaConstraint(isa) {
@@ -1967,7 +1938,7 @@
         byId[e.id] = { id: e.id, w: g ? g.w : 200, h: g ? g.h : 64 };
       });
 
-      /* 1. ISA 层级（同一父下的子实体按模型顺序） */
+      /* 1. ISA hierarchy */
       const parentOf = {}, childrenOf = {};
       state.model.isas.forEach(function (isa) {
         if (!isa.parentId || !byId[isa.parentId]) return;
@@ -1986,7 +1957,7 @@
       ents.forEach(function (e) { if (!parentOf[e.id]) setDepth(e.id, 0); });
       ents.forEach(function (e) { if (depth[e.id] == null) setDepth(e.id, 0); });
 
-      /* 2. 稳定遍历顺序：根按模型顺序，先父后子，从左到右、从上到下 */
+      /* 2. stable order + adjacency (relationships + ISA) */
       const order = [], seen = {};
       function walk(id) {
         if (seen[id]) return;
@@ -1997,15 +1968,59 @@
       ents.forEach(function (e) { if (!parentOf[e.id]) walk(e.id); });
       ents.forEach(function (e) { walk(e.id); });
 
+      const adj = {};
+      ents.forEach(function (e) { adj[e.id] = []; });
+      function linkRel(a, b) {
+        if (!a || !b || a === b || !adj[a] || !adj[b]) return;
+        if (adj[a].indexOf(b) < 0) adj[a].push(b);
+        if (adj[b].indexOf(a) < 0) adj[b].push(a);
+      }
+      state.model.relationships.forEach(function (rel) {
+        const ids = [];
+        (rel.participants || []).forEach(function (p) {
+          const id = p && (p.entityId || p.entity);
+          if (id && byId[id] && ids.indexOf(id) < 0) ids.push(id);
+        });
+        for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) linkRel(ids[i], ids[j]);
+      });
+      state.model.isas.forEach(function (isa) {
+        if (!isa.parentId || !byId[isa.parentId]) return;
+        (isa.childIds || []).forEach(function (cid) { if (byId[cid]) linkRel(isa.parentId, cid); });
+      });
+
+      /* 3. BFS levels: ISA roots seed, relationships spread the rest */
+      const level = {};
+      function spread(startId, startLevel) {
+        if (!byId[startId] || level[startId] != null) return;
+        level[startId] = startLevel;
+        const q = [startId];
+        for (let qi = 0; qi < q.length; qi++) {
+          const id = q[qi];
+          (adj[id] || []).forEach(function (n) {
+            if (level[n] == null) { level[n] = level[id] + 1; q.push(n); }
+          });
+        }
+      }
+      const seeds = ents.filter(function (e) { return !parentOf[e.id]; });
+      (seeds.length ? seeds : ents.slice(0, 1)).forEach(function (e) { spread(e.id, depth[e.id] || 0); });
+      ents.forEach(function (e) { if (level[e.id] == null) spread(e.id, 0); });
+      state.model.isas.forEach(function (isa) {
+        if (!isa.parentId || !byId[isa.parentId]) return;
+        (isa.childIds || []).forEach(function (cid) {
+          if (byId[cid] && level[isa.parentId] != null && level[cid] != null && level[cid] <= level[isa.parentId]) {
+            level[cid] = level[isa.parentId] + 1;
+          }
+        });
+      });
+
+      /* 4. columns: one level per column, top-to-bottom inside a column */
+      const GAP_X = 480, GAP_Y = 160;
       const levels = [];
-      order.forEach(function (id) {
-        const d = depth[id] || 0;
-        (levels[d] = levels[d] || []).push(id);
+      ents.forEach(function (e) {
+        const d = level[e.id] || 0;
+        (levels[d] = levels[d] || []).push(e.id);
       });
       for (let d = 0; d < levels.length; d++) if (!levels[d]) levels[d] = [];
-
-      /* 3. 列 = 层级：x 严格从左到右；行 = 同层从上到下 */
-      const GAP_X = 170, GAP_Y = 140;
       const colW = [], rowH = [];
       levels.forEach(function (ids, d) {
         colW[d] = Math.max.apply(null, ids.map(function (id) { return byId[id].w; }).concat([140]));
@@ -2029,49 +2044,123 @@
         });
       });
 
-      /* 4. 关系放在参与者右侧的确定性候选位，按顺序放置 */
-      function hitsEntity(cx, cy) {
-        /* m13662: use the diamond's real half-size (80x46) with a 2px pad so a
-           relationship can sit in the narrow gap between two participants */
-        for (const id in pos) {
-          const b = byId[id], p = pos[id];
-          if (Math.abs(cx - p.x) < b.w / 2 + 80 + 2 && Math.abs(cy - p.y) < b.h / 2 + 46 + 2) return true;
+      /* 5. relationships live in the empty column between levels and are
+         stacked vertically with guaranteed spacing (no entity/relation boxes
+         can overlap because the gap column is empty) */
+      const buckets = {};
+      state.model.relationships.forEach(function (rel, idx) {
+        const ids = [];
+        (rel.participants || []).forEach(function (p) {
+          const id = p && (p.entityId || p.entity);
+          if (id && pos[id] && ids.indexOf(id) < 0) ids.push(id);
+        });
+        const lv = ids.map(function (id) { return level[id] || 0; });
+        const lo = lv.length ? Math.min.apply(null, lv) : 0;
+        const ys = ids.map(function (id) { return pos[id].y; });
+        const want = ys.length ? ys.reduce(function (s, y) { return s + y; }, 0) / ys.length : 0;
+        // m14252: stack diamonds in the same order as the entities on the
+        // left side of the gap, otherwise their spokes cross each other.
+        const leftIds = ids.slice().sort(function (a, b) { return pos[a].x - pos[b].x || pos[a].y - pos[b].y; });
+        const leftKey = leftIds.length ? pos[leftIds[0]].y : want;
+        (buckets[lo] = buckets[lo] || []).push({ rel: rel, idx: idx, want: want, leftKey: leftKey });
+      });
+      function segCross(a, b, c, d) {
+        const rx = b.x - a.x, ry = b.y - a.y, sx = d.x - c.x, sy = d.y - c.y;
+        const den = rx * sy - ry * sx;
+        if (Math.abs(den) < 1e-9) return false;
+        const t = ((c.x - a.x) * sy - (c.y - a.y) * sx) / den;
+        const u = ((c.x - a.x) * ry - (c.y - a.y) * rx) / den;
+        return t > 0.04 && t < 0.96 && u > 0.04 && u < 0.96;
+      }
+      function clipFrom(cx, cy, ex, ey, hw, hh) {
+        const dx = ex - cx, dy = ey - cy;
+        if (!dx && !dy) return { x: cx, y: cy };
+        const tx = dx ? hw / Math.abs(dx) : Infinity;
+        const ty = dy ? hh / Math.abs(dy) : Infinity;
+        const t = Math.min(1, tx, ty);
+        return { x: cx + dx * t, y: cy + dy * t };
+      }
+      function permute(list) {
+        if (list.length <= 1) return [list.slice()];
+        const out = [];
+        list.forEach(function (item, i) {
+          const rest = list.slice(0, i).concat(list.slice(i + 1));
+          permute(rest).forEach(function (tail) { out.push([item].concat(tail)); });
+        });
+        return out;
+      }
+      function boxSpokeHits(a, b, cx, cy, hw, hh) {
+        for (let i = 2; i <= 8; i++) {
+          const t = i / 10;
+          const x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t;
+          if (Math.abs(x - cx) < hw && Math.abs(y - cy) < hh) return true;
         }
         return false;
       }
-      const placed = [];
-      function hitsRel(cx, cy) {
-        for (let i = 0; i < placed.length; i++) {
-          const R = placed[i];
-          if (Math.abs(cx - R.cx) < 80 + 18 && Math.abs(cy - R.cy) < 46 + 18) return true;
+      const relCenter = {};
+      Object.keys(buckets).forEach(function (key) {
+        const lo = parseInt(key, 10) || 0;
+        const x = lefts[lo] != null ? lefts[lo] + colW[lo] + GAP_X / 2 : GAP_X / 2;
+        const arr = buckets[key].slice().sort(function (a, b) { return a.leftKey - b.leftKey || a.want - b.want || a.idx - b.idx; });
+        const SP = 118;
+        function layoutOrder(seq) {
+          const ys = seq.map(function (o) { return o.want; });
+          for (let i = 1; i < ys.length; i++) if (ys[i] < ys[i - 1] + SP) ys[i] = ys[i - 1] + SP;
+          const got = ys.reduce(function (sum, y) { return sum + y; }, 0) / ys.length;
+          const want = seq.reduce(function (sum, o) { return sum + o.want; }, 0) / seq.length;
+          const shift = want - got;
+          return seq.map(function (o, i) { return { o: o, y: ys[i] + shift }; });
         }
-        return false;
-      }
-      state.model.relationships.forEach(function (rel) {
-        const pts = (rel.participants || []).map(function (p) { return pos[p.entityId || p.entity]; }).filter(Boolean);
-        const cx = pts.length ? pts.reduce(function (s, p) { return s + p.x; }, 0) / pts.length : 0;
-        const cy = pts.length ? pts.reduce(function (s, p) { return s + p.y; }, 0) / pts.length : 0;
-        /* midpoint first, then a deterministic ring around it */
-        const offsets = [[0, 0], [180, 0], [-180, 0], [0, 160], [0, -160], [180, -160], [180, 160], [-180, -160], [-180, 160], [360, 0], [-360, 0], [0, 320], [0, -320]];
+        function scoreOrder(placed) {
+          const spokes = [];
+          placed.forEach(function (p) {
+            const relIds = (p.o.rel.participants || []).map(function (pt) { return pt.entityId || pt.entity; });
+            relIds.forEach(function (eid) {
+              if (!byId[eid]) return;
+              const a = clipFrom(x, p.y, pos[eid].x, pos[eid].y, 80, 46);
+              const b = clipFrom(pos[eid].x, pos[eid].y, x, p.y, byId[eid].w / 2 + 6, byId[eid].h / 2 + 6);
+              spokes.push({ rel: p.o.rel.id, eid: eid, a: a, b: b, relIds: relIds });
+            });
+          });
+          let cross = 0, boxHits = 0;
+          for (let i = 0; i < spokes.length; i++) {
+            for (let j = i + 1; j < spokes.length; j++) {
+              if (spokes[i].rel === spokes[j].rel || spokes[i].eid === spokes[j].eid) continue;
+              if (segCross(spokes[i].a, spokes[i].b, spokes[j].a, spokes[j].b)) cross++;
+            }
+            spokes[i].relIds.forEach(function (eid) {});
+          }
+          spokes.forEach(function (s) {
+            Object.keys(byId).forEach(function (eid) {
+              if (eid === s.eid || s.relIds.indexOf(eid) >= 0) return;
+              const g = byId[eid];
+              if (boxSpokeHits(s.a, s.b, pos[eid].x, pos[eid].y, g.w / 2 + 4, g.h / 2 + 4)) boxHits++;
+            });
+          });
+          return cross * 10 + boxHits * 100;
+        }
         let best = null;
-        for (let i = 0; i < offsets.length; i++) {
-          const tx = cx + offsets[i][0], ty = cy + offsets[i][1];
-          if (!hitsEntity(tx, ty) && !hitsRel(tx, ty)) { best = { cx: tx, cy: ty }; break; }
-        }
-        if (!best) best = { cx: cx, cy: cy };
-        placed.push({ rel: rel, cx: best.cx, cy: best.cy });
+        const orders = arr.length <= 6 ? permute(arr) : [arr];
+        orders.forEach(function (seq) {
+          const placed = layoutOrder(seq);
+          const score = scoreOrder(placed);
+          if (!best || score < best.score) best = { score: score, placed: placed };
+        });
+        (best ? best.placed : []).forEach(function (p) { relCenter[p.o.rel.id] = { cx: x, cy: p.y }; });
       });
 
-      /* 5. 整体平移到正坐标 */
+      /* 6. shift whole model to positive coords and write back */
       let minX = Infinity, minY = Infinity;
       ents.forEach(function (e) {
         const p = pos[e.id], b = byId[e.id];
         minX = Math.min(minX, p.x - b.w / 2);
         minY = Math.min(minY, p.y - b.h / 2);
       });
-      placed.forEach(function (R) {
-        minX = Math.min(minX, R.cx - 80);
-        minY = Math.min(minY, R.cy - 46);
+      state.model.relationships.forEach(function (rel) {
+        const c = relCenter[rel.id];
+        if (!c) return;
+        minX = Math.min(minX, c.cx - 80);
+        minY = Math.min(minY, c.cy - 46);
       });
       const sx = 140 - minX, sy = 140 - minY;
       ents.forEach(function (e) {
@@ -2079,9 +2168,11 @@
         e.x = Math.round(p.x + sx - b.w / 2);
         e.y = Math.round(p.y + sy - b.h / 2);
       });
-      placed.forEach(function (R) {
-        R.rel.x = Math.round(R.cx + sx - 80);
-        R.rel.y = Math.round(R.cy + sy - 46);
+      state.model.relationships.forEach(function (rel) {
+        const c = relCenter[rel.id];
+        if (!c) { rel.x = Math.round(sx); rel.y = Math.round(sy); return; }
+        rel.x = Math.round(c.cx + sx - 80);
+        rel.y = Math.round(c.cy + sy - 46);
       });
 
       function resetAttrPos(list) {
@@ -2450,9 +2541,9 @@
         case 'new': newModel(); break;
         case 'sample':
           state.model = sampleModel();
-          history.reset();
           state.selected = null; state.selectedAttr = null;
           autoLayout();
+          history.reset();
           setTimeout(function () { fitView(0.42); }, 80);
           setTimeout(function () { fitView(0.42); }, 240);
           ui.toast('已载入示例：选课系统', 'ok');
@@ -2541,7 +2632,10 @@
           ui.toast(a.nocard ? '已设为普通属性（不显示基数）' : (a.multi ? '已设为多值属性（cardinality N）' : '已设为单值属性（cardinality 1）'));
           break;
         }
-        case 'layout': autoLayout(); break;
+        case 'layout':
+          if (state.model.entities.length) { dirty = true; pushNow(); }
+          autoLayout();
+          break;
         case 'zoom-in': zoomAt(1.15); break;
         case 'zoom-out': zoomAt(1 / 1.15); break;
         case 'zoom-fit': fitView(); break;
