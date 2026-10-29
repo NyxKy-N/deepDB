@@ -52,7 +52,7 @@
     var rId = function (n) { return 'rel_er' + n; };
     var aId = function (n) { return 'a_er' + n; };
     var model = { version: 1, name: 'Imported .er model', entities: [], relationships: [], isas: [] };
-    var entBy = {}, relBy = {};
+    var entBy = {}, relBy = {}, extWeak = {};
     items.forEach(function (it) {
       if (!it) return;
       if (it.__type === 'Entity') {
@@ -85,6 +85,9 @@
         var rel = relBy[it._relationshipId]; var ent = entBy[it._entityId];
         if (!rel || !ent) return;
         var c = parseCard(it._cardinality);
+        /* .er marks the identifying relationship of a weak entity on the
+           weak side as _externalIdentifier: its key comes from the owner. */
+        if (it._externalIdentifier) extWeak[it._entityId] = true;
         rel.participants.push({ id: 'p_er' + it._id, entityId: ent.id, min: c.min, max: c.max, role: it._role || '' });
       } else if (it.__type === 'Attribute') {
         var parent = byId[it._parentId]; var attr = attrMap[it._id];
@@ -95,6 +98,16 @@
           var pa = attrMap[parent._id];
           pa.composite = true; pa.children.push({ id: attr.id, name: attr.name, type: attr.type, key: false, partial: false, multi: attr.multi, min: attr.min || 0, nocard: attr.nocard, x: null, y: null });
         }
+      }
+    });
+    Object.keys(extWeak).forEach(function (eid) {
+      var e = entBy[eid];
+      if (!e) return;
+      e.weak = true;
+      /* The source .er marks the weak side but often omits the partial key.
+         Treat its own leaf attributes as partial key so the import validates. */
+      if (!e.attributes.some(function (a) { return a.key; })) {
+        e.attributes.forEach(function (a) { if (!(a.children && a.children.length)) a.key = true; });
       }
     });
     /* Generalization / GeneralizationChild -> isas */
@@ -358,6 +371,7 @@
     const menuEl = $('#erMenu');
     const edgeMenuEl = $('#erEdgeMenu');
     const EDGE_POP = { scale: 0.16, shift: 1, open: 220, close: 180 };
+    const CPK_POP = { scale: 0.18, shift: 1, open: 240, close: 180 };
     let menuCloseTimer = 0;
     let edgeCloseTimer = 0;
 
@@ -553,11 +567,18 @@
       });
       return names;
     }
+    /* 复合键摘要：最多展示两个键名，其余折叠为 +N，避免实体框随键数量无限变宽 */
+    function keySummary(names) {
+      const shown = names.slice(0, 2);
+      let text = shown.join(' + ');
+      if (names.length > shown.length) text += ' +' + (names.length - shown.length);
+      return text;
+    }
     function compoundKeyHTML(owner) {
       const names = keyNamesOf(owner);
       if (names.length < 2) return '';
-      return '<div class="er-cpk" title="复合键：' + esc(names.join(' + ')) + '">' +
-        '<span class="er-cpk-k">复合键</span><span class="er-cpk-v">' + esc(names.join(' + ')) + '</span></div>';
+      return '<div class="er-cpk" role="button" tabindex="0" data-keys="' + esc(JSON.stringify(names)) + '" title="' + esc(cpkTitle(true, names) + names.join(' + ')) + '">' +
+        '<span class="er-cpk-k">复合键</span><span class="er-cpk-v">' + esc(keySummary(names)) + '</span></div>';
     }
     /* ---------- 外键（引用的另一端实体的主键） ---------- */
     function findAttrById(owner, attrId) {
@@ -599,15 +620,102 @@
       if (fkNames.length) {
         if (!own.length) {
           const fkText = fkNames.join(' · ');
-          return '<div class="er-fk er-fk-pk" title="主键：' + esc(fkText) + '">' +
+          return '<div class="er-fk er-fk-pk" role="button" tabindex="0" data-keys="' + esc(JSON.stringify(fkNames)) + '" title="' + esc(cpkTitle(false, fkNames) + fkText) + '">' +
             '<span class="er-fk-k">PK</span><span class="er-fk-v">' + esc(clipLabel(fkText, 26)) + '</span></div>';
         }
         const all = own.concat(fkNames);
-        return '<div class="er-cpk er-cpk-fk" title="复合键：' + esc(all.join(' + ')) + '">' +
-          '<span class="er-cpk-k">复合键</span><span class="er-cpk-v">' + esc(all.join(' + ')) + '</span></div>';
+        return '<div class="er-cpk er-cpk-fk" role="button" tabindex="0" data-keys="' + esc(JSON.stringify(all)) + '" title="' + esc(cpkTitle(true, all) + all.join(' + ')) + '">' +
+          '<span class="er-cpk-k">复合键</span><span class="er-cpk-v">' + esc(keySummary(all)) + '</span></div>';
       }
       return compoundKeyHTML(ent);
     }
+
+    /* ---------- 键 chip 详情浮层：点击复合键 / 外键查看完整键名 ---------- */
+    let cpkPop = null;
+    function cpkLang() {
+      const l = String(document.documentElement.lang || 'en').toLowerCase();
+      if (l.indexOf('it') === 0) return 'it';
+      if (l.indexOf('zh') === 0) return 'zh';
+      return 'en';
+    }
+    function cpkTexts(isComposite, count) {
+      const l = cpkLang();
+      if (l === 'it') return { title: isComposite ? 'Chiave composta' : 'Chiave', count: count + (count === 1 ? ' chiave' : ' chiavi'), close: 'Chiudi' };
+      if (l === 'zh') return { title: isComposite ? '复合键' : '键', count: count + ' 个键', close: '关闭' };
+      return { title: isComposite ? 'Composite key' : 'Key', count: count + (count === 1 ? ' key' : ' keys'), close: 'Close' };
+    }
+    function cpkTitle(isComposite, names) {
+      return cpkTexts(isComposite, names.length).title + (cpkLang() === 'zh' ? '：' : ': ');
+    }
+    function hideCpkPop(animate) {
+      if (!cpkPop) return;
+      const pop = cpkPop.pop;
+      cpkPop = null;
+      const remove = function () { if (pop && pop.parentNode) pop.parentNode.removeChild(pop); };
+      if (animate && ui.popFrom && pop) ui.popFrom(pop, pop._popAnchor || null, 'close', remove, CPK_POP);
+      else remove();
+    }
+    function showCpkPop(chip) {
+      let names = [];
+      try { names = JSON.parse(chip.getAttribute('data-keys') || '[]'); } catch (err) { names = []; }
+      if (!names.length) return;
+      hideCpkPop(false);
+      const isComposite = chip.classList.contains('er-cpk');
+      const txt = cpkTexts(isComposite, names.length);
+      const pop = document.createElement('div');
+      pop.className = 'cpk-pop';
+      pop.id = 'cpkPop';
+      pop.setAttribute('role', 'dialog');
+      pop.setAttribute('aria-label', txt.title);
+      pop.innerHTML = '<div class="cpk-pop-head"><span class="cpk-pop-title">' + esc(txt.title) + '</span>' +
+        '<span class="cpk-pop-count">' + esc(txt.count) + '</span></div>' +
+        '<ul class="cpk-pop-list">' + names.map(function (n, i) {
+          return '<li><span class="cpk-pop-idx">' + (i + 1) + '</span><span class="cpk-pop-name">' + esc(n) + '</span></li>';
+        }).join('') + '</ul>';
+      pop._popAnchor = chip;
+      document.body.appendChild(pop);
+      const r = chip.getBoundingClientRect();
+      const pr = pop.getBoundingClientRect();
+      let left = r.left + r.width / 2 - pr.width / 2;
+      left = Math.min(Math.max(10, left), window.innerWidth - pr.width - 10);
+      let top = r.bottom + 8;
+      if (top + pr.height > window.innerHeight - 10) top = Math.max(10, r.top - pr.height - 8);
+      pop.style.left = Math.round(left) + 'px';
+      pop.style.top = Math.round(top) + 'px';
+      cpkPop = { chip: chip, pop: pop };
+      if (ui.popFrom) ui.popFrom(pop, chip, 'open', null, CPK_POP);
+    }
+    function toggleCpkPop(chip) {
+      if (cpkPop && cpkPop.chip === chip) { hideCpkPop(true); return; }
+      showCpkPop(chip);
+    }
+    document.addEventListener('pointerdown', function (e) {
+      if (!cpkPop) return;
+      if (e.target.closest('#cpkPop') || e.target.closest('.er-cpk, .er-fk')) return;
+      hideCpkPop(true);
+    }, true);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && cpkPop) { e.preventDefault(); hideCpkPop(true); }
+    });
+    window.addEventListener('wheel', function (e) {
+      if (!cpkPop || e.target.closest('#cpkPop')) return;
+      hideCpkPop(true);
+    }, { passive: true, capture: true });
+    nodesEl.addEventListener('click', function (e) {
+      const chip = e.target.closest('.er-cpk, .er-fk');
+      if (!chip || !nodesEl.contains(chip) || state.linking) return;
+      e.preventDefault();
+      e.stopPropagation();
+      toggleCpkPop(chip);
+    });
+    nodesEl.addEventListener('keydown', function (e) {
+      const chip = e.target.closest('.er-cpk, .er-fk');
+      if (!chip || !nodesEl.contains(chip) || state.linking) return;
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      e.stopPropagation();
+      toggleCpkPop(chip);
+    });
     /* 某个实体可选的外键来源：它能参与的每个关系里，另一端实体的主键属性 */
     function fkCandidates(ent) {
       const seen = {};
@@ -1146,10 +1254,42 @@
         ].join(' '));
         tri.setAttribute('class', 'e-isa-tri');
         edgesEl.appendChild(tri);
-        kids.forEach(function (k) {
-          const startP = edgePoint(par, k, par);
-          const endP = edgePoint(k, par, k);
-          edgesEl.appendChild(svgLine(startP.x, startP.y, endP.x, endP.y, 'thick'));
+        // 各子实体在主方向上的投影，决定总线位置与长度
+        const projs = kids.map(function (k) {
+          return {
+            k: k,
+            along: (k.x - ax) * ux + (k.y - ay) * uy,
+            off: (k.x - ax) * px + (k.y - ay) * py
+          };
+        });
+        let busDist = 58;
+        if (projs.length) {
+          const minAlong = Math.min.apply(null, projs.map(function (o) { return o.along; }));
+          busDist = util.clamp(Math.min(minAlong - 26, 170), TD + 16, 170);
+        }
+        const bx = ax + ux * busDist, by = ay + uy * busDist;
+        edgesEl.appendChild(svgLine(ax + ux * TD, ay + uy * TD, bx, by, 'thick'));
+        // 每个子实体的落点：沿总线方向平移 30px 再垂直 / 水平落到实体边界，
+        // 全部是直线段（不画斜线），同时避开边界正中的属性小球
+        const drops = projs.map(function (o) {
+          const t = o.off;
+          const k = o.k;
+          const hw = (k.w || 160) / 2, hh = (k.h || 92) / 2;
+          let tx, ty;
+          if (vertical) {
+            tx = k.x;
+            ty = sign > 0 ? k.y - hh : k.y + hh;
+          } else {
+            ty = k.y;
+            tx = sign > 0 ? k.x - hw : k.x + hw;
+          }
+          return { t: t, x: tx, y: ty };
+        });
+        const span = [0].concat(drops.map(function (d) { return d.t; }));
+        const tMin = Math.min.apply(null, span), tMax = Math.max.apply(null, span);
+        edgesEl.appendChild(svgLine(bx + px * tMin, by + py * tMin, bx + px * tMax, by + py * tMax, 'thick'));
+        drops.forEach(function (d) {
+          edgesEl.appendChild(svgLine(bx + px * d.t, by + py * d.t, d.x, d.y, 'thick'));
         });
         // Constraint label (t,e): stays selectable, anchored near the triangle.
         const selected = state.selected && state.selected.ntype === 'isa' && state.selected.id === isa.id;
@@ -1327,7 +1467,7 @@
         if (!parent || !child) return;
         const childHas = state.model.isas.find(function (i) { return i.childIds.indexOf(child.id) >= 0; });
         if (childHas) { ui.toast('已有父实体：ISA 不允许继承多个实体', 'err'); return; }
-        if (isaWouldCycle(child.id, parent.id)) { ui.toast('不能形成循环继承（实体不能成为自己后代的子类）', 'err'); return; }
+        if (isaWouldCycle(child.id, parent.id)) { ui.toast('不能形成循环继承（实体不能成为自己后代的子实体）', 'err'); return; }
         let isa = state.model.isas.find(function (i) { return i.parentId === parent.id; });
         if (!isa) {
           isa = { id: uid('isa'), type: 'isa', name: 'ISA', x: (parent.x + child.x) / 2, y: (parent.y + child.y) / 2 - 40, parentId: parent.id, childIds: [] };
@@ -1390,15 +1530,15 @@
         html += '<div class="insp-section"><div class="insp-title">ISA 泛化</div>' +
           '<button class="btn btn--sm btn--block ' + (state.linking === 'isa' ? 'btn--on' : 'btn--primary') + '" data-act="link-isa" data-id="' + ent.id + '">' +
           (state.linking === 'isa' ? '正在链接…点击另一个实体' : '链接实体（连成 ISA）') + '</button>' +
-          (asParent ? '<div class="kv"><span class="k">子类</span><span class="v">' + asParent.childIds.map(function (cid) {
+          (asParent ? '<div class="kv"><span class="k">子实体</span><span class="v">' + asParent.childIds.map(function (cid) {
             const e = getEntity(cid);
             return esc(e ? e.name : '（已删除）');
           }).join('、') + '</span></div>' : '') +
-          (sup ? '<div class="kv"><span class="k">超类</span><span class="v">' + esc(sup.name) +
+          (sup ? '<div class="kv"><span class="k">父实体</span><span class="v">' + esc(sup.name) +
             ' <button class="icon-x" title="解除继承" data-act="unlink-isa" data-id="' + ent.id + '">✕</button></span></div>' : '') +
           '<div class="hint">' + (state.linking === 'isa'
-            ? '再点击另一个实体，它将成为「' + esc(ent.name) + '」的子类。'
-            : '点按钮后再点另一个实体，对方成为子类。') + '</div>' +
+            ? '再点击另一个实体，它将成为「' + esc(ent.name) + '」的子实体。'
+            : '点按钮后再点另一个实体，对方成为子实体。') + '</div>' +
           '</div>';
         const parts = state.model.relationships.filter(function (r) {
           return r.participants.some(function (p) { return p.entityId === ent.id; });
@@ -1469,7 +1609,7 @@
         if (!isa) { box.innerHTML = inspEmpty(); return; }
         html += '<div class="insp-section">' +
           '<div class="insp-title">ISA 泛化</div>' +
-          '<label class="field"><span>父实体（超类）</span><select ' + b({ t: 'isa', id: isa.id, f: 'parentId' }) + '>' +
+          '<label class="field"><span>父实体</span><select ' + b({ t: 'isa', id: isa.id, f: 'parentId' }) + '>' +
           '<option value="">— 未设置 —</option>' +
           state.model.entities.map(function (e) {
             return '<option value="' + e.id + '"' + (e.id === isa.parentId ? ' selected' : '') + '>' + esc(e.name) + '</option>';
@@ -1488,15 +1628,15 @@
                 return '<option value="' + o[0] + '"' + (o[0] === cur ? ' selected' : '') + '>' + o[1] + '</option>';
               }).join('') +
               '</select></label>' +
-              '<div class="hint">约束显示在连接线上，点击也可选中。全参与＝每个父类实例必须有子类；排他＝只能属于一个子类。</div>';
+              '<div class="hint">约束显示在连接线上，点击也可选中。全参与＝每个父实体实例必须有子实体；排他＝只能属于一个子实体。</div>';
           })() +
           '</div>';
-        html += '<div class="insp-section"><div class="insp-title">子实体（子类） <span class="hint">' + isa.childIds.length + '</span></div>' +
+        html += '<div class="insp-section"><div class="insp-title">子实体 <span class="hint">' + isa.childIds.length + '</span></div>' +
           (isa.childIds.length ? isa.childIds.map(function (cid) {
             const e = getEntity(cid);
             return '<div class="kv"><span class="k">' + (e ? esc(e.name) : '（已删除）') + '</span>' +
               '<span class="v"><button class="icon-x" data-act="del-isa-child" data-isa-id="' + isa.id + '" data-child-id="' + cid + '">✕</button></span></div>';
-          }).join('') : '<div class="hint">还没有子类。</div>') +
+          }).join('') : '<div class="hint">还没有子实体。</div>') +
           '</div>';
         html += '<div class="insp-section"><div class="insp-actions">' +
           '<button class="btn btn--sm" data-act="locate" data-ntype="isa" data-id="' + isa.id + '">居中显示</button>' +
@@ -1638,7 +1778,7 @@
         el.innerHTML = '<b>' + esc(nodeName(n)) + '</b>' +
           '<span>' + (state.linking === 'part'
             ? '　已选中 · 点击实体添加参与端 · Esc 取消'
-            : '　已选中 · 点击另一个实体设为子类 · Esc 取消') + '</span>';
+            : '　已选中 · 点击另一个实体设为子实体 · Esc 取消') + '</span>';
       } else {
         el.textContent = '链接模式 · 先点击起点，再点击目标 · Esc 取消';
       }
@@ -1660,7 +1800,7 @@
       clearTimeout(menuCloseTimer);
       menuEl.classList.remove('closing');
       if (animate === false || !ui.popFrom) { menuEl.hidden = true; return; }
-      ui.popFrom(menuEl, menuEl._popAnchor || null, 'close', function () { menuEl.hidden = true; });
+      ui.popFrom(menuEl, menuEl._popAnchor || null, 'close', function () { menuEl.hidden = true; }, EDGE_POP);
     }
     function hideEdgeMenu(animate) {
       if (!edgeMenuEl || edgeMenuEl.hidden) return;
@@ -1672,11 +1812,12 @@
     function placeMenu(el, rect) {
       if (!el) return;
       const cr = canvasEl.getBoundingClientRect();
-      let x = rect ? rect.left - cr.left : 40;
+      let x = rect ? rect.left - cr.left + rect.width / 2 : 40;
       let y = rect ? rect.bottom - cr.top + 8 : 40;
       el.hidden = false;
       el.classList.remove('closing');
       const mw = el.offsetWidth || 190, mh = el.offsetHeight || 140;
+      x = x - mw / 2;
       x = util.clamp(x, 8, Math.max(8, cr.width - mw - 8));
       y = util.clamp(y, 8, Math.max(8, cr.height - mh - 8));
       el.style.left = Math.round(x) + 'px';
@@ -1750,19 +1891,20 @@
       let anchor = null;
       if (ntype === 'isa') {
         const lab = overlayEl.querySelector('.isa-label[data-node="' + id + '"]');
-        if (lab) { anchor = lab; const r = lab.getBoundingClientRect(); x = r.left - cr.left; y = r.bottom - cr.top + 6; }
+        if (lab) { anchor = lab; const r = lab.getBoundingClientRect(); x = r.left - cr.left + r.width / 2; y = r.bottom - cr.top + 6; }
       } else {
         const el = nodesEl.querySelector('[data-node="' + id + '"]');
-        if (el) { anchor = el; const r = el.getBoundingClientRect(); x = r.left - cr.left; y = r.bottom - cr.top + 6; }
+        if (el) { anchor = el; const r = el.getBoundingClientRect(); x = r.left - cr.left + r.width / 2; y = r.bottom - cr.top + 6; }
       }
       menuEl.hidden = false;
       const mw = menuEl.offsetWidth || 120, mh = menuEl.offsetHeight || 110;
+      x = x - mw / 2;
       x = util.clamp(x, 8, Math.max(8, cr.width - mw - 8));
       y = util.clamp(y, 8, Math.max(8, cr.height - mh - 8));
       menuEl.style.left = Math.round(x) + 'px';
       menuEl.style.top = Math.round(y) + 'px';
       menuEl._popAnchor = anchor;
-      if (ui.popFrom) ui.popFrom(menuEl, anchor, 'open');
+      if (ui.popFrom) ui.popFrom(menuEl, anchor, 'open', null, EDGE_POP);
     }
     /* ---------- 选择 ---------- */
     /* 只切换选中类，避免整块 DOM 重建造成一次闪烁 */
@@ -2274,15 +2416,13 @@
       const downNode = e.target.closest('[data-node]');
       menuEl._toggleIntent = null;
       if (menuEl && !menuEl.hidden && !e.target.closest('#erMenu, [data-attr-node], .isa-label')) {
-        if (downNode && menuEl.dataset.ntype === downNode.dataset.ntype && menuEl.dataset.node === downNode.dataset.node) menuEl._toggleIntent = downNode.dataset.ntype + '|' + downNode.dataset.node;
-        hideNodeMenu(false);
+        if (downNode && menuEl.dataset.ntype === downNode.dataset.ntype && menuEl.dataset.node === downNode.dataset.node) {
+          menuEl._toggleIntent = downNode.dataset.ntype + '|' + downNode.dataset.node;
+        } else hideNodeMenu(false);
       }
       if (edgeMenuEl && !edgeMenuEl.hidden && !e.target.closest('#erEdgeMenu, [data-act="edit-card"], .isa-label')) hideEdgeMenu(false);
-      const isaLabel = e.target.closest('.isa-label');
-      if (isaLabel) {
-        select('isa', isaLabel.dataset.node, null);
-        showIsaMenu(isaLabel.dataset.node, isaLabel.getBoundingClientRect());
-        e.preventDefault();
+      const keyChipEl = e.target.closest('.er-cpk, .er-fk');
+      if (keyChipEl && e.button === 0 && !state.linking) {
         return;
       }
       const ctrlEl = e.target.closest('[data-act], button, a, input, select, textarea');
@@ -2801,6 +2941,12 @@
       }
       const tabBtn = e.target.closest('#erTabs .tab');
       if (tabBtn) { setTab(tabBtn.dataset.tab); return; }
+      const isaLabel = e.target.closest('.isa-label');
+      if (isaLabel) {
+        select('isa', isaLabel.dataset.node, null);
+        showIsaMenu(isaLabel.dataset.node, isaLabel.getBoundingClientRect());
+        return;
+      }
       const actBtn = e.target.closest('[data-act]');
       if (!actBtn) return;
       const act = actBtn.dataset.act;

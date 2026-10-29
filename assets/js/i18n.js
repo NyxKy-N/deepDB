@@ -106,19 +106,19 @@
     }],
     [/^N:M \u5173\u7cfb (.+)$/, function (m, l) { return l === 'it' ? 'Relazione N:M ' + m[1] : 'N:M relationship ' + m[1]; }],
     [/^ISA\uff1a\u5b50\u7c7b\u300c(.+?)\u300d\u7ee7\u627f\u7236\u7c7b\u300c(.+?)\u300d\u7684\u4e3b\u952e\u4f5c\u4e3a\u81ea\u8eab\u4e3b\u952e\uff08\u4e00\u8868\u4e00\u7c7b\u7684\u6620\u5c04\uff09\u3002$/, function (m, l) {
-      return l === 'it' ? 'ISA: la sottoclasse \u00ab' + m[1] + '\u00bb eredita la chiave primaria di \u00ab' + m[2] + '\u00bb (una tabella per classe).' : 'ISA: subclass \u201c' + m[1] + '\u201d inherits the primary key of \u201c' + m[2] + '\u201d (one table per class).';
+      return l === 'it' ? 'ISA: l’entità figlia \u00ab' + m[1] + '\u00bb eredita la chiave di \u00ab' + m[2] + '\u00bb (una tabella per classe).' : 'ISA: child entity \u201c' + m[1] + '\u201d inherits the primary key of \u201c' + m[2] + '\u201d (one table per class).';
     }],
     [/^ISA \u5b50\u7c7b\u300c(.+?)\u300d\u7684\u539f\u4e3b\u952e\u300c(.+?)\u300d\u6539\u4e3a\u552f\u4e00\u7ea6\u675f\u3002$/, function (m, l) {
-      return l === 'it' ? 'ISA, sottoclasse \u00ab' + m[1] + '\u00bb: la chiave primaria \u00ab' + m[2] + '\u00bb diventa un vincolo di unicit\u00e0.' : 'ISA subclass \u201c' + m[1] + '\u201d: the original primary key \u201c' + m[2] + '\u201d becomes a unique constraint.';
+      return l === 'it' ? 'ISA, entità figlia \u00ab' + m[1] + '\u00bb: la chiave \u00ab' + m[2] + '\u00bb diventa un vincolo di unicit\u00e0.' : 'ISA child entity \u201c' + m[1] + '\u201d: the original primary key \u201c' + m[2] + '\u201d becomes a unique constraint.';
     }],
     [/^1:N \u5173\u7cfb\u300c(.+?)\u300d\uff1a\u5916\u952e\u653e\u5728\u300c(.+?)\u300d\uff08\u6700\u5927\u57fa\u6570\u4e3a 1 \u7684\u4e00\u4fa7\uff09\uff0c\u5f15\u7528\u300c(.+?)\u300d\u7684\u4e3b\u952e(.*)$/, function (m, l) {
       var tail = m[4] || '';
       var cascade = /CASCADE/.test(tail);
-      if (l === 'it') return 'Relazione 1:N \u00ab' + m[1] + '\u00bb: chiave esterna in \u00ab' + m[2] + '\u00bb (lato con cardinalit\u00e0 massima 1) che referenzia la chiave primaria di \u00ab' + m[3] + '\u00bb' + (cascade ? ', NOT NULL / ON DELETE CASCADE' : ', nullable / ON DELETE SET NULL') + '.';
+      if (l === 'it') return 'Relazione 1:N \u00ab' + m[1] + '\u00bb: chiave in \u00ab' + m[2] + '\u00bb (lato con cardinalit\u00e0 massima 1) che referenzia la chiave di \u00ab' + m[3] + '\u00bb' + (cascade ? ', NOT NULL / ON DELETE CASCADE' : ', nullable / ON DELETE SET NULL') + '.';
       return '1:N relationship \u201c' + m[1] + '\u201d: foreign key in \u201c' + m[2] + '\u201d (the side with maximum cardinality 1) referencing the primary key of \u201c' + m[3] + '\u201d' + (cascade ? ', NOT NULL / ON DELETE CASCADE' : ', nullable / ON DELETE SET NULL') + '.';
     }],
     [/^N:M \u5173\u7cfb\u300c(.+?)\u300d\uff1a\u751f\u6210\u5173\u8054\u8868 (.+?)\uff0c\u4e3b\u952e\u7531\u4e24\u7aef\u5916\u952e\u7ec4\u6210\uff0c\u5173\u7cfb\u5c5e\u6027\u4f5c\u4e3a\u8868\u7684\u5217\u3002$/, function (m, l) {
-      return l === 'it' ? 'Relazione N:M \u00ab' + m[1] + '\u00bb: crea la tabella di associazione ' + m[2] + ', chiave primaria composta dalle due chiavi esterne, attributi come colonne.' : 'N:M relationship \u201c' + m[1] + '\u201d: creates junction table ' + m[2] + ' with a composite key of both foreign keys and the relationship attributes as columns.';
+      return l === 'it' ? 'Relazione N:M \u00ab' + m[1] + '\u00bb: crea la tabella di associazione ' + m[2] + ', chiave composta dalle due chiavi, attributi come colonne.' : 'N:M relationship \u201c' + m[1] + '\u201d: creates junction table ' + m[2] + ' with a composite key of both foreign keys and the relationship attributes as columns.';
     }],
     [/^\u96c6\u5408\u300c(.+?)\u300d\u7684\u552f\u4e00\u5b57\u6bb5\u4f1a\u751f\u6210\u552f\u4e00\u7d22\u5f15\uff1a(.+?)\u3002$/, function (m, l) {
       return l === 'it' ? 'I campi unici della collezione \u00ab' + m[1] + '\u00bb generano un indice unico: ' + m[2] + '.' : 'Unique fields of collection \u201c' + m[1] + '\u201d produce a unique index: ' + m[2] + '.';
@@ -133,7 +133,7 @@
     [/^Table "(.+)" has no attributes yet\.$/, function (m, l) { return l === 'it' ? 'La tabella \u00ab' + m[1] + '\u00bb non ha ancora attributi.' : '\u8868\u300c' + m[1] + '\u300d\u8fd8\u6ca1\u6709\u5c5e\u6027\u3002'; }],
     [/^Table "(.+)" contains an empty attribute name\.$/, function (m, l) { return l === 'it' ? 'La tabella \u00ab' + m[1] + '\u00bb contiene un attributo senza nome.' : '\u8868\u300c' + m[1] + '\u300d\u91cc\u6709\u7a7a\u540d\u5c5e\u6027\u3002'; }],
     [/^Table "(.+)": attribute "(.+)" is duplicated\.$/, function (m, l) { return l === 'it' ? 'Tabella \u00ab' + m[1] + '\u00bb: attributo \u00ab' + m[2] + '\u00bb duplicato.' : '\u8868\u300c' + m[1] + '\u300d\uff1a\u5c5e\u6027\u300c' + m[2] + '\u300d\u91cd\u590d\u3002'; }],
-    [/^Table "(.+)" has no primary key \(PK\) yet\.$/, function (m, l) { return l === 'it' ? 'La tabella \u00ab' + m[1] + '\u00bb non ha ancora una chiave primaria (PK).' : '\u8868\u300c' + m[1] + '\u300d\u8fd8\u6ca1\u6709\u4e3b\u952e\uff08PK\uff09\u3002'; }],
+    [/^Table "(.+)" has no primary key \(PK\) yet\.$/, function (m, l) { return l === 'it' ? 'La tabella \u00ab' + m[1] + '\u00bb non ha ancora una chiave (PK).' : '\u8868\u300c' + m[1] + '\u300d\u8fd8\u6ca1\u6709\u4e3b\u952e\uff08PK\uff09\u3002'; }],
     [/^Table "(.+)": attribute "(.+)" does not exist in the ER entity\/relationship\. \(FK columns are exempt\.\)$/, function (m, l) { return l === 'it' ? 'Tabella \u00ab' + m[1] + '\u00bb: l\u2019attributo \u00ab' + m[2] + '\u00bb non esiste nell\u2019entit\u00e0/relazione ER (le colonne FK sono escluse).' : '\u8868\u300c' + m[1] + '\u300d\uff1a\u5c5e\u6027\u300c' + m[2] + '\u300d\u5728 ER \u5b9e\u4f53/\u5173\u7cfb\u91cc\u4e0d\u5b58\u5728\uff08FK \u5217\u4e0d\u53c2\u4e0e\u6bd4\u5bf9\uff09\u3002'; }],
     [/^Table "(.+)" is missing attribute "(.+)" from the ER model\.$/, function (m, l) { return l === 'it' ? 'Alla tabella \u00ab' + m[1] + '\u00bb manca l\u2019attributo \u00ab' + m[2] + '\u00bb del modello ER.' : '\u8868\u300c' + m[1] + '\u300d\u7f3a\u5c11 ER \u6a21\u578b\u91cc\u7684\u5c5e\u6027\u300c' + m[2] + '\u300d\u3002'; }],
     [/^The model has (\d+) names not present in the schema: (.+)\.$/, function (m, l) { return l === 'it' ? 'Il modello ha ' + m[1] + ' nomi non presenti nello schema: ' + m[2] + '.' : '\u6a21\u578b\u91cc\u6709 ' + m[1] + ' \u4e2a\u540d\u5b57\u672a\u51fa\u73b0\u5728\u6a21\u5f0f\u91cc\uff1a' + m[2] + '\u3002'; }],

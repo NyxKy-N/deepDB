@@ -134,7 +134,7 @@ window.ERSCHEMA = (function () {
             info(tr(
               '实体「' + label + '」没有自有主键属性，主键由外键（' + names + '）充当。',
               'Entity "' + label + '" has no key attribute of its own; its foreign key (' + names + ') acts as the primary key.',
-              'L’entità "' + label + '" non ha attributi chiave propri; la chiave esterna (' + names + ') funge da chiave primaria.'
+              'L’entità "' + label + '" non ha attributi chiave propri; la chiave (' + names + ') identifica l’entità.'
             ), target);
           } else {
             err('实体「' + label + '」缺少主键（请勾选一个属性为「主键」）。', target);
@@ -201,14 +201,14 @@ window.ERSCHEMA = (function () {
 
     model.isas.forEach(function (isa) {
       const target = { ntype: 'isa', id: isa.id };
-      if (!isa.parentId) { err('ISA 泛化没有设置父实体（超类）。', target); return; }
+      if (!isa.parentId) { err('ISA 泛化没有设置父实体。', target); return; }
       if (!getEntity(model, isa.parentId)) { err('ISA 泛化的父实体不存在。', target); return; }
-      if (!isa.childIds.length) { warn('ISA 泛化没有子实体（子类）。', target); return; }
+      if (!isa.childIds.length) { warn('ISA 泛化没有子实体。', target); return; }
       isa.childIds.forEach(function (cid) {
         const child = getEntity(model, cid);
         if (!child) { err('ISA 泛化引用了不存在的子实体。', target); return; }
         if (child.id === isa.parentId) err('ISA 泛化的父实体不能同时是子实体。', target);
-        if (!child.attributes.length) info('ISA 子类「' + child.name + '」没有自己的属性，生成的表只有继承的主键。', target);
+        if (!child.attributes.length) info('ISA 子实体「' + child.name + '」没有自己的属性，生成的表只有继承的主键。', target);
       });
     });
 
@@ -295,7 +295,7 @@ window.ERSCHEMA = (function () {
     }
     function pkColumnsOf(table) { return table.columns.filter(function (c) { return c.pk; }); }
 
-    /* ---- 1. 按父类优先排序，逐个实体建表 ---- */
+    /* ---- 1. 按父实体优先排序，逐个实体建表 ---- */
     const pm = parentMap(model);
     const entities = model.entities.slice().sort(function (a, b) {
       const da = entityDepth(model, a.id), db = entityDepth(model, b.id);
@@ -347,7 +347,7 @@ window.ERSCHEMA = (function () {
         });
         if (fks.length) {
           pkSet = true;
-          notes.push('ISA：子类「' + ent.name + '」继承父类「' + parent.name + '」的主键作为自身主键（一表一类的映射）。');
+          notes.push('ISA：子实体「' + ent.name + '」继承父实体「' + parent.name + '」的主键作为自身主键（一表一类的映射）。');
         }
       }
 
@@ -373,12 +373,12 @@ window.ERSCHEMA = (function () {
           addColumn(table, { name: c.name, type: c.type });
         });
       } else {
-        // 已有主键（弱实体 / 子类）：其余属性全部作为普通列
+        // 已有主键（弱实体 / 子实体）：其余属性全部作为普通列
         cols.forEach(function (c) {
           if (ent.weak && c.key) return;
           if (parent && !ent.weak) {
             addColumn(table, { name: c.name, type: c.type, uniq: !!c.key });
-            if (c.key) notes.push('ISA 子类「' + ent.name + '」的原主键「' + c.name + '」改为唯一约束。');
+            if (c.key) notes.push('ISA 子实体「' + ent.name + '」的原主键「' + c.name + '」改为唯一约束。');
           } else {
             addColumn(table, { name: c.name, type: c.type });
           }
@@ -601,7 +601,7 @@ window.ERSCHEMA = (function () {
           notes.push(tr(
             '实体「' + ent.name + '」的主键由外键充当：' + fkNames + '。',
             'Entity "' + ent.name + '" uses its foreign key as the primary key: ' + fkNames + '.',
-            'L’entità "' + ent.name + '" usa la chiave esterna come chiave primaria: ' + fkNames + '.'
+            'L’entità "' + ent.name + '" ha come chiave: ' + fkNames + '.'
           ));
           delete table._fkPk;
           dedupe(table);

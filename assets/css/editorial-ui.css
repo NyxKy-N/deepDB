@@ -2329,3 +2329,14 @@ html body .app-header .dd-nav-pill .dd-menu-btn{
     width: min(280px, calc(100vw - 24px)) !important;
   }
 }
+/* m15612: phone zoom chip left-bottom dock (overrides m11934 62px rule) */
+@media (max-width: 1024px){
+  html body .tool-canvas .canvas-tools,
+  html body .canvas-tools{ left: 12px !important; right: auto !important; bottom: 78px !important; top: auto !important; }
+  html body .tool-canvas .canvas-tools .zoom-chip,
+  html body .canvas-tools .zoom-chip{ position: static !important; left: auto !important; bottom: auto !important; transform: none !important; }
+}
+@media (max-width: 640px){
+  html body .tool-canvas .canvas-tools,
+  html body .canvas-tools{ left: 10px !important; bottom: 80px !important; }
+}
