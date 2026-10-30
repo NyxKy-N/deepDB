@@ -1,14 +1,16 @@
 /*
  * Build step for the deepDB Windows desktop app.
- * Copies the untouched static site (index.html + assets/) from the repository
- * root into desktop/web/ so electron-builder can pack it. Nothing in the
- * website source is modified.
+ * Copies the untouched static site (index.html + assets/ + README.md) from the
+ * repository root into desktop/web/ so electron-builder can pack it. Nothing in
+ * the website source is modified.
  */
 
-const fs = require('node:fs');
-const path = require('node:path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const APP_DIR = path.resolve(__dirname, '..');
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const APP_DIR = path.resolve(HERE, '..');
 const SITE_DIR = path.resolve(APP_DIR, '..');
 const WEB_DIR = path.join(APP_DIR, 'web');
 
@@ -41,4 +43,8 @@ const walk = (dir) => {
 };
 walk(path.join(WEB_DIR, 'assets'));
 
-console.log('[deepdb-desktop] copied site into web/: index.html ' + indexSize + 'B, assets ' + assetCount + ' files');
+console.log('[deepdb-desktop] copied site into web/: index.html ' + indexBytes(indexSize) + ', assets ' + assetCount + ' files');
+
+function indexBytes(n) {
+  return n + 'B';
+}
