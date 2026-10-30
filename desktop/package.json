@@ -1,0 +1,47 @@
+{
+  "name": "deepdb-desktop",
+  "productName": "deepDB",
+  "version": "1.5.16",
+  "description": "deepDB — database design teaching tools, packaged as a standalone Windows app.",
+  "main": "main.js",
+  "author": "NyxKy",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "prepare:web": "node build/prepare.mjs",
+    "start": "node build/prepare.mjs && electron .",
+    "build:exe": "node build/prepare.mjs && electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "app.deepdb.desktop",
+    "productName": "deepDB",
+    "copyright": "Copyright © 2026 NyxKy",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "web/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "deepDB-${version}-win-x64.exe"
+    },
+    "portable": {
+      "artifactName": "deepDB-${version}-win-x64.exe"
+    }
+  }
+}
