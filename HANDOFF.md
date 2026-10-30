@@ -1,6 +1,6 @@
 # deepDB 交接文档（给下一个 AI / 开发者）
 
-> 最后更新：2026-10 ｜ 当前版本：**v1.5.19** ｜ 仓库：`C:\Users\kevin\Desktop\deepDB`
+> 最后更新：2026-10 ｜ 当前版本：**v1.5.20** ｜ 仓库：`C:\Users\kevin\Desktop\deepDB`
 >
 > 先读这一页再动代码。本项目没有构建步骤、没有测试框架、没有依赖管理；所有改动都应保持“纯静态、双击 `index.html` 就能用”。
 
@@ -55,7 +55,7 @@ C:\Users\kevin\Desktop\deepDB
 - 打开方式：直接双击 `index.html`（`file://`）即可；不要引入 npm/vite/webpack。
 - 唯一的“构建”风险：Windows PowerShell 5.1 下不要用 `Get-Content`/`Set-Content` 回写 UTF-8 源码（会破坏中文/意大利语字符）。改源码用编辑器/Node `fs`；追加 CSS 可以用 `Add-Content -Encoding UTF8`。
 - 语法检查（唯一自动化检查）：`node --check assets/js/<file>.js`，全部 JS 都要过。
-- 当前 Git：分支 main（v1.5.19），远程 https://github.com/NyxKy-N/deepDB.git。
+- 当前 Git：分支 main（v1.5.20），远程 https://github.com/NyxKy-N/deepDB.git。
 - 桌面壳：`desktop/`（Electron 便携 exe，见 `desktop/README.md`）。无边框窗口的界面 chrome 在 `desktop/preload.js` + `desktop/desktop.css`（`prepare:web` 负责把 css 拷进 `web/`）；最大化状态按窗口几何与 `screen.avail*` 判断，不依赖 `win.isMaximized()`；图标源文件是 `desktop/build/icon.png`（白底黑字 N&K），网站 favicon 由 `assets/js/boot.js` 动态生成同款。
 
 ---

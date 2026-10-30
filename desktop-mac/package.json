@@ -1,7 +1,7 @@
 {
   "name": "deepdb-desktop-mac",
   "productName": "deepDB",
-  "version": "1.5.19",
+  "version": "1.5.20",
   "description": "deepDB — database design teaching tools, packaged as a standalone macOS app.",
   "main": "main.js",
   "author": "NyxKy",

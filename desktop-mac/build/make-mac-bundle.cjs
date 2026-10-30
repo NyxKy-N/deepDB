@@ -33,7 +33,7 @@ const zlib = require('node:zlib');
 
 const APP_NAME = 'deepDB';
 const APP_ID = 'app.deepdb.desktop';
-const APP_VERSION = '1.5.19'; // overridden from the payload package.json version when present
+const APP_VERSION = '1.5.20'; // overridden from the payload package.json version when present
 const COPYRIGHT = 'Copyright © 2026 NyxKy';
 const CATEGORY = 'public.app-category.developer-tools';
 const ICON_NAME = 'deepdb.icns';

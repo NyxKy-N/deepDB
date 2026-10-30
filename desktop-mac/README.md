@@ -61,10 +61,10 @@ npm run build:mac:universal  # one universal .app (built via @electron/universal
 Artifacts land in `dist/`:
 
 ```
-deepDB-1.5.19-macos-arm64.dmg
-deepDB-1.5.19-macos-x64.dmg
-deepDB-1.5.19-macos-arm64.zip
-deepDB-1.5.19-macos-x64.zip
+deepDB-1.5.20-macos-arm64.dmg
+deepDB-1.5.20-macos-x64.dmg
+deepDB-1.5.20-macos-arm64.zip
+deepDB-1.5.20-macos-x64.zip
 ```
 
 ### Signing
@@ -108,8 +108,8 @@ npm run icon:icns                 # build/icon.png -> build/icon.icns
 node build/make-mac-bundle.cjs \
   --electron path/to/electron-v45.1.0-darwin-arm64.zip \
   --payload . --icon build/icon.icns \
-  --out deepDB-1.5.19-macos-arm64.zip --arch arm64
-node build/make-mac-bundle.cjs --verify deepDB-1.5.19-macos-arm64.zip
+  --out deepDB-1.5.20-macos-arm64.zip --arch arm64
+node build/make-mac-bundle.cjs --verify deepDB-1.5.20-macos-arm64.zip
 ```
 
 The ZIP keeps unix permissions and writes real symlink entries, so macOS Archive Utility recreates
@@ -183,6 +183,6 @@ DEEP_DB_DESKTOP_DEV=1      # open DevTools on launch
   Windows preview (server, window, menu template, settings shortcut, layouts at 1440×900, 1024×700
   and 960×640); the final signing/notarization step still needs a Mac or the CI workflow.
 - No auto-updater. The app is a teaching site; updates mean replacing the app bundle. The Windows
-  wrapper gained in-app updates in v1.5.19, but that path is Windows-only on purpose: this mac build
+  wrapper gained in-app updates in v1.5.20, but that path is Windows-only on purpose: this mac build
   is ad-hoc signed, so a downloaded update could not be verified and would be blocked by Gatekeeper.
   Grab a new ZIP when a new release is published instead.
