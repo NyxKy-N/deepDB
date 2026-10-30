@@ -28,3 +28,15 @@ npm run build:exe
   (`contextIsolation`, `sandbox`).
 - Signed: no. Windows SmartScreen may ask you to confirm the first launch
   ("More info" → "Run anyway").
+
+## Window chrome
+
+The window is frameless: no OS title bar. `desktop/preload.js` adds a glass
+control pill (minimize / maximize-restore / close) in the top-right corner that
+matches the site's floating buttons, and marks the page headers as drag regions
+so the window can still be moved. The maximize state is derived from the window
+geometry, so the control works on every page. The application icon is the
+white-on-black **N&K** tile, also used as the website favicon.
+
+Build note: `npm run prepare:web` copies `desktop/desktop.css` into `web/` next
+to the site, so the window chrome styles ship inside the asar.

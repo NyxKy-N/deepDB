@@ -22,8 +22,11 @@
   function readAccent() {
     try { return accentOf(localStorage.getItem(ACCENT_KEY)).id; } catch (err) { return 'blue'; }
   }
-  function faviconFor(hex) {
-    const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='18' fill='" + hex + "'/><text x='32' y='45' font-family='Helvetica,Arial' font-size='34' font-weight='700' fill='%23ffffff' text-anchor='middle'>d</text></svg>";
+  function faviconFor() {
+    /* white tile, black N&K — the same mark as the desktop app icon */
+    const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'>" +
+      "<rect width='512' height='512' rx='112' fill='#ffffff' stroke='#e3dfd3' stroke-width='6'/>" +
+      "<text x='256' y='330' text-anchor='middle' font-family='Arial,Helvetica,sans-serif' font-size='190' font-weight='700' letter-spacing='-8' fill='#000000'>N&amp;K</text></svg>";
     return 'data:image/svg+xml,' + encodeURIComponent(svg);
   }
   function applyAccent(id, originEvent) {
@@ -35,8 +38,13 @@
     try { localStorage.setItem(ACCENT_KEY, a.id); } catch (err) { }
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', a.hex);
-    const icon = document.querySelector('link[rel="icon"]');
-    if (icon) icon.setAttribute('href', faviconFor(a.hex));
+    let icon = document.querySelector('link[rel="icon"]');
+    if (!icon) {
+      icon = document.createElement('link');
+      icon.rel = 'icon';
+      document.head.appendChild(icon);
+    }
+    icon.setAttribute('href', faviconFor(a.hex));
   }
 
   /* ---------------- 设置弹窗 ---------------- */

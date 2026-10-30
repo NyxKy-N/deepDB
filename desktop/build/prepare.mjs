@@ -43,6 +43,10 @@ const walk = (dir) => {
 };
 walk(path.join(WEB_DIR, 'assets'));
 
+/* The desktop window chrome (glass capsule + drag regions) is served from the
+ * same origin as the site, so it ships inside web/ and is loaded by preload. */
+fs.copyFileSync(path.join(APP_DIR, 'desktop.css'), path.join(WEB_DIR, 'desktop.css'));
+
 console.log('[deepdb-desktop] copied site into web/: index.html ' + indexBytes(indexSize) + ', assets ' + assetCount + ' files');
 
 function indexBytes(n) {

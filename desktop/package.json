@@ -1,7 +1,7 @@
 {
   "name": "deepdb-desktop",
   "productName": "deepDB",
-  "version": "1.5.16",
+  "version": "1.5.17",
   "description": "deepDB — database design teaching tools, packaged as a standalone Windows app.",
   "main": "main.js",
   "author": "NyxKy",
@@ -26,6 +26,7 @@
     },
     "files": [
       "main.js",
+      "preload.js",
       "web/**/*",
       "package.json"
     ],

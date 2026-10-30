@@ -6,7 +6,7 @@
  * opens it in a frameless-ish Chromium window.
  */
 
-const { app, BrowserWindow, Menu, shell } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -99,10 +99,11 @@ function createWindow(port) {
     minWidth: 960,
     minHeight: 640,
     title: APP_TITLE,
-    backgroundColor: '#0c0c0a',
-    autoHideMenuBar: true,
+    frame: false,
+    backgroundColor: '#f1efe7',
     show: false,
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
@@ -140,6 +141,17 @@ if (!gotLock) {
     win.focus();
   });
   app.whenReady().then(function () {
+    ipcMain.on('desktop:window', function (_event, action) {
+      if (!win) return;
+      if (action === 'minimize') {
+        win.minimize();
+      } else if (action === 'toggle-maximize') {
+        if (win.isMaximized()) win.unmaximize();
+        else win.maximize();
+      } else if (action === 'close') {
+        win.close();
+      }
+    });
     startServer().then(function (port) {
       createWindow(port);
     }).catch(function (err) {
