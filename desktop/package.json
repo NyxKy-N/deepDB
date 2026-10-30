@@ -63,10 +63,8 @@
     },
     "publish": [
       {
-        "provider": "github",
-        "owner": "NyxKy-N",
-        "repo": "deepDB",
-        "releaseType": "release"
+        "provider": "generic",
+        "url": "https://github.com/NyxKy-N/deepDB/releases/latest/download/"
       }
     ]
   }
