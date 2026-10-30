@@ -1,7 +1,7 @@
 {
   "name": "deepdb-desktop",
   "productName": "deepDB",
-  "version": "1.5.17",
+  "version": "1.5.18",
   "description": "deepDB — database design teaching tools, packaged as a standalone Windows app.",
   "main": "main.js",
   "author": "NyxKy",
@@ -10,7 +10,10 @@
   "scripts": {
     "prepare:web": "node build/prepare.mjs",
     "start": "node build/prepare.mjs && electron .",
-    "build:exe": "node build/prepare.mjs && electron-builder --win portable"
+    "build:exe": "node build/prepare.mjs && electron-builder --win"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.11"
   },
   "devDependencies": {
     "electron": "45.1.0",
@@ -33,16 +36,38 @@
     "win": {
       "target": [
         {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
           "target": "portable",
           "arch": [
             "x64"
           ]
         }
       ],
-      "artifactName": "deepDB-${version}-win-x64.exe"
+      "icon": "build/icon.png",
+      "artifactName": "deepDB-${version}-win-x64.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "deepDB",
+      "artifactName": "deepDB-${version}-win-x64-setup.${ext}"
     },
     "portable": {
-      "artifactName": "deepDB-${version}-win-x64.exe"
-    }
+      "artifactName": "deepDB-${version}-win-x64.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "NyxKy-N",
+        "repo": "deepDB",
+        "releaseType": "release"
+      }
+    ]
   }
 }

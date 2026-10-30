@@ -17,6 +17,18 @@ const api = {
   close: function () { ipcRenderer.send('desktop:window', 'close'); }
 };
 
+api.update = {
+  info: function () { return ipcRenderer.invoke('desktop:info'); },
+  check: function () { return ipcRenderer.invoke('update:check'); },
+  download: function () { return ipcRenderer.invoke('update:download'); },
+  install: function () { return ipcRenderer.invoke('update:install'); },
+  onEvent: function (cb) {
+    function handler(_event, payload) { cb(payload); }
+    ipcRenderer.on('update:event', handler);
+    return function () { ipcRenderer.removeListener('update:event', handler); };
+  }
+};
+
 contextBridge.exposeInMainWorld('deepdbDesktop', api);
 
 const ICONS = {

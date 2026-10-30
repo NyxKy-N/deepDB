@@ -69,11 +69,17 @@
       var max = String(parts[1] || 'N').toUpperCase() === 'N' ? 'N' : '1';
       return { min: min, max: max };
     };
+    /* .er files carry a (min,max) on every attribute: (1,1) is the default plain
+       attribute, (0,1) an optional single one, (0|1,N) a multi-valued one. */
+    var parseAttrCard = function (v) {
+      var m = /^\(?\s*([01])\s*[_,:;]\s*([1nN])\s*\)?$/.exec(String(v == null ? '' : v).trim());
+      if (!m || (m[1] === '1' && m[2].toUpperCase() === '1')) return null;
+      return { min: m[1] === '1' ? 1 : 0, max: m[2].toUpperCase() };
+    };
     var attrMap = {};
     var mkAttr = function (it) {
-      var card = String(it._cardinality || '');
-      var lo = String(card).split('_')[0] === '1' ? 1 : 0;
-      return { id: aId(it._id), name: it._name || 'attr', type: typeFor(it._name, !!it._identifier), key: !!it._identifier, partial: false, multi: /N$/.test(card), min: lo, nocard: !/N$/.test(card), composite: false, x: null, y: null, children: [] };
+      var card = parseAttrCard(it._cardinality);
+      return { id: aId(it._id), name: it._name || 'attr', type: typeFor(it._name, !!it._identifier), key: !!it._identifier, partial: false, multi: card ? card.max === 'N' : false, min: card ? card.min : 0, nocard: !card, composite: false, x: null, y: null, children: [] };
     };
     items.forEach(function (it) {
       if (!it) return;

@@ -7,11 +7,14 @@
  */
 
 const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 
 const APP_TITLE = 'deepDB — database design studio';
+/* DEEP_DB_UPDATE_URL points the updater at a generic feed (used for local tests). */
+const UPDATE_URL = process.env.DEEP_DB_UPDATE_URL || '';
 const BASE_PORT = 17872;
 const PORT_TRIES = 20;
 
@@ -31,6 +34,23 @@ const MIME = {
 
 let server = null;
 let win = null;
+
+function configureUpdater() {
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = false;
+  if (UPDATE_URL) autoUpdater.setFeedURL({ provider: 'generic', url: UPDATE_URL });
+  function send(payload) {
+    if (win && !win.isDestroyed()) win.webContents.send('update:event', payload);
+  }
+  autoUpdater.on('checking-for-update', function () { send({ type: 'checking' }); });
+  autoUpdater.on('update-available', function (info) { send({ type: 'available', version: info && info.version }); });
+  autoUpdater.on('update-not-available', function () { send({ type: 'none' }); });
+  autoUpdater.on('download-progress', function (p) {
+    send({ type: 'progress', percent: p && p.percent, transferred: p && p.transferred, total: p && p.total });
+  });
+  autoUpdater.on('update-downloaded', function (info) { send({ type: 'downloaded', version: info && info.version }); });
+  autoUpdater.on('error', function (err) { send({ type: 'error', message: String((err && err.message) || err) }); });
+}
 
 function serveFile(root, req, res) {
   let rel;
@@ -151,6 +171,35 @@ if (!gotLock) {
       } else if (action === 'close') {
         win.close();
       }
+    });
+    configureUpdater();
+    ipcMain.handle('desktop:info', function () {
+      return {
+        appVersion: app.getVersion(),
+        updatesSupported: app.isPackaged || !!UPDATE_URL,
+        feed: UPDATE_URL ? 'generic' : 'github'
+      };
+    });
+    ipcMain.handle('update:check', async function () {
+      try {
+        if (!app.isPackaged && !UPDATE_URL) return { ok: false, message: 'updates-unavailable' };
+        const result = await autoUpdater.checkForUpdates();
+        return { ok: true, version: result && result.updateInfo && result.updateInfo.version };
+      } catch (err) {
+        return { ok: false, message: String((err && err.message) || err) };
+      }
+    });
+    ipcMain.handle('update:download', async function () {
+      try {
+        await autoUpdater.downloadUpdate();
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, message: String((err && err.message) || err) };
+      }
+    });
+    ipcMain.handle('update:install', function () {
+      setImmediate(function () { autoUpdater.quitAndInstall(true, true); });
+      return { ok: true };
     });
     startServer().then(function (port) {
       createWindow(port);

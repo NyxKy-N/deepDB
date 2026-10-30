@@ -34,6 +34,137 @@ const ROUTES = {
   const readAccent = BOOT.readAccent || function () { return 'blue'; };
   const applyAccent = BOOT.applyAccent || function () { };
 
+  /* ---------------- 桌面版：检查更新 ---------------- */
+  function desktopUpdateLabels() {
+    var lang = (window.DDB_I18N && window.DDB_I18N.lang) || 'en';
+    var table = {
+      en: {
+        label: 'Updates', current: 'Current version', check: 'Check for updates',
+        checking: 'Checking for updates…', latest: 'You are on the latest version.',
+        found: 'Update available: ', download: 'Download update',
+        downloading: 'Downloading update', ready: 'Update downloaded. Restart to install it.',
+        install: 'Restart and install', restarting: 'Restarting to install…',
+        unavailable: 'In-app updates are not available in this build.',
+        failed: 'Update failed: '
+      },
+      zh: {
+        label: '更新', current: '当前版本', check: '检查更新',
+        checking: '正在检查更新…', latest: '当前已是最新版本。',
+        found: '发现新版本：', download: '下载更新',
+        downloading: '正在下载更新', ready: '更新已下载，重启即可安装。',
+        install: '重启并安装', restarting: '正在重启并安装…',
+        unavailable: '此版本不支持应用内更新。', failed: '更新失败：'
+      },
+      it: {
+        label: 'Aggiornamenti', current: 'Versione attuale', check: 'Controlla aggiornamenti',
+        checking: 'Controllo aggiornamenti…', latest: "Hai già l'ultima versione.",
+        found: 'Aggiornamento disponibile: ', download: 'Scarica aggiornamento',
+        downloading: 'Download in corso', ready: 'Aggiornamento scaricato. Riavvia per installarlo.',
+        install: 'Riavvia e installa', restarting: 'Riavvio per installare…',
+        unavailable: 'Aggiornamenti non disponibili in questa build.', failed: 'Aggiornamento non riuscito: '
+      }
+    };
+    return table[lang] || table.en;
+  }
+
+  function desktopUpdateMarkup() {
+    var desk = window.deepdbDesktop;
+    if (!desk || !desk.update) return '';
+    var L = desktopUpdateLabels();
+    return '<div class="set-block set-update">' +
+      '<div class="set-label">' + L.label + '</div>' +
+      '<div class="upd-line"><span class="upd-version">' + L.current + ' <b data-upd-version>—</b></span>' +
+      '<button type="button" class="btn btn--sm" data-upd-check>' + L.check + '</button></div>' +
+      '<div class="upd-note" data-upd-note role="status" aria-live="polite"></div>' +
+      '<div class="upd-bar" data-upd-bar hidden><i data-upd-fill></i></div>' +
+      '<div class="upd-actions" data-upd-actions hidden>' +
+      '<button type="button" class="btn btn--sm" data-upd-download>' + L.download + '</button>' +
+      '<button type="button" class="btn btn--sm btn--primary" data-upd-install hidden>' + L.install + '</button>' +
+      '</div></div>';
+  }
+
+  function wireDesktopUpdate(m) {
+    var desk = window.deepdbDesktop;
+    if (!desk || !desk.update) return;
+    var L = desktopUpdateLabels();
+    var versionEl = m.querySelector('[data-upd-version]');
+    var noteEl = m.querySelector('[data-upd-note]');
+    var checkBtn = m.querySelector('[data-upd-check]');
+    var downloadBtn = m.querySelector('[data-upd-download]');
+    var installBtn = m.querySelector('[data-upd-install]');
+    var actionsEl = m.querySelector('[data-upd-actions]');
+    var barEl = m.querySelector('[data-upd-bar]');
+    var fillEl = m.querySelector('[data-upd-fill]');
+    function setNote(text) { if (noteEl) noteEl.textContent = text || ''; }
+    function setBusy(busy) {
+      if (checkBtn) checkBtn.disabled = !!busy;
+      if (downloadBtn) downloadBtn.disabled = !!busy;
+    }
+    desk.update.info().then(function (info) {
+      if (versionEl) versionEl.textContent = 'v' + ((info && info.appVersion) || '—');
+      if (info && info.updatesSupported === false) {
+        setNote(L.unavailable);
+        if (checkBtn) checkBtn.hidden = true;
+      }
+    }).catch(function () { });
+    var off = desk.update.onEvent(function (ev) {
+      if (!ev || !ev.type) return;
+      if (ev.type === 'checking') setNote(L.checking);
+      else if (ev.type === 'none') { setBusy(false); setNote(L.latest); }
+      else if (ev.type === 'available') {
+        setBusy(false);
+        setNote(L.found + 'v' + ev.version);
+        if (actionsEl) actionsEl.hidden = false;
+        if (downloadBtn) downloadBtn.hidden = false;
+        if (installBtn) installBtn.hidden = true;
+      } else if (ev.type === 'progress') {
+        var pct = Math.max(0, Math.min(100, Number(ev.percent) || 0));
+        if (barEl) barEl.hidden = false;
+        if (fillEl) fillEl.style.width = pct.toFixed(1) + '%';
+        setNote(L.downloading + ' ' + pct.toFixed(0) + '%');
+      } else if (ev.type === 'downloaded') {
+        if (barEl) barEl.hidden = true;
+        if (actionsEl) actionsEl.hidden = false;
+        if (downloadBtn) downloadBtn.hidden = true;
+        if (installBtn) installBtn.hidden = false;
+        setNote(L.ready);
+      } else if (ev.type === 'error') {
+        setBusy(false);
+        setNote(L.failed + (ev.message || ''));
+      }
+    });
+    var cleanupTimer = setInterval(function () {
+      if (!document.body.contains(m)) {
+        clearInterval(cleanupTimer);
+        if (typeof off === 'function') off();
+      }
+    }, 700);
+    if (checkBtn) checkBtn.addEventListener('click', function () {
+      setBusy(true);
+      setNote(L.checking);
+      desk.update.check().then(function (res) {
+        setBusy(false);
+        if (res && res.ok === false) {
+          setNote(res.message === 'updates-unavailable' ? L.unavailable : L.failed + (res.message || ''));
+        }
+      }).catch(function () { setBusy(false); });
+    });
+    if (downloadBtn) downloadBtn.addEventListener('click', function () {
+      downloadBtn.hidden = true;
+      setNote(L.downloading);
+      desk.update.download().then(function (res) {
+        if (res && res.ok === false) {
+          setBusy(false);
+          setNote(L.failed + (res.message || ''));
+        }
+      }).catch(function () { });
+    });
+    if (installBtn) installBtn.addEventListener('click', function () {
+      setNote(L.restarting);
+      desk.update.install();
+    });
+  }
+
   /* ---------------- 设置弹窗 ---------------- */
   function openSettings(invoker) {
     const motion = document.documentElement.getAttribute('data-motion') === 'off' ? 'off' : 'on';
@@ -45,7 +176,7 @@ const ROUTES = {
     const m = ui.modal({
       title: '设置',
       origin: invoker || (document.getElementById('settingsBtn') || null),
-      body: [
+      body: desktopUpdateMarkup() + [
         '<div class="set-block"><div class="set-label">动画</div>' + seg('motion', [{ id: 'on', label: 'ON' }, { id: 'off', label: 'OFF' }], motion) + '<div class="hint">关闭后页面的过渡与动效停用。</div></div>',
         '<div class="set-block"><div class="set-label">强调色</div><div class="swatches" role="group" aria-label="accent">' +
         ACCENTS.map(function (a) {
@@ -81,6 +212,7 @@ const ROUTES = {
         return;
       }
     });
+    wireDesktopUpdate(m);
   }
 
   /* ---------------- 首页 ---------------- */
