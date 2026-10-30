@@ -1,7 +1,7 @@
 {
   "name": "deepdb-desktop",
   "productName": "deepDB",
-  "version": "1.5.18",
+  "version": "1.5.19",
   "description": "deepDB — database design teaching tools, packaged as a standalone Windows app.",
   "main": "main.js",
   "author": "NyxKy",
@@ -49,17 +49,17 @@
         }
       ],
       "icon": "build/icon.png",
-      "artifactName": "deepDB-${version}-win-x64.${ext}"
+      "artifactName": "deepDB-${version}-windows-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "shortcutName": "deepDB",
-      "artifactName": "deepDB-${version}-win-x64-setup.${ext}"
+      "artifactName": "deepDB-${version}-windows-${arch}-setup.${ext}"
     },
     "portable": {
-      "artifactName": "deepDB-${version}-win-x64.${ext}"
+      "artifactName": "deepDB-${version}-windows-${arch}-portable.${ext}"
     },
     "publish": [
       {

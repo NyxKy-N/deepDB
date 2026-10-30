@@ -1,0 +1,239 @@
+/*
+ * desktop-mac.css — window chrome for the deepDB macOS desktop app.
+ *
+ * Loaded by preload.js at runtime (served from the app's own web/ folder, so
+ * the site files stay untouched). Draws nothing itself; it positions the
+ * traffic lights injected by the preload, turns the header strips into drag
+ * regions and reserves room for the controls on the left.
+ */
+
+/* ------------------------------ traffic lights ----------------------------- */
+
+.ddm-cluster {
+  position: fixed;
+  top: 26px;
+  left: 16px;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 12px;
+  -webkit-app-region: no-drag;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: top 0.18s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+/* A soft glass backplate appears only while the controls are hovered, so the
+ * window keeps the plain macOS look at rest. */
+.ddm-cluster::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgba(251, 249, 243, 0.78);
+  box-shadow:
+    inset 0 0 0 1px rgba(18, 18, 14, 0.08),
+    0 8px 22px rgba(18, 18, 14, 0.1);
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+.ddm-cluster:hover::before,
+.ddm-cluster:focus-within::before {
+  opacity: 1;
+}
+
+.ddm-dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: default;
+  -webkit-app-region: no-drag;
+  box-shadow:
+    inset 0 0 0 0.5px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.28);
+}
+
+.ddm-close {
+  background: #ff5f57;
+}
+
+.ddm-minimize {
+  background: #febc2e;
+}
+
+.ddm-zoom {
+  background: #28c840;
+}
+
+.ddm-dot svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.58);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.ddm-cluster:hover .ddm-dot svg,
+.ddm-dot:focus-visible svg {
+  opacity: 1;
+}
+
+.ddm-dot:focus-visible {
+  outline: 2px solid rgba(27, 24, 255, 0.55);
+  outline-offset: 2px;
+}
+
+.ddm-dot:active {
+  filter: brightness(0.92);
+}
+
+/* Inactive window: macOS grays the controls out. */
+.ddm-inactive .ddm-dot {
+  background: #dcd9d1;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.1);
+}
+
+/* ------------------------------ drag regions ------------------------------- */
+
+/* Tool pages: the sticky header strip is the title bar. */
+.app-header {
+  -webkit-app-region: drag;
+}
+
+.app-header a,
+.app-header button,
+.app-header input,
+.app-header select,
+.app-header textarea,
+.app-header summary,
+.app-header [role='button'],
+.app-header .brand,
+.app-header .header-right,
+.app-header .app-nav,
+.app-header .dd-nav-pill {
+  -webkit-app-region: no-drag;
+}
+
+/* Home: the fixed top nav is the title bar. The site sets pointer-events: none
+ * on the bar itself, so it has to opt back in before it can be dragged. */
+.ah-nav {
+  -webkit-app-region: drag;
+  pointer-events: auto;
+}
+
+.ah-nav a,
+.ah-nav button,
+.ah-nav input,
+.ah-nav select,
+.ah-nav textarea,
+.ah-nav [role='button'],
+.ah-nav .ah-pill,
+.ah-nav .ah-mark,
+.ah-nav .ah-menu-wrap,
+.ah-nav .ah-menu {
+  -webkit-app-region: no-drag;
+}
+
+/* ------------------- room for the controls on the left --------------------- */
+
+/* The site already uses !important paddings inside its breakpoints, so the
+ * inset needs the same weight. 104px = 16px edge + 6px cluster padding
+ * + 3 dots + gaps + breathing room. */
+.app-header {
+  padding-left: 104px !important;
+}
+
+.ah-nav {
+  padding-left: 104px !important;
+}
+
+@media (max-width: 1024px) {
+  .app-header {
+    padding-left: 96px !important;
+  }
+}
+
+/* On the home route the pills sit lower than the tool header, so the dots
+ * follow hub-centre: pills top 22 + height 58 / 2 = centre 51, minus 12px
+ * dot height and 6px cluster padding => 39px. */
+.ddm-home .ddm-cluster {
+  top: 39px;
+}
+
+@media (max-width: 1024px) {
+  .app-header {
+    /* header height 68px => centre 34 => cluster top 22 */
+  }
+
+  .ddm-cluster {
+    top: 22px;
+  }
+
+  .ddm-home .ddm-cluster {
+    top: 39px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    padding-left: 88px !important;
+  }
+
+  .ddm-cluster,
+  .ddm-home .ddm-cluster {
+    top: 16px;
+  }
+}
+
+/* -------------------------------- fullscreen ------------------------------- */
+
+/* No controls in fullscreen; give the header its original left padding back. */
+.ddm-fullscreen .ddm-cluster {
+  display: none;
+}
+
+.ddm-fullscreen .app-header {
+  padding-left: 22px !important;
+}
+
+.ddm-fullscreen .ah-nav {
+  padding-left: 24px !important;
+}
+
+@media (max-width: 1024px) {
+  .ddm-fullscreen .app-header {
+    padding-left: 14px !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .ddm-fullscreen .app-header {
+    padding-left: 12px !important;
+  }
+
+  .ddm-fullscreen .ah-nav {
+    padding-left: 16px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ddm-cluster,
+  .ddm-cluster::before,
+  .ddm-dot svg {
+    transition: none;
+  }
+}

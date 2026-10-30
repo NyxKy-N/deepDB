@@ -1,0 +1,54 @@
+{
+  "name": "deepdb-desktop-mac",
+  "productName": "deepDB",
+  "version": "1.5.19",
+  "description": "deepDB — database design teaching tools, packaged as a standalone macOS app.",
+  "main": "main.js",
+  "author": "NyxKy",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "prepare:web": "node build/prepare.mjs",
+    "icon": "electron build/make-icon.cjs",
+    "icon:icns": "electron build/make-icns.cjs",
+    "bundle:mac-cross": "node build/make-mac-bundle.cjs",
+    "start": "node build/prepare.mjs && electron .",
+    "build:mac": "node build/prepare.mjs && electron-builder --mac --arm64 --x64",
+    "build:mac:arm64": "node build/prepare.mjs && electron-builder --mac --arm64",
+    "build:mac:x64": "node build/prepare.mjs && electron-builder --mac --x64",
+    "build:mac:universal": "node build/prepare.mjs && electron-builder --mac --universal"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "app.deepdb.desktop",
+    "productName": "deepDB",
+    "copyright": "Copyright © 2026 NyxKy",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "web/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "darkModeSupport": false,
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "artifactName": "deepDB-${version}-macos-${arch}.${ext}",
+      "icon": "build/icon.png",
+      "identity": "-",
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    }
+  }
+}

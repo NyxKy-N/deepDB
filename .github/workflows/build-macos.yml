@@ -1,0 +1,65 @@
+name: Build macOS app
+
+# Builds the deepDB macOS desktop app on a macOS runner and uploads the
+# .dmg/.zip artifacts. No release is created: publishing is a manual,
+# explicit step (project rule: only release when the user asks).
+
+on:
+  workflow_dispatch:
+    inputs:
+      universal:
+        description: 'Build a single universal binary instead of arm64 + x64'
+        required: false
+        default: false
+        type: boolean
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: desktop-mac
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install build dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build web copy and package
+        run: |
+          if [ "${{ inputs.universal }}" = "true" ]; then
+            npm run build:mac:universal
+          else
+            npm run build:mac
+          fi
+
+      - name: Show artifacts
+        run: ls -lh dist
+
+      - name: Upload .dmg and .zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: deepDB-macOS
+          path: |
+            desktop-mac/dist/*.dmg
+            desktop-mac/dist/*.zip
+          if-no-files-found: error
+
+      - name: Upload unpacked app for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: deepDB-macOS-app
+          path: desktop-mac/dist/mac*/deepDB.app
+          if-no-files-found: warn
